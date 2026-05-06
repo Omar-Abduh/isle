@@ -259,10 +259,12 @@ export default function Profile() {
                         >
                           <div className="flex items-center gap-4">
                             <div
-                              className="h-10 w-10 md:h-11 md:w-11 rounded-full flex items-center justify-center text-[18px] shrink-0"
+                              className="h-10 w-10 md:h-11 md:w-11 rounded-full flex items-center justify-center shrink-0"
                               style={{ backgroundColor: `${habit.color}20`, border: `1.5px solid ${habit.color}40` }}
                             >
-                              <span>{habit.emoji}</span>
+                              <span className="text-[14px] font-bold" style={{ color: habit.color }}>
+                                {habit.name.charAt(0).toUpperCase()}
+                              </span>
                             </div>
                             <div className="flex flex-col gap-1.5 overflow-hidden">
                               <p className="font-medium tracking-tight text-foreground text-[14px] md:text-[16px] truncate">

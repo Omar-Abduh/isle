@@ -5,13 +5,15 @@ interface StreakRingProps {
   longestStreak: number;
   size?: number;
   strokeWidth?: number;
+  color?: string;
 }
 
 export function StreakRing({ 
   currentStreak, 
   longestStreak: _longestStreak,
   size = 48, 
-  strokeWidth = 4 
+  strokeWidth = 4,
+  color
 }: StreakRingProps) {
   const center = size / 2;
   const radius = center - strokeWidth;
@@ -44,7 +46,7 @@ export function StreakRing({
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset }}
           transition={{ duration: 1, ease: "easeOut" }}
-          style={{ strokeDasharray: circumference }}
+          style={{ strokeDasharray: circumference, stroke: color, color: color }}
         />
       </svg>
       <div className="absolute flex flex-col items-center justify-center text-center">

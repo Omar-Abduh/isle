@@ -19,12 +19,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HabitResponse } from "../../lib/api-client";
 import { cn } from "@/lib/utils";
+import { RecurrencePicker } from "./RecurrencePicker";
+import { getRandomColor } from "@/lib/colors";
+import { Plus, X } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
   habitType: z.enum(["POSITIVE", "NEGATIVE", "COMPOSITE"]),
   rrule: z.string().min(1, "Frequency is required"),
+  subHabits: z.array(z.string().min(1, "Task name cannot be empty")).optional(),
+  color: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -47,6 +52,7 @@ export function HabitFormDrawer({ open, onOpenChange, habit, onSubmit, isPending
       description: "",
       habitType: "POSITIVE",
       rrule: "FREQ=DAILY",
+      subHabits: [],
     },
   });
 
@@ -57,6 +63,8 @@ export function HabitFormDrawer({ open, onOpenChange, habit, onSubmit, isPending
         description: habit.description || "",
         habitType: habit.habitType,
         rrule: habit.rrule || "FREQ=DAILY",
+        subHabits: habit.subHabits?.map(s => s.name) || [],
+        color: habit.color || getRandomColor(),
       });
     } else if (open && !habit) {
       form.reset({
@@ -64,6 +72,8 @@ export function HabitFormDrawer({ open, onOpenChange, habit, onSubmit, isPending
         description: "",
         habitType: "POSITIVE",
         rrule: "FREQ=DAILY",
+        subHabits: [],
+        color: getRandomColor(),
       });
     }
   }, [habit, open, form]);
@@ -157,22 +167,59 @@ export function HabitFormDrawer({ open, onOpenChange, habit, onSubmit, isPending
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Frequency</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select frequency" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="FREQ=DAILY">Daily</SelectItem>
-                        <SelectItem value="FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR">Weekdays</SelectItem>
-                        <SelectItem value="FREQ=WEEKLY">Weekly</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <RecurrencePicker value={field.value} onChange={field.onChange} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              {form.watch("habitType") === "COMPOSITE" && (
+                <div className="space-y-3 pt-2 border-t border-border/40">
+                  <label className="text-sm font-medium leading-none">Sub-tasks</label>
+                  <div className="space-y-2">
+                    {form.watch("subHabits")?.map((subHabit, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <Input
+                          value={subHabit || ""}
+                          onChange={(e) => {
+                            const current = [...(form.getValues("subHabits") || [])];
+                            current[index] = e.target.value;
+                            form.setValue("subHabits", current);
+                          }}
+                          placeholder={`Step ${index + 1}`}
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            const current = [...(form.getValues("subHabits") || [])];
+                            current.splice(index, 1);
+                            form.setValue("subHabits", current);
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full border-dashed gap-2 text-muted-foreground"
+                      onClick={() => {
+                        const current = [...(form.getValues("subHabits") || [])];
+                        form.setValue("subHabits", [...current, ""]);
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add Step
+                    </Button>
+                  </div>
+                </div>
+              )}
             </form>
           </Form>
         </div>

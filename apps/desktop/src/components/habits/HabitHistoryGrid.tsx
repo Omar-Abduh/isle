@@ -5,9 +5,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 interface HabitHistoryGridProps {
   logs: HabitLogEntry[];
   days?: number;
+  color?: string;
 }
 
-export function HabitHistoryGrid({ logs, days = 30 }: HabitHistoryGridProps) {
+export function HabitHistoryGrid({ logs, days = 30, color = "#247E84" }: HabitHistoryGridProps) {
   const today = new Date();
   
   // Generate last `days` dates
@@ -33,12 +34,13 @@ export function HabitHistoryGrid({ logs, days = 30 }: HabitHistoryGridProps) {
         {datesArray.map((entry, i) => (
           <Tooltip key={i}>
             <TooltipTrigger asChild>
-              <div 
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-sm transition-colors duration-300 ${
+              <div
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-sm transition-colors duration-300 border ${
                   entry.completed 
-                    ? 'bg-primary/90 shadow-sm border border-primary/20' 
-                    : 'bg-muted/50 border border-border/50 hover:border-border'
+                    ? 'shadow-sm' 
+                    : 'bg-muted/50 border-border/50 hover:border-border'
                 }`}
+                style={entry.completed ? { backgroundColor: color, borderColor: `${color}40` } : {}}
               />
             </TooltipTrigger>
             <TooltipContent>

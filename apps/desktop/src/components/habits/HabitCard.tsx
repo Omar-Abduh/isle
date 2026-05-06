@@ -18,6 +18,26 @@ interface HabitCardProps {
   onDelete: () => void;
 }
 
+const parseRRuleToText = (rrule: string) => {
+  if (rrule === 'FREQ=DAILY') return 'Daily';
+  if (rrule.startsWith('FREQ=WEEKLY')) {
+    const days = rrule.match(/BYDAY=([^;]+)/);
+    if (!days) return 'Weekly';
+    const dayMap: Record<string, string> = { MO: 'Mon', TU: 'Tue', WE: 'Wed', TH: 'Thu', FR: 'Fri', SA: 'Sat', SU: 'Sun' };
+    const selected = days[1].split(',').map(d => dayMap[d] || d);
+    if (selected.length === 7) return 'Daily';
+    if (selected.join(',') === 'Mon,Tue,Wed,Thu,Fri') return 'Weekdays';
+    if (selected.join(',') === 'Sat,Sun') return 'Weekends';
+    return `Weekly on ${selected.join(', ')}`;
+  }
+  if (rrule.startsWith('FREQ=MONTHLY')) {
+    const match = rrule.match(/BYMONTHDAY=(\d+)/);
+    if (match) return `Monthly on the ${match[1]}`;
+    return 'Monthly';
+  }
+  return 'Custom';
+};
+
 export function HabitCard({ habit, completedToday, onLog, onEdit, onDelete }: HabitCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const isComposite = habit.habitType === 'COMPOSITE' && (habit.subHabits?.length ?? 0) > 0;
@@ -81,8 +101,8 @@ export function HabitCard({ habit, completedToday, onLog, onEdit, onDelete }: Ha
                 <div className="flex items-center gap-2">
                   <StreakRing currentStreak={habit.currentStreak} longestStreak={habit.longestStreak} size={40} strokeWidth={3} />
                   <div className="flex flex-col">
-                    <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">STREAK</span>
-                    <span className="text-[10px] text-muted-foreground">Best: {habit.longestStreak}</span>
+                    <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{parseRRuleToText(habit.rrule || 'FREQ=DAILY')}</span>
+                    <span className="text-[10px] text-muted-foreground">Best Streak: {habit.longestStreak}</span>
                   </div>
                 </div>
               </div>
@@ -106,7 +126,7 @@ export function HabitCard({ habit, completedToday, onLog, onEdit, onDelete }: Ha
           
           {isComposite && (
             <div className="mt-2 space-y-2 border-t border-border pt-4">
-              {(habit.subHabits ?? []).sort((a,b) => a.sortOrder - b.sortOrder).map(sub => (
+              {[...(habit.subHabits ?? [])].sort((a,b) => a.sortOrder - b.sortOrder).map(sub => (
                 <div key={sub.id} className="flex items-center space-x-3">
                   <Checkbox 
                     id={`sub-${sub.id}`} 

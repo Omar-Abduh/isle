@@ -109,56 +109,59 @@ export function useUpdateUserProfile() {
   });
 }
 
+// --- In-Memory Mock Store ---
+let MOCK_HABITS: HabitResponse[] = [
+  {
+    id: '1',
+    name: 'Morning Meditation',
+    description: '10 minutes of mindfulness',
+    habitType: 'POSITIVE',
+    rrule: 'FREQ=DAILY',
+    currentStreak: 12,
+    longestStreak: 30,
+    archived: false,
+    color: '#247E84',
+    icon: '🧘',
+    completedToday: true,
+    createdAt: '2025-02-01T00:00:00Z',
+    updatedAt: '2025-05-05T08:00:00Z',
+  },
+  {
+    id: '2',
+    name: 'Read 30 Minutes',
+    description: 'Read at least 30 pages',
+    habitType: 'POSITIVE',
+    rrule: 'FREQ=DAILY',
+    currentStreak: 5,
+    longestStreak: 14,
+    archived: false,
+    color: '#7C3AED',
+    icon: '📚',
+    completedToday: false,
+    createdAt: '2025-03-10T00:00:00Z',
+    updatedAt: '2025-05-05T08:00:00Z',
+  },
+  {
+    id: '3',
+    name: 'Exercise',
+    description: 'At least 30 min workout',
+    habitType: 'POSITIVE',
+    rrule: 'FREQ=WEEKLY;BYDAY=MO,WE,FR',
+    currentStreak: 3,
+    longestStreak: 8,
+    archived: false,
+    color: '#EA580C',
+    icon: '💪',
+    completedToday: false,
+    createdAt: '2025-04-01T00:00:00Z',
+    updatedAt: '2025-05-05T08:00:00Z',
+  },
+];
+
 export function useListHabits(): UseQueryResult<HabitResponse[]> {
   return useQuery({
     queryKey: getListHabitsQueryKey(),
-    queryFn: async () => ([
-      {
-        id: '1',
-        name: 'Morning Meditation',
-        description: '10 minutes of mindfulness',
-        habitType: 'POSITIVE' as const,
-        rrule: 'FREQ=DAILY',
-        currentStreak: 12,
-        longestStreak: 30,
-        archived: false,
-        color: '#247E84',
-        icon: '🧘',
-        completedToday: true,
-        createdAt: '2025-02-01T00:00:00Z',
-        updatedAt: '2025-05-05T08:00:00Z',
-      },
-      {
-        id: '2',
-        name: 'Read 30 Minutes',
-        description: 'Read at least 30 pages',
-        habitType: 'POSITIVE' as const,
-        rrule: 'FREQ=DAILY',
-        currentStreak: 5,
-        longestStreak: 14,
-        archived: false,
-        color: '#7C3AED',
-        icon: '📚',
-        completedToday: false,
-        createdAt: '2025-03-10T00:00:00Z',
-        updatedAt: '2025-05-05T08:00:00Z',
-      },
-      {
-        id: '3',
-        name: 'Exercise',
-        description: 'At least 30 min workout',
-        habitType: 'POSITIVE' as const,
-        rrule: 'FREQ=WEEKLY;BYDAY=MO,WE,FR',
-        currentStreak: 3,
-        longestStreak: 8,
-        archived: false,
-        color: '#EA580C',
-        icon: '💪',
-        completedToday: false,
-        createdAt: '2025-04-01T00:00:00Z',
-        updatedAt: '2025-05-05T08:00:00Z',
-      },
-    ]),
+    queryFn: async () => [...MOCK_HABITS],
   });
 }
 
@@ -178,62 +181,12 @@ export function useGetStatsSummary(): UseQueryResult<StatsSummary> {
 export function useGetTodayHabits(): UseQueryResult<TodayHabitEntry[]> {
   return useQuery({
     queryKey: getGetTodayHabitsQueryKey(),
-    queryFn: async () => ([
-      {
-        habit: {
-          id: '1',
-          name: 'Morning Meditation',
-          description: '10 minutes of mindfulness',
-          habitType: 'POSITIVE' as const,
-          rrule: 'FREQ=DAILY',
-          currentStreak: 12,
-          longestStreak: 30,
-          archived: false,
-          color: '#247E84',
-          icon: '🧘',
-          completedToday: true,
-          createdAt: '2025-02-01T00:00:00Z',
-          updatedAt: '2025-05-05T08:00:00Z',
-        },
-        isDue: true,
-      },
-      {
-        habit: {
-          id: '2',
-          name: 'Read 30 Minutes',
-          description: 'Read at least 30 pages',
-          habitType: 'POSITIVE' as const,
-          rrule: 'FREQ=DAILY',
-          currentStreak: 5,
-          longestStreak: 14,
-          archived: false,
-          color: '#7C3AED',
-          icon: '📚',
-          completedToday: false,
-          createdAt: '2025-03-10T00:00:00Z',
-          updatedAt: '2025-05-05T08:00:00Z',
-        },
-        isDue: true,
-      },
-      {
-        habit: {
-          id: '3',
-          name: 'Exercise',
-          description: 'At least 30 min workout',
-          habitType: 'POSITIVE' as const,
-          rrule: 'FREQ=WEEKLY;BYDAY=MO,WE,FR',
-          currentStreak: 3,
-          longestStreak: 8,
-          archived: false,
-          color: '#EA580C',
-          icon: '💪',
-          completedToday: false,
-          createdAt: '2025-04-01T00:00:00Z',
-          updatedAt: '2025-05-05T08:00:00Z',
-        },
-        isDue: true,
-      },
-    ]),
+    queryFn: async () => {
+      return MOCK_HABITS.map(habit => ({
+        habit: { ...habit },
+        isDue: true, // For mock purposes, assume all are due
+      }));
+    },
   });
 }
 
@@ -254,33 +207,82 @@ export function useGetWeeklyStats(): UseQueryResult<WeeklyStatEntry[]> {
 
 export function useLogHabit() {
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: { date: string; completed: boolean; subHabitId?: string } }) => ({ id, ...data }),
+    mutationFn: async ({ id, data }: { id: string; data: { date: string; completed: boolean; subHabitId?: string } }) => {
+      const idx = MOCK_HABITS.findIndex(h => h.id === id);
+      if (idx !== -1) {
+        if (data.subHabitId) {
+          const subIdx = MOCK_HABITS[idx].subHabits?.findIndex(s => s.id === data.subHabitId) ?? -1;
+          if (subIdx !== -1 && MOCK_HABITS[idx].subHabits) {
+            MOCK_HABITS[idx].subHabits![subIdx].completedToday = data.completed;
+            const allSubsComplete = MOCK_HABITS[idx].subHabits!.every(s => s.completedToday);
+            MOCK_HABITS[idx].completedToday = allSubsComplete;
+          }
+        } else {
+          MOCK_HABITS[idx].completedToday = data.completed;
+          if (MOCK_HABITS[idx].subHabits && data.completed) {
+            MOCK_HABITS[idx].subHabits!.forEach(s => s.completedToday = true);
+          }
+        }
+      }
+      return { id, ...data };
+    },
   });
 }
 
 export function useCreateHabit() {
   return useMutation({
-    mutationFn: async ({ data }: { data: { name: string; description?: string; habitType: string; rrule: string } }) => ({
-      id: crypto.randomUUID(),
-      ...data,
-      currentStreak: 0,
-      longestStreak: 0,
-      archived: false,
-      completedToday: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    } as HabitResponse),
+    mutationFn: async ({ data }: { data: { name: string; description?: string; habitType: 'POSITIVE' | 'NEGATIVE' | 'COMPOSITE'; rrule: string; color?: string; subHabits?: string[] } }) => {
+      const newHabit: HabitResponse = {
+        id: crypto.randomUUID(),
+        name: data.name,
+        description: data.description,
+        habitType: data.habitType,
+        rrule: data.rrule,
+        color: data.color,
+        subHabits: data.subHabits?.map((name, i) => ({
+          id: crypto.randomUUID(),
+          name,
+          sortOrder: i,
+          completedToday: false,
+        })),
+        currentStreak: 0,
+        longestStreak: 0,
+        archived: false,
+        completedToday: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      MOCK_HABITS.push(newHabit);
+      return newHabit;
+    },
   });
 }
 
 export function useUpdateHabit() {
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<HabitResponse> }) => ({ id, ...data } as HabitResponse),
+    mutationFn: async ({ id, data }: { id: string; data: Partial<HabitResponse> & { subHabits?: string[] } }) => {
+      const idx = MOCK_HABITS.findIndex(h => h.id === id);
+      if (idx !== -1) {
+        MOCK_HABITS[idx] = { ...MOCK_HABITS[idx], ...data } as HabitResponse;
+        if (data.subHabits && Array.isArray(data.subHabits) && typeof data.subHabits[0] === 'string') {
+          MOCK_HABITS[idx].subHabits = (data.subHabits as unknown as string[]).map((name, i) => ({
+            id: crypto.randomUUID(),
+            name,
+            sortOrder: i,
+            completedToday: false,
+          }));
+        }
+      }
+      return MOCK_HABITS[idx];
+    },
   });
 }
 
 export function useDeleteHabit() {
   return useMutation({
-    mutationFn: async ({ id }: { id: string }) => id,
+    mutationFn: async ({ id }: { id: string }) => {
+      MOCK_HABITS = MOCK_HABITS.filter(h => h.id !== id);
+      return id;
+    },
   });
 }
