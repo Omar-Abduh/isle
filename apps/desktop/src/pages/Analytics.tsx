@@ -75,7 +75,7 @@ export default function Analytics() {
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{Math.round(summary.completionRate30Days * 100)}%</div>
+                    <div className="text-2xl font-bold">{summary.totalHabits > 0 ? Math.round((summary.completedToday / summary.totalHabits) * 100) : 0}%</div>
                   </CardContent>
                 </Card>
               </motion.div>

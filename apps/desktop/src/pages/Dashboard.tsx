@@ -10,13 +10,12 @@ import {
   useDeleteHabit,
   getGetTodayHabitsQueryKey,
   getGetHabitHistoryQueryKey,
-  getGetStatsSummaryQueryKey,
-  getGetWeeklyStatsQueryKey
+  getGetStatsSummaryQueryKey
 } from "../lib/api-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { HabitCard } from "@/components/habits/HabitCard";
-import { HabitFormDialog } from "@/components/habits/HabitFormDialog";
+import { HabitFormDrawer } from "@/components/habits/HabitFormDrawer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
@@ -205,7 +204,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        <HabitFormDialog 
+        <HabitFormDrawer 
           open={formOpen} 
           onOpenChange={setFormOpen}
           habit={editingHabit}

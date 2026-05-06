@@ -1,7 +1,7 @@
 import { useParams, Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import { useGetHabit, useGetHabitHistory, getGetHabitQueryKey, getGetHabitHistoryQueryKey } from "../lib/api-client";
+import { useGetHabitHistory, useListHabits } from "../lib/api-client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { HabitHistoryGrid } from "@/components/habits/HabitHistoryGrid";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,13 +12,11 @@ import { pageVariants } from "@/lib/animations";
 export default function HabitHistory() {
   const { id } = useParams();
   
-  const { data: habit, isLoading: loadingHabit } = useGetHabit(id || "", {
-    query: { enabled: !!id, queryKey: getGetHabitQueryKey(id || "") }
-  });
+  // Find the habit from the list (no separate useGetHabit needed)
+  const { data: allHabits, isLoading: loadingHabit } = useListHabits();
+  const habit = allHabits?.find(h => h.id === id) ?? null;
   
-  const { data: history, isLoading: loadingHistory } = useGetHabitHistory(id || "", {
-    query: { enabled: !!id, queryKey: getGetHabitHistoryQueryKey(id || "") }
-  });
+  const { data: history, isLoading: loadingHistory } = useGetHabitHistory(id);
 
   if (!id) return null;
 

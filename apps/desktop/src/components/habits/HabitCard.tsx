@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Check, MoreVertical, Trash, Edit, RefreshCw, BarChart3 } from "lucide-react";
 import { Link } from "wouter";
@@ -20,7 +20,7 @@ interface HabitCardProps {
 
 export function HabitCard({ habit, completedToday, onLog, onEdit, onDelete }: HabitCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const isComposite = habit.habitType === 'COMPOSITE' && habit.subHabits?.length > 0;
+  const isComposite = habit.habitType === 'COMPOSITE' && (habit.subHabits?.length ?? 0) > 0;
 
   const handleCheckIn = () => {
     onLog(!completedToday);
@@ -106,12 +106,12 @@ export function HabitCard({ habit, completedToday, onLog, onEdit, onDelete }: Ha
           
           {isComposite && (
             <div className="mt-2 space-y-2 border-t border-border pt-4">
-              {habit.subHabits.sort((a,b) => a.sortOrder - b.sortOrder).map(sub => (
+              {(habit.subHabits ?? []).sort((a,b) => a.sortOrder - b.sortOrder).map(sub => (
                 <div key={sub.id} className="flex items-center space-x-3">
                   <Checkbox 
                     id={`sub-${sub.id}`} 
                     checked={sub.completedToday}
-                    onCheckedChange={() => handleSubHabitToggle(sub.id, sub.completedToday)}
+                    onCheckedChange={() => handleSubHabitToggle(sub.id, sub.completedToday ?? false)}
                     className="border-muted-foreground/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                   />
                   <label 

@@ -1,4 +1,3 @@
-import React from "react";
 import { motion } from "framer-motion";
 
 interface StreakRingProps {
@@ -10,7 +9,7 @@ interface StreakRingProps {
 
 export function StreakRing({ 
   currentStreak, 
-  longestStreak,
+  longestStreak: _longestStreak,
   size = 48, 
   strokeWidth = 4 
 }: StreakRingProps) {

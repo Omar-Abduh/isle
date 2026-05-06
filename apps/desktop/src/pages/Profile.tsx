@@ -7,13 +7,24 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerClose,
+} from '@/components/ui/drawer'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
-import TiltedCard from '@/components/shared/TiltedCard'
+import { useIsMobile } from '@/hooks/use-mobile'
 import AnimatedList from '@/components/shared/AnimatedList'
-import { HabitSummaryCardFront, HabitSummaryCardBack } from '@/components/shared/HabitSummaryCard'
+import { HabitSummaryCardFront } from '@/components/shared/HabitSummaryCard'
 import PageReveal from '@/components/shared/PageReveal'
+import { cn } from '@/lib/utils'
+
+// ─── Inline Icons ──────────────────────────────────────────────
 
 const IconEdit = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -47,6 +58,8 @@ const IconClock = () => (
   </svg>
 )
 
+// ─── Helpers ──────────────────────────────────────────────────
+
 function formatJoinedAt(dateStr: string) {
   try {
     return format(new Date(dateStr), 'MMMM yyyy')
@@ -65,13 +78,15 @@ interface HabitActivity {
   completedToday: boolean
 }
 
+// ─── Main Component ───────────────────────────────────────────
+
 export default function Profile() {
-  const [flipped, setFlipped] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [displayName, setDisplayName] = useState('')
   const [timezone, setTimezone] = useState('')
   const [saving, setSaving] = useState(false)
 
+  const isMobile = useIsMobile()
   const { data: profile, isLoading: profileLoading } = useGetUserProfile()
   const { data: habitsData, isLoading: habitsLoading } = useListHabits()
   const { data: stats } = useGetStatsSummary()
@@ -126,24 +141,6 @@ export default function Profile() {
       ]
     : []
 
-  const overlayContent = (
-    <div className="absolute inset-0 flex flex-col justify-between pointer-events-none [transform-style:preserve-3d]">
-      <div className="relative w-full flex justify-end p-4 z-50 pointer-events-auto [transform:translateZ(60px)]">
-        <button
-          onClick={(e) => { e.stopPropagation(); setFlipped((f) => !f) }}
-          className="h-10 w-10 rounded-full bg-background/50 backdrop-blur-2xl border border-white/[0.08] flex items-center justify-center text-foreground shadow-lg hover:bg-background/80 transition-colors active:scale-95"
-          aria-label="Flip Card"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M1 4v6h6" /><path d="M23 20v-6h-6" />
-            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
-          </svg>
-        </button>
-      </div>
-      <div className="flex-1 w-full" />
-    </div>
-  )
-
   return (
     <AppLayout>
       <PageReveal>
@@ -151,96 +148,31 @@ export default function Profile() {
           <div className="w-full pt-2">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Profile</h1>
 
-            <div className="flex flex-col lg:flex-row items-stretch gap-10">
-              {/* Left — Tilted Summary Card */}
-              <div className="w-full lg:w-[480px] xl:w-[540px] shrink-0 flex flex-col items-center lg:items-start">
-                <div className="relative w-full md:w-[460px] lg:w-full h-full flex flex-col items-center lg:items-start min-h-[400px] sm:min-h-[450px] lg:min-h-0">
-
-                  {/* Desktop: Tilted 3D Card */}
-                  <div className="w-full h-[460px] lg:h-[520px] xl:h-[560px] z-10 hidden sm:block">
-                    {profileLoading ? (
-                      <Skeleton className="w-full h-full rounded-[24px]" />
-                    ) : (
-                      <TiltedCard
-                        displayOverlayContent
-                        overlayContent={overlayContent}
-                        frontContent={
-                          <HabitSummaryCardFront
-                            displayName={profile?.displayName || 'User'}
-                            email={profile?.email || ''}
-                            joinedAt={profile?.joinedAt ? formatJoinedAt(profile.joinedAt) : '—'}
-                            timezone={profile?.timezone}
-                            totalHabits={stats?.totalHabits ?? habits.length}
-                            currentStreak={stats?.activeStreaks ?? 0}
-                            longestStreak={stats?.longestStreak ?? 0}
-                            initials={initials}
-                          />
-                        }
-                        backContent={
-                          <HabitSummaryCardBack
-                            email={profile?.email || ''}
-                            joinedAt={profile?.joinedAt ? formatJoinedAt(profile.joinedAt) : '—'}
-                            timezone={profile?.timezone}
-                            initials={initials}
-                          />
-                        }
-                        containerHeight="100%"
-                        containerWidth="100%"
-                        imageHeight="100%"
-                        imageWidth="100%"
-                        scaleOnHover={1.03}
-                        rotateAmplitude={10}
-                        flipped={flipped}
-                        onFlip={() => setFlipped((f) => !f)}
-                        disableTilt={false}
+            <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-10">
+              {/* Left — Profile Summary Card */}
+              <div className="w-full lg:w-[420px] xl:w-[460px] shrink-0 flex flex-col items-center lg:items-start">
+                <div className="w-full max-w-sm">
+                  {profileLoading ? (
+                    <Skeleton className="w-full h-[400px] rounded-[24px]" />
+                  ) : (
+                    <div className="w-full h-[400px] relative">
+                      <HabitSummaryCardFront
+                        displayName={profile?.displayName || 'User'}
+                        email={profile?.email || ''}
+                        joinedAt={profile?.joinedAt ? formatJoinedAt(profile.joinedAt) : '—'}
+                        timezone={profile?.timezone}
+                        totalHabits={stats?.totalHabits ?? habits.length}
+                        currentStreak={stats?.activeStreaks ?? 0}
+                        longestStreak={stats?.longestStreak ?? 0}
+                        initials={initials}
                       />
-                    )}
-                  </div>
-
-                  {/* Mobile: CSS flip card */}
-                  <div
-                    className="w-full min-h-[450px] relative z-10 sm:hidden cursor-pointer [perspective:1000px] mb-6"
-                    onClick={() => setFlipped((f) => !f)}
-                  >
-                    {profileLoading ? (
-                      <Skeleton className="w-full h-[450px] rounded-[24px]" />
-                    ) : (
-                      <div
-                        className="absolute inset-0 transition-transform duration-700 [transform-style:preserve-3d]"
-                        style={{
-                          transform: flipped ? 'rotateY(180deg) scale(0.95)' : 'rotateY(0) scale(1)',
-                          transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-                        }}
-                      >
-                        <div className="absolute inset-0 [backface-visibility:hidden] rounded-[24px] overflow-hidden shadow-xl" style={{ pointerEvents: flipped ? 'none' : 'auto' }}>
-                          <HabitSummaryCardFront
-                            displayName={profile?.displayName || 'User'}
-                            email={profile?.email || ''}
-                            joinedAt={profile?.joinedAt ? formatJoinedAt(profile.joinedAt) : '—'}
-                            timezone={profile?.timezone}
-                            totalHabits={stats?.totalHabits ?? habits.length}
-                            currentStreak={stats?.activeStreaks ?? 0}
-                            longestStreak={stats?.longestStreak ?? 0}
-                            initials={initials}
-                          />
-                          <div className="absolute inset-0">{overlayContent}</div>
-                        </div>
-                        <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-[24px] overflow-hidden shadow-xl" style={{ pointerEvents: flipped ? 'auto' : 'none' }}>
-                          <HabitSummaryCardBack
-                            email={profile?.email || ''}
-                            joinedAt={profile?.joinedAt ? formatJoinedAt(profile.joinedAt) : '—'}
-                            timezone={profile?.timezone}
-                            initials={initials}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Right — Info & Activity */}
-              <div className="flex-1 flex flex-col gap-5">
+              <div className="flex-1 flex flex-col gap-5 w-full">
                 {/* User Info Card */}
                 <div className="bg-card border border-border rounded-2xl p-5 md:p-6">
                   <div className="flex items-end justify-between mb-6 pb-4 border-b border-border/40">
@@ -363,13 +295,35 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* Edit Profile Sheet */}
-          <Sheet open={isEditOpen} onOpenChange={setIsEditOpen}>
-            <SheetContent>
-              <SheetHeader className="mb-6">
-                <SheetTitle>Edit Profile</SheetTitle>
-              </SheetHeader>
-              <div className="space-y-6">
+          {/* ── Edit Profile Drawer (side on desktop, bottom on mobile) ──── */}
+          <Drawer open={isEditOpen} onOpenChange={setIsEditOpen} direction={isMobile ? 'bottom' : 'right'}>
+            <DrawerContent
+              className={cn(
+                "bg-background text-foreground border-border/40",
+                "data-[vaul-drawer-direction=right]:w-[90vw] data-[vaul-drawer-direction=right]:sm:max-w-md",
+                "data-[vaul-drawer-direction=bottom]:max-h-[85vh] flex flex-col p-0"
+              )}
+            >
+              <DrawerHeader className="p-6 pb-2 shrink-0 border-b border-border/40 relative">
+                <DrawerTitle className="text-xl font-bold tracking-tight">
+                  Edit Profile
+                </DrawerTitle>
+                <DrawerDescription className="mt-1 text-muted-foreground text-sm">
+                  Update your display name and timezone.
+                </DrawerDescription>
+                <DrawerClose asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-6 right-6 h-8 w-8 rounded-full hidden sm:flex"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-4 w-4"><path d="M12.8536 2.85355C13.0488 2.65829 13.0488 2.34171 12.8536 2.14645C12.6583 1.95118 12.3417 1.95118 12.1464 2.14645L7.5 6.79289L2.85355 2.14645C2.65829 1.95118 2.34171 1.95118 2.14645 2.14645C1.95118 2.34171 1.95118 2.65829 2.14645 2.85355L6.79289 7.5L2.14645 12.1464C1.95118 12.3417 1.95118 12.6583 2.14645 12.8536C2.34171 13.0488 2.65829 13.0488 2.85355 12.8536L7.5 8.20711L12.1464 12.8536C12.3417 13.0488 12.6583 13.0488 12.8536 12.8536C13.0488 12.6583 13.0488 12.3417 12.8536 12.1464L8.20711 7.5L12.8536 2.85355Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+                    <span className="sr-only">Close</span>
+                  </Button>
+                </DrawerClose>
+              </DrawerHeader>
+
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="displayName">Display Name</Label>
                   <Input
@@ -391,6 +345,7 @@ export default function Profile() {
                       <SelectItem value="America/New_York">Eastern Time (ET)</SelectItem>
                       <SelectItem value="Europe/London">London (GMT)</SelectItem>
                       <SelectItem value="Europe/Paris">Paris (CET)</SelectItem>
+                      <SelectItem value="Africa/Cairo">Cairo (EET)</SelectItem>
                       <SelectItem value="Asia/Dubai">Dubai (GST)</SelectItem>
                       <SelectItem value="Asia/Tokyo">Tokyo (JST)</SelectItem>
                       <SelectItem value="Australia/Sydney">Sydney (AEDT)</SelectItem>
@@ -400,16 +355,22 @@ export default function Profile() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              <DrawerFooter className="border-t border-border/40 p-4 flex flex-row gap-3">
+                <DrawerClose asChild>
+                  <Button variant="outline" className="flex-1">Cancel</Button>
+                </DrawerClose>
                 <Button
-                  className="w-full"
+                  className="flex-1"
                   onClick={handleSave}
                   disabled={saving || updateProfile.isPending}
                 >
                   {saving || updateProfile.isPending ? 'Saving…' : 'Save Changes'}
                 </Button>
-              </div>
-            </SheetContent>
-          </Sheet>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
         </section>
       </PageReveal>
     </AppLayout>

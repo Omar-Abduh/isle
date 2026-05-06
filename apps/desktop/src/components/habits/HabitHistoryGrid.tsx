@@ -1,5 +1,4 @@
-import React from "react";
-import { format, subDays, isSameDay, parseISO } from "date-fns";
+import { format, subDays } from "date-fns";
 import { HabitLogEntry } from "../../lib/api-client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -20,8 +19,8 @@ export function HabitHistoryGrid({ logs, days = 30 }: HabitHistoryGridProps) {
   
   // Fill in completions
   logs.forEach(log => {
-    if (dateMap.has(log.logDate)) {
-      const entry = dateMap.get(log.logDate);
+    if (dateMap.has(log.date)) {
+      const entry = dateMap.get(log.date);
       entry.completed = log.completed;
     }
   });

@@ -1,4 +1,3 @@
-import React from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { WeeklyStatEntry } from "../../lib/api-client";
 
@@ -9,10 +8,9 @@ interface WeeklyChartProps {
 export function WeeklyChart({ data }: WeeklyChartProps) {
   const formattedData = data.map(item => ({
     ...item,
-    // Format "YYYY-MM-DD" to "MMM D"
-    name: new Date(item.week).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    ratePercent: Math.round(item.rate * 100)
-  })).reverse(); // Assuming API returns newest first, reverse for chronological order
+    name: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    ratePercent: item.count
+  })).reverse();
 
   return (
     <div className="h-[300px] w-full">

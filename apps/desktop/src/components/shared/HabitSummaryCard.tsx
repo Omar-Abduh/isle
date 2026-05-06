@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion'
+// HabitSummaryCard — profile summary card component
 
 interface HabitSummaryCardProps {
   displayName: string
@@ -73,7 +73,7 @@ export function HabitSummaryCardBack({
   email,
   joinedAt,
   timezone,
-  initials,
+  initials: _initials,
 }: Pick<HabitSummaryCardProps, 'email' | 'joinedAt' | 'timezone' | 'initials'>) {
   return (
     <div className="relative w-full h-full rounded-[24px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
