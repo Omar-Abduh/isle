@@ -126,16 +126,23 @@ export function RecurrencePicker({ value, onChange }: RecurrencePickerProps) {
         )}
 
         {mode === 'MONTHLY' && (
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">Every month on the</span>
-            <Input 
-              type="number" 
-              min={1} 
-              max={31} 
-              value={monthDay || ''} 
-              onChange={handleMonthDayChange}
-              className="w-16 h-8 text-center px-1 font-bold"
-            />
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground">Every month on the</span>
+              <Input 
+                type="number" 
+                min={1} 
+                max={31} 
+                value={monthDay || ''} 
+                onChange={handleMonthDayChange}
+                className="w-16 h-8 text-center px-1 font-bold"
+              />
+            </div>
+            {monthDay > 28 && (
+              <p className="text-[10px] text-muted-foreground/70 text-center leading-snug max-w-[240px]">
+                For shorter months, this will trigger on the last available day.
+              </p>
+            )}
           </div>
         )}
       </div>

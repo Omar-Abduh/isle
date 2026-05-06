@@ -17,12 +17,27 @@ import {
   DrawerClose,
 } from '@/components/ui/drawer'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/hooks/use-toast'
+import { usePreferences } from '@/hooks/use-preferences'
 import { useIsMobile } from '@/hooks/use-mobile'
 import AnimatedList from '@/components/shared/AnimatedList'
 import { HabitSummaryCardFront } from '@/components/shared/HabitSummaryCard'
 import PageReveal from '@/components/shared/PageReveal'
 import { cn } from '@/lib/utils'
+
+// ─── Islamic Messages Toggle ───────────────────────────────────
+
+function IslamicToggle() {
+  const { prefs, update } = usePreferences();
+  return (
+    <Switch
+      id="islamicMessages"
+      checked={prefs.islamicMessages}
+      onCheckedChange={(checked) => update({ islamicMessages: checked })}
+    />
+  );
+}
 
 // ─── Inline Icons ──────────────────────────────────────────────
 
@@ -356,6 +371,18 @@ export default function Profile() {
                       </SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Preferences */}
+                <div className="pt-4 border-t border-border/40 space-y-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground/70">Preferences</p>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="islamicMessages" className="text-sm font-medium">Islamic messages</Label>
+                      <p className="text-xs text-muted-foreground">Prayer-time aware greetings on the dashboard</p>
+                    </div>
+                    <IslamicToggle />
+                  </div>
                 </div>
               </div>
 
