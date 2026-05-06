@@ -5,14 +5,18 @@ import { Button } from '@/components/ui/button'
 import Reveal from '@/components/shared/Reveal'
 import RevealText from '@/components/shared/RevealText'
 import PageReveal from '@/components/shared/PageReveal'
+import { IsleLogo } from '@/components/shared/IsleLogo'
 
-function IsleIcon({ className }: { className?: string }) {
+
+
+function GoogleIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="4" y="4" width="24" height="24" rx="6" fill="currentColor" />
-      <rect x="36" y="4" width="24" height="24" rx="6" fill="currentColor" opacity="0.7" />
-      <rect x="4" y="36" width="24" height="24" rx="6" fill="currentColor" opacity="0.7" />
-      <rect x="36" y="36" width="24" height="24" rx="6" fill="currentColor" opacity="0.4" />
+    <svg className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+      <path d="M1 1h22v22H1z" fill="none" />
     </svg>
   )
 }
@@ -26,6 +30,7 @@ export default function Login() {
   }, [isAuthenticated, setLocation])
 
   const handleLogin = () => {
+    // Mock login simulating Google OAuth success
     login({
       userId: '00000000-0000-0000-0000-000000000001',
       displayName: 'Alex Rivera',
@@ -36,94 +41,61 @@ export default function Login() {
 
   return (
     <PageReveal>
-      <div className="flex flex-col gap-4 sm:gap-6 w-full h-full md:h-auto">
-        <div className="overflow-hidden relative rounded-none md:rounded-3xl shadow-xl border-border bg-background h-full md:h-auto min-h-svh md:min-h-0 md:border">
-          <div className="grid grid-cols-1 md:grid-cols-2 min-h-svh md:min-h-[650px] h-full w-full">
+      <div className="flex flex-col items-center justify-center min-h-screen w-full bg-background relative overflow-hidden">
+        
+        {/* Subtle Ambient Background */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[100px]" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[100px]" />
+        </div>
 
-            {/* Left — Form */}
-            <div className="p-8 sm:p-12 md:p-16 lg:p-20 flex flex-col items-center justify-center relative bg-background max-w-md mx-auto w-full h-full">
-              <Reveal y={40} duration={0.8} className="w-full flex justify-center">
-                <div className="flex flex-col gap-10 sm:gap-12 w-full max-w-sm relative z-10">
-                  <div className="flex flex-col items-center text-center space-y-6">
-                    <Reveal scale={0.8} y={0} delay={0.1}>
-                      <IsleIcon className="h-16 sm:h-20 w-auto text-primary" />
-                    </Reveal>
-                    <div className="space-y-3">
-                      <RevealText
-                        className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground"
-                        delay={200}
-                      >
-                        Isle Habit Tracker
-                      </RevealText>
-                      <Reveal y={20} delay={0.4}>
-                        <p className="text-muted-foreground text-sm sm:text-base font-medium max-w-[280px] mx-auto">
-                          A quiet space for better habits. Track, reflect, grow.
-                        </p>
-                      </Reveal>
-                    </div>
-                  </div>
-
-                  <Reveal y={30} delay={0.6}>
-                    <Button
-                      onClick={handleLogin}
-                      className="w-full h-12 sm:h-12 font-medium text-[15px] rounded-lg transition-all shadow-md hover:shadow-lg bg-[#247E84] hover:bg-[#1a5b60] text-white"
-                    >
-                      <div className="flex items-center gap-3">
-                        <IsleIcon className="h-5 w-5 text-white" />
-                        <span>Continue with Isle</span>
-                      </div>
-                    </Button>
-                  </Reveal>
-
-                  <Reveal y={20} delay={0.8} className="md:hidden">
-                    <div className="text-center text-xs text-muted-foreground pt-6 border-t border-border">
-                      <p>Build lasting habits, one day at a time.</p>
-                    </div>
-                  </Reveal>
-                </div>
+        {/* Desktop-style Login Modal */}
+        <Reveal y={30} duration={0.8} className="w-full max-w-[420px] px-6 relative z-10">
+          <div className="w-full flex flex-col items-center text-center">
+            
+            <Reveal scale={0.8} y={0} delay={0.1}>
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-8 shadow-inner border border-primary/10">
+                <IsleLogo className="h-10 w-10 text-foreground" />
+              </div>
+            </Reveal>
+            
+            <div className="space-y-3 mb-10 w-full">
+              <RevealText
+                className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground"
+                delay={200}
+              >
+                Isle
+              </RevealText>
+              <Reveal y={10} delay={0.4}>
+                <p className="text-muted-foreground text-sm font-medium">
+                  Sign in to sync your habits across devices.
+                </p>
               </Reveal>
             </div>
 
-            {/* Right — Visual (Desktop Only) */}
-            <div className="bg-muted relative hidden md:block overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background/50 to-primary/5" />
-
-              {/* Decorative habit grid */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                <div className="grid grid-cols-7 gap-2 p-8">
-                  {Array.from({ length: 91 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="h-8 w-8 rounded-md"
-                      style={{
-                        backgroundColor: Math.random() > 0.4 ? 'var(--primary)' : 'var(--border)',
-                        opacity: Math.random() * 0.6 + 0.4,
-                      }}
-                    />
-                  ))}
+            <Reveal y={20} delay={0.5} className="w-full">
+              <Button
+                onClick={handleLogin}
+                className="w-full h-12 bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 shadow-sm transition-all rounded-xl relative overflow-hidden group"
+              >
+                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-black/5 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+                <div className="flex items-center justify-center gap-3 relative z-10 w-full">
+                  <GoogleIcon className="h-5 w-5" />
+                  <span className="font-semibold text-[15px]">Continue with Google</span>
                 </div>
-              </div>
+              </Button>
+            </Reveal>
 
-              {/* Orbs */}
-              <div className="absolute top-[15%] left-[20%] w-48 h-48 rounded-full bg-primary/20 blur-[80px]" />
-              <div className="absolute bottom-[20%] right-[15%] w-64 h-64 rounded-full bg-primary/15 blur-[100px]" />
+            <Reveal y={10} delay={0.7} className="mt-8">
+              <p className="text-[11px] text-muted-foreground/60 max-w-[240px] leading-relaxed">
+                By continuing, you agree to our Terms of Service and Privacy Policy.
+              </p>
+            </Reveal>
 
-              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-
-              <div className="absolute bottom-12 left-12 right-12 text-white">
-                <Reveal y={40} delay={0.6}>
-                  <h2 className="text-3xl font-bold tracking-tight mb-4 text-white/90">
-                    Build Better Habits
-                  </h2>
-                  <p className="text-lg text-white/70 max-w-md leading-relaxed font-medium">
-                    Track your progress, celebrate streaks, and grow one day at a time.
-                  </p>
-                </Reveal>
-              </div>
-            </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </PageReveal>
   )
 }
+

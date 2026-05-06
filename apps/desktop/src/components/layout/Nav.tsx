@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useLocation } from 'wouter'
 import { gsap, useGSAP, SplitText } from '@/lib/gsap'
-import { Moon, Sun, Leaf } from 'lucide-react'
-import { useTheme } from '@/components/theme-provider'
+import { IsleLogo } from '@/components/shared/IsleLogo'
+import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { useAuth } from '@/hooks/use-auth'
-import { Button } from '@/components/ui/button'
 
 const APP_VERSION = 'v1.0.0'
 
@@ -18,7 +17,6 @@ export const Nav: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [location, setLocation] = useLocation()
-  const { theme, setTheme } = useTheme()
   const { logout } = useAuth()
 
   const desktopNavRef = useRef<HTMLElement>(null)
@@ -239,7 +237,7 @@ export const Nav: React.FC = () => {
       >
         <div className="flex items-center gap-[0.8vw]">
           <a href="/dashboard" onClick={(e) => { e.preventDefault(); setIsOpen(false); setLocation('/dashboard'); }} className="hover:opacity-80 transition-opacity">
-            <Leaf className="h-[2.2vw] w-[2.2vw] text-primary" />
+            <IsleLogo className="h-[2.2vw] w-[2.2vw] text-foreground transition-colors group-hover:text-primary" />
           </a>
         </div>
 
@@ -251,14 +249,7 @@ export const Nav: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-[1.2vw]">
-          <Button
-             variant="ghost"
-             size="icon"
-             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-             className="h-8 w-8 text-foreground"
-          >
-             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </Button>
+          <ThemeToggle />
           <div className="w-px h-4 bg-border/50" />
           <div
             onClick={() => setIsOpen(!isOpen)}
@@ -283,7 +274,7 @@ export const Nav: React.FC = () => {
         className="fixed left-1/2 -translate-x-1/2 z-50 bg-background/50 backdrop-blur-2xl border border-white/[0.08] dark:border-white/[0.08] flex items-center justify-between lg:hidden bottom-[2%] w-[94vw] rounded-2xl px-5 py-3.5 shadow-xl shadow-black/10 dark:shadow-black/30"
       >
         <a href="/dashboard" onClick={(e) => { e.preventDefault(); setIsOpen(false); setLocation('/dashboard'); }} className="hover:opacity-80 transition-opacity">
-          <Leaf className="h-7 w-7 text-primary" />
+          <IsleLogo className="h-7 w-7 text-foreground transition-colors group-hover:text-primary" />
         </a>
 
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
@@ -294,14 +285,7 @@ export const Nav: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <Button
-             variant="ghost"
-             size="icon"
-             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-             className="h-8 w-8 text-foreground"
-          >
-             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </Button>
+          <ThemeToggle />
           <div
             onClick={() => setIsOpen(!isOpen)}
             className="relative w-6 h-5 flex items-center justify-center cursor-pointer group"
