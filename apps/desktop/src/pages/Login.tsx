@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation } from 'wouter'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
@@ -6,8 +6,6 @@ import Reveal from '@/components/shared/Reveal'
 import RevealText from '@/components/shared/RevealText'
 import PageReveal from '@/components/shared/PageReveal'
 import { IsleLogo } from '@/components/shared/IsleLogo'
-
-
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -22,48 +20,71 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 export default function Login() {
-  const { login, isAuthenticated } = useAuth()
+  const { isAuthenticated, isInitialising, login } = useAuth()
   const [, setLocation] = useLocation()
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (isAuthenticated) setLocation('/dashboard')
-  }, [isAuthenticated, setLocation])
+    if (isAuthenticated && !isInitialising) setLocation('/dashboard')
+  }, [isAuthenticated, isInitialising, setLocation])
 
-  const handleLogin = () => {
-    // Mock login simulating Google OAuth success
-    login({
-      userId: '00000000-0000-0000-0000-000000000001',
-      displayName: 'Alex Rivera',
-      email: 'user@isle.app',
-    })
-    setLocation('/dashboard')
+  // Web fallback: handle OAuth redirect back to the same page
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get('code')
+    const state = params.get('state')
+    if (code && state) {
+      const { handleOAuthCallback } = useAuth()
+      handleOAuthCallback(window.location.href)
+        .then(() => setLocation('/dashboard'))
+        .catch((e) => setError(String(e)))
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleLogin = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      await login()
+      // Tauri: navigation happens via deep-link listener in use-auth.ts
+      // Web: navigation happens after the redirect returns (effect above)
+    } catch (e) {
+      setError('Failed to open sign-in page. Please try again.')
+      setIsLoading(false)
+    }
+  }
+
+  if (isInitialising) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (
     <PageReveal>
       <div className="flex flex-col items-center justify-center min-h-screen w-full bg-background relative overflow-hidden">
-        
-        {/* Subtle Ambient Background */}
+
+        {/* Ambient background */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[100px]" />
           <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[100px]" />
         </div>
 
-        {/* Desktop-style Login Modal */}
         <Reveal y={30} duration={0.8} className="w-full max-w-[420px] px-6 relative z-10">
           <div className="w-full flex flex-col items-center text-center">
-            
+
             <Reveal scale={0.8} y={0} delay={0.1}>
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-8 shadow-inner border border-primary/10">
                 <IsleLogo className="h-10 w-10 text-foreground" />
               </div>
             </Reveal>
-            
+
             <div className="space-y-3 mb-10 w-full">
-              <RevealText
-                className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground"
-                delay={200}
-              >
+              <RevealText className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground" delay={200}>
                 Isle
               </RevealText>
               <Reveal y={10} delay={0.4}>
@@ -76,15 +97,28 @@ export default function Login() {
             <Reveal y={20} delay={0.5} className="w-full">
               <Button
                 onClick={handleLogin}
-                className="w-full h-12 bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 shadow-sm transition-all rounded-xl relative overflow-hidden group"
+                disabled={isLoading}
+                className="w-full h-12 bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 shadow-sm transition-all rounded-xl relative overflow-hidden group disabled:opacity-60"
               >
                 <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-black/5 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
                 <div className="flex items-center justify-center gap-3 relative z-10 w-full">
-                  <GoogleIcon className="h-5 w-5" />
-                  <span className="font-semibold text-[15px]">Continue with Google</span>
+                  {isLoading ? (
+                    <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <GoogleIcon className="h-5 w-5" />
+                  )}
+                  <span className="font-semibold text-[15px]">
+                    {isLoading ? 'Opening Google…' : 'Continue with Google'}
+                  </span>
                 </div>
               </Button>
             </Reveal>
+
+            {error && (
+              <Reveal y={5} delay={0.1} className="mt-4">
+                <p className="text-sm text-destructive">{error}</p>
+              </Reveal>
+            )}
 
             <Reveal y={10} delay={0.7} className="mt-8">
               <p className="text-[11px] text-muted-foreground/60 max-w-[240px] leading-relaxed">
@@ -98,4 +132,3 @@ export default function Login() {
     </PageReveal>
   )
 }
-

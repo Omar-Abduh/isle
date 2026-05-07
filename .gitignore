@@ -12,3 +12,27 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 *.zip
+
+# Secrets
+infra/secrets/*.pem
+infra/secrets/*.key
+infra/.env
+**/.env.local
+
+# Build artifacts
+**/target/
+**/dist/
+**/node_modules/
+**/.tauri/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test keys (never commit real keys, test keys OK)
+# (test keys in src/test/resources are intentionally committed)

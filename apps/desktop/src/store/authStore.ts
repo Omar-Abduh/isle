@@ -1,22 +1,25 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { User } from '../types/auth';
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  displayName: string;
+  timezone: string;
+}
 
 interface AuthState {
-  user: User | null;
+  /** Access token lives in memory ONLY — never persisted to disk */
   accessToken: string | null;
-  setAuth: (user: User, token: string) => void;
+  user: AuthUser | null;
+  setSession: (user: AuthUser, accessToken: string) => void;
+  setAccessToken: (token: string) => void;
   logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      user: null,
-      accessToken: null,
-      setAuth: (user, token) => set({ user, accessToken: token }),
-      logout: () => set({ user: null, accessToken: null }),
-    }),
-    { name: 'auth-storage' }
-  )
-);
+export const useAuthStore = create<AuthState>()((set) => ({
+  accessToken: null,
+  user: null,
+  setSession: (user, accessToken) => set({ user, accessToken }),
+  setAccessToken: (token) => set({ accessToken: token }),
+  logout: () => set({ accessToken: null, user: null }),
+}));
