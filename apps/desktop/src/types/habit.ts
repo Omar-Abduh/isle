@@ -1,24 +1,49 @@
-export type HabitType = 'POSITIVE' | 'NEGATIVE' | 'COMPOSITE';
+export type HabitType = 'POSITIVE' | 'NEGATIVE' | 'COMPOSITE'
 
-export interface Habit {
-  id: string;
-  name: string;
-  type: HabitType;
-  description?: string;
-  archived: boolean;
-  createdAt: string;
+export interface SubHabitDTO {
+  id: string
+  name: string
+  sortOrder: number
 }
 
-export interface HabitLog {
-  id: string;
-  habitId: string;
-  subHabitId?: string;
-  logDate: string;
-  completed: boolean;
+export interface HabitResponse {
+  id: string
+  name: string
+  description?: string
+  habitType: HabitType
+  rrule: string
+  currentStreak: number
+  longestStreak: number
+  archived: boolean
+  subHabits: SubHabitDTO[]
+  createdAt: string
 }
 
-export interface SubHabit {
-  id: string;
-  parentId: string;
-  name: string;
+export interface HabitLogDTO {
+  id: string
+  logDate: string
+  completed: boolean
+  loggedAt: string
+}
+
+export interface HabitStatsDTO {
+  currentStreak: number
+  longestStreak: number
+  totalCompletions: number
+  completionRate30Days: number
+}
+
+export interface HabitRequest {
+  name: string
+  description?: string
+  habitType: HabitType
+  rrule: string
+}
+
+export interface LogRequest {
+  habitId: string
+  subHabitId?: string
+  date: string       // YYYY-MM-DD
+  completed: boolean
+  loggedAt: string   // ISO 8601
 }

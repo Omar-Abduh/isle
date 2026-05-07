@@ -58,3 +58,52 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build services/api -t habittracker/api:${{ github.sha }}
+
+  # Builds cross-platform Tauri desktop binaries on every version tag push (v*)
+  tauri-build:
+    needs: [frontend]
+    if: startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with: { version: 9 }
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+
+      - uses: dtolnay/rust-toolchain@stable  # plan fix #7 — correct action name
+
+      # Linux system deps required for Tauri/WebKit
+      - name: Install Linux build deps
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
+      - run: pnpm install
+        working-directory: apps/desktop
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+          VITE_REDIRECT_URI: ${{ secrets.VITE_REDIRECT_URI }}
+          VITE_DEEP_LINK_SCHEME: habittracker
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Isle ${{ github.ref_name }}'
+          releaseBody: 'See the assets below to download and install this version.'
+          releaseDraft: true
+          prerelease: false
+          projectPath: apps/desktop

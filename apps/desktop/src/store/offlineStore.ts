@@ -1,22 +1,29 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+/**
+ * offlineStore.ts — Persisted offline completion queue.
+ *
+ * SECURITY RULE: Uses tauriStoreAdapter (Tauri Store on desktop, localStorage on web).
+ * NEVER uses localStorage directly — Tauri Store writes to encrypted app-data dir on desktop.
+ */
+import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { tauriStoreAdapter } from '../lib/tauriStoreAdapter'
 
 export interface OfflineLogEntry {
-  id: string;
-  habitId: string;
-  subHabitId?: string;
-  date: string;       // YYYY-MM-DD
-  completed: boolean;
-  loggedAt: string;   // ISO 8601
-  retries: number;
+  id: string
+  habitId: string
+  subHabitId?: string
+  date: string        // YYYY-MM-DD
+  completed: boolean
+  loggedAt: string    // ISO 8601
+  retries: number
 }
 
 interface OfflineState {
-  queue: OfflineLogEntry[];
-  enqueue: (entry: Omit<OfflineLogEntry, 'id' | 'retries'>) => void;
-  dequeue: (id: string) => void;
-  incrementRetry: (id: string) => void;
-  clear: () => void;
+  queue: OfflineLogEntry[]
+  enqueue: (entry: Omit<OfflineLogEntry, 'id' | 'retries'>) => void
+  dequeue: (id: string) => void
+  incrementRetry: (id: string) => void
+  clear: () => void
 }
 
 export const useOfflineStore = create<OfflineState>()(
@@ -38,7 +45,7 @@ export const useOfflineStore = create<OfflineState>()(
       incrementRetry: (id) =>
         set((s) => ({
           queue: s.queue.map((e) =>
-            e.id === id ? { ...e, retries: e.retries + 1 } : e
+            e.id === id ? { ...e, retries: e.retries + 1 } : e,
           ),
         })),
 
@@ -46,7 +53,7 @@ export const useOfflineStore = create<OfflineState>()(
     }),
     {
       name: 'isle-offline-queue',
-      storage: createJSONStorage(() => localStorage),
-    }
-  )
-);
+      storage: createJSONStorage(() => tauriStoreAdapter), // Tauri Store on desktop, localStorage fallback on web
+    },
+  ),
+)

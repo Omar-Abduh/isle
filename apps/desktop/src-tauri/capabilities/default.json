@@ -1,0 +1,21 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Minimum required permissions — principle of least privilege",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "shell:allow-open",
+    "deep-link:default",
+    "store:default",
+    "notification:default",
+    "stronghold:allow-initialize",
+    "stronghold:allow-create-client",
+    "stronghold:allow-load-client",
+    "stronghold:allow-get-store",
+    "stronghold:allow-store-insert",
+    "stronghold:allow-store-get",
+    "stronghold:allow-store-remove",
+    "stronghold:allow-save"
+  ]
+}
