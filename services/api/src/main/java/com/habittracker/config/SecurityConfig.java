@@ -40,6 +40,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 .anyRequest().authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder)))
             .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class);
@@ -49,13 +50,8 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigSource() {
         var config = new CorsConfiguration();
-        // Allow both Tauri origins and web localhost for development
-        config.setAllowedOrigins(List.of(
-            "tauri://localhost",
-            "https://tauri.localhost",
-            "http://localhost:1420",
-            "http://localhost:5173"
-        ));
+        // Allow all origins to make it compatible with Vercel out of the box
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Request-ID"));
         config.setMaxAge(3600L);

@@ -3,11 +3,11 @@ package com.habittracker.habit;
 import com.habittracker.habit.model.Habit;
 import com.habittracker.habit.repository.HabitRepository;
 import net.fortuna.ical4j.model.Recur;
+import net.fortuna.ical4j.model.parameter.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,18 +36,23 @@ public class RecurrenceEngine {
      */
     public boolean isDueOnDate(String rrule, LocalDate date) {
         try {
-            Recur<?> recur = new Recur<>(rrule);
-            Date seed   = toDate(date.minusDays(1));
-            Date target = toDate(date);
-            Date after  = toDate(date.plusDays(1));
-            return !recur.getDates(seed, target, after).isEmpty();
+            Recur recur = new Recur(rrule);
+            // Use a wide window, then check if the specific date appears
+            net.fortuna.ical4j.model.Date icalDate = toIcalDate(date);
+            // getDates returns all recurrence instances in [periodStart, periodEnd]
+            // We use the same date as seed, periodStart, and periodEnd to get a single-day window
+            var dates = recur.getDates(icalDate, icalDate, icalDate, Value.DATE);
+            return !dates.isEmpty();
         } catch (Exception e) {
             // Malformed RRULE — treat as not due
             return false;
         }
     }
 
-    private Date toDate(LocalDate d) {
-        return Date.from(d.atStartOfDay(ZoneOffset.UTC).toInstant());
+    private net.fortuna.ical4j.model.Date toIcalDate(LocalDate d) {
+        return new net.fortuna.ical4j.model.Date(
+            java.util.Date.from(d.atStartOfDay(ZoneOffset.UTC).toInstant())
+        );
     }
 }
+

@@ -16,7 +16,7 @@ let _tauriStore: Awaited<ReturnType<typeof import('@tauri-apps/plugin-store')['l
 async function getTauriStore() {
   if (!_tauriStore) {
     const { load } = await import('@tauri-apps/plugin-store');
-    _tauriStore = await load('isle-store.json', { autoSave: true });
+    _tauriStore = await load('isle-store.json', { autoSave: true, defaults: {} });
   }
   return _tauriStore;
 }

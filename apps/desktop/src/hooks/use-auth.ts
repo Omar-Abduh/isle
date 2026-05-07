@@ -18,7 +18,7 @@ import { saveRefreshToken } from '../lib/stronghold';
 import { useOAuth } from './useOAuth';
 
 export function useAuth() {
-  const { user, accessToken, setSession, setAccessToken, logout: clearStore } = useAuthStore();
+  const { user, accessToken, setAccessToken, logout: clearStore } = useAuthStore();
   const { startLogin, handleCallback } = useOAuth();
   const [isInitialising, setIsInitialising] = useState(true);
 
@@ -47,22 +47,36 @@ export function useAuth() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Deep-link listener (Tauri) ─────────────────────────────────────────
+  // ── Deep-link / Web-popup listener ─────────────────────────────────────────
   useEffect(() => {
-    if (typeof window === 'undefined' || !('__TAURI_INTERNALS__' in window)) return;
     let unlisten: (() => void) | undefined;
 
-    (async () => {
-      try {
-        const { onOpenUrl } = await import('@tauri-apps/plugin-deep-link');
-        unlisten = await onOpenUrl(async (urls: string[]) => {
-          const callbackUrl = urls.find((u) =>
-            u.startsWith('habittracker://auth/callback'),
-          );
-          if (callbackUrl) await handleCallback(callbackUrl);
-        });
-      } catch { /* not in Tauri environment */ }
-    })();
+    if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+      // Setup Tauri deep-link listener
+      (async () => {
+        try {
+          const { onOpenUrl } = await import('@tauri-apps/plugin-deep-link');
+          unlisten = await onOpenUrl(async (urls: string[]) => {
+            const callbackUrl = urls.find((u) => u.startsWith('habittracker://auth/callback'));
+            if (callbackUrl) await handleCallback(callbackUrl);
+          });
+        } catch { /* not in Tauri environment */ }
+      })();
+    } else {
+      // Setup Web popup message listener
+      const handleMessage = async (event: MessageEvent) => {
+        if (event.data?.type === 'oauth_callback') {
+          const { code, state } = event.data;
+          try {
+            await handleCallback(`?code=${code}&state=${state}`);
+          } catch (e) {
+            console.error('OAuth callback failed:', e);
+          }
+        }
+      };
+      window.addEventListener('message', handleMessage);
+      unlisten = () => window.removeEventListener('message', handleMessage);
+    }
 
     return () => { unlisten?.(); };
   }, [handleCallback]);

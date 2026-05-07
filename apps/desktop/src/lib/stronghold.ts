@@ -17,7 +17,7 @@ function isTauri(): boolean {
 
 // ─── Tauri Stronghold implementation ────────────────────────────────────────
 async function tauriSave(token: string): Promise<void> {
-  const { Client, Stronghold } = await import('@tauri-apps/plugin-stronghold');
+  const { Stronghold } = await import('@tauri-apps/plugin-stronghold');
   const { appDataDir } = await import('@tauri-apps/api/path');
   const vaultPath = `${await appDataDir()}/isle.stronghold`;
   const stronghold = await Stronghold.load(vaultPath, await getMachinePassword());
@@ -60,7 +60,7 @@ async function tauriRemove(): Promise<void> {
 async function getMachinePassword(): Promise<string> {
   try {
     const { invoke } = await import('@tauri-apps/api/core');
-    return await invoke<string>('get_machine_id');
+    return (await invoke('get_machine_id')) as string;
   } catch {
     // Fallback — should not happen in production
     return 'isle-fallback-key';

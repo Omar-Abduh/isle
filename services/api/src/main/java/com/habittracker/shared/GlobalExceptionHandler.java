@@ -9,6 +9,8 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 
 @RestControllerAdvice
 @Slf4j
@@ -30,6 +32,16 @@ public class GlobalExceptionHandler {
         pd.setProperty("violations", ex.getBindingResult().getFieldErrors()
             .stream().map(e -> e.getField() + ": " + e.getDefaultMessage()).toList());
         return pd;
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ProblemDetail handleNoResourceFound(NoResourceFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ProblemDetail handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Required request body is missing or unreadable");
     }
 
     @ExceptionHandler(Exception.class)

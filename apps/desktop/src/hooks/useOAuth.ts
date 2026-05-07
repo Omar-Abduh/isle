@@ -19,8 +19,9 @@ const SCOPES = 'openid email profile';
 
 // ── PKCE helpers ─────────────────────────────────────────────────────────────
 
-function base64url(bytes: ArrayBuffer): string {
-  return btoa(String.fromCharCode(...new Uint8Array(bytes)))
+function base64url(bytes: ArrayBuffer | Uint8Array): string {
+  const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  return btoa(String.fromCharCode(...arr))
     .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 

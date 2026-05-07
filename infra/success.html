@@ -27,6 +27,16 @@
       document.body.innerHTML = '<h2>Invalid callback.</h2><p>Return to the app and try again.</p>';
       return;
     }
+
+    // WEB FALLBACK: If opened as a popup by the web app, send message back to parent
+    if (window.opener && window.opener !== window) {
+      window.opener.postMessage({ type: 'oauth_callback', code: code, state: state }, '*');
+      document.body.innerHTML = '<h2>Login successful!</h2><p>Closing window...</p>';
+      setTimeout(function() { window.close(); }, 500);
+      return;
+    }
+
+    // TAURI FALLBACK: Try to invoke the native deep link
     var deepLink = 'habittracker://auth/callback?code='
       + encodeURIComponent(code) + '&state=' + encodeURIComponent(state);
     document.getElementById('manual-link').href = deepLink;

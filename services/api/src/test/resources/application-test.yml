@@ -5,8 +5,8 @@ spring:
     schemas: habit_tracker
 
 jwt:
-  private-key: classpath:test-jwt-private.pem
-  public-key: classpath:test-jwt-public.pem
+  private-key: src/test/resources/test-jwt-private.pem
+  public-key: src/test/resources/test-jwt-public.pem
   access-expiry-minutes: 15
   refresh-expiry-days: 30
 
@@ -16,7 +16,4 @@ google:
   token-endpoint: http://localhost:9999/token
   jwks-uri: http://localhost:9999/certs
 
-logging:
-  structured:
-    format:
-      console: "off"
+

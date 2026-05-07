@@ -29,20 +29,6 @@ export default function Login() {
     if (isAuthenticated && !isInitialising) setLocation('/dashboard')
   }, [isAuthenticated, isInitialising, setLocation])
 
-  // Web fallback: handle OAuth redirect back to the same page
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const code = params.get('code')
-    const state = params.get('state')
-    if (code && state) {
-      const { handleOAuthCallback } = useAuth()
-      handleOAuthCallback(window.location.href)
-        .then(() => setLocation('/dashboard'))
-        .catch((e) => setError(String(e)))
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   const handleLogin = async () => {
     try {
       setIsLoading(true)
