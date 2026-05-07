@@ -24,6 +24,9 @@ public class User {
     @Column(name = "display_name")
     private String displayName;
 
+    @Column(name = "picture_url", length = 2048)
+    private String pictureUrl;
+
     @Column(nullable = false)
     private String timezone = "UTC";
 

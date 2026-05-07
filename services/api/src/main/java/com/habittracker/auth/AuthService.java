@@ -1,6 +1,5 @@
 package com.habittracker.auth;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.habittracker.auth.dto.*;
 import com.habittracker.auth.model.RefreshToken;
 import com.habittracker.auth.model.User;
@@ -12,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.oauth2.core.*;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -27,6 +28,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -38,32 +40,37 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${google.client-id}")    private String googleClientId;
     @Value("${google.client-secret}") private String googleClientSecret;
     @Value("${google.token-endpoint}") private String googleTokenEndpoint;
+    @Value("${google.jwks-uri}") private String googleJwksUri;
+    @Value("#{'${google.allowed-redirect-uris}'.split(',')}") private List<String> allowedRedirectUris;
     @Value("${jwt.private-key}")     private String jwtPrivateKeyPath;
     @Value("${jwt.access-expiry-minutes:15}") private int accessExpiryMinutes;
     @Value("${jwt.refresh-expiry-days:30}")   private int refreshExpiryDays;
 
-    public AuthResponse exchange(String code, String codeVerifier) {
-        Map<String, Object> googleTokens = exchangeWithGoogle(code, codeVerifier);
+    public AuthResponse exchange(String code, String codeVerifier, String redirectUri) {
+        validateRedirectUri(redirectUri);
+        Map<String, Object> googleTokens = exchangeWithGoogle(code, codeVerifier, redirectUri);
         String idToken = (String) googleTokens.get("id_token");
 
-        Map<String, Object> claims = decodeIdTokenClaims(idToken);
-        String googleSub   = (String) claims.get("sub");
-        String email       = (String) claims.get("email");
-        String name        = (String) claims.get("name");
+        Jwt googleJwt = verifyGoogleIdToken(idToken);
+        String googleSub = googleJwt.getSubject();
+        String email = googleJwt.getClaimAsString("email");
+        String name = googleJwt.getClaimAsString("name");
+        String pictureUrl = googleJwt.getClaimAsString("picture");
 
         User user = userRepository.findByGoogleSub(googleSub).orElseGet(() -> {
             User u = new User();
             u.setGoogleSub(googleSub);
-            u.setEmail(email);
-            u.setDisplayName(name);
-            return userRepository.save(u);
+            return u;
         });
+        user.setEmail(email);
+        user.setDisplayName(name);
+        user.setPictureUrl(pictureUrl);
+        user = userRepository.save(user);
 
         String accessToken = issueAccessJwt(user);
         String rawRefreshToken = generateOpaqueToken();
@@ -93,13 +100,13 @@ public class AuthService {
         storeRefreshToken(user.getId(), newRawRefreshToken);
 
         log.info("Token rotated for user: {}", user.getId());
-        return new RefreshResponse(newAccessToken, newRawRefreshToken);
+        return new RefreshResponse(newAccessToken, newRawRefreshToken, toUserDTO(user));
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
 
     @SuppressWarnings("unchecked")
-    private Map<String, Object> exchangeWithGoogle(String code, String codeVerifier) {
+    private Map<String, Object> exchangeWithGoogle(String code, String codeVerifier, String redirectUri) {
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         var body = new LinkedMultiValueMap<String, String>();
@@ -108,20 +115,51 @@ public class AuthService {
         body.add("client_secret", googleClientSecret);
         body.add("code_verifier", codeVerifier);
         body.add("grant_type", "authorization_code");
-        body.add("redirect_uri", ""); // PKCE flow — redirect_uri is in the initial request
+        body.add("redirect_uri", redirectUri);
         var response = restTemplate.exchange(
             googleTokenEndpoint, HttpMethod.POST, new HttpEntity<>(body, headers), Map.class);
         return response.getBody();
     }
 
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> decodeIdTokenClaims(String idToken) {
-        try {
-            String[] parts = idToken.split("\\.");
-            String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
-            return objectMapper.readValue(payload, Map.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to decode id_token", e);
+    private Jwt verifyGoogleIdToken(String idToken) {
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(googleJwksUri).build();
+        OAuth2TokenValidator<Jwt> timestamps = new JwtTimestampValidator();
+        OAuth2TokenValidator<Jwt> issuer = jwt -> {
+            String iss = jwt.getIssuer() == null ? "" : jwt.getIssuer().toString();
+            if ("https://accounts.google.com".equals(iss) || "accounts.google.com".equals(iss)) {
+                return OAuth2TokenValidatorResult.success();
+            }
+            return OAuth2TokenValidatorResult.failure(new OAuth2Error(
+                OAuth2ErrorCodes.INVALID_TOKEN,
+                "Google id_token issuer is invalid",
+                null
+            ));
+        };
+        OAuth2TokenValidator<Jwt> audience = jwt -> {
+            if (jwt.getAudience().contains(googleClientId)) {
+                return OAuth2TokenValidatorResult.success();
+            }
+            return OAuth2TokenValidatorResult.failure(new OAuth2Error(
+                OAuth2ErrorCodes.INVALID_TOKEN,
+                "Google id_token audience does not match this application",
+                null
+            ));
+        };
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(timestamps, issuer, audience));
+        return decoder.decode(idToken);
+    }
+
+    private void validateRedirectUri(String redirectUri) {
+        boolean allowed = allowedRedirectUris.stream()
+            .map(String::trim)
+            .filter(uri -> !uri.isBlank())
+            .anyMatch(uri -> uri.equals(redirectUri));
+        if (!allowed) {
+            throw new OAuth2AuthenticationException(new OAuth2Error(
+                OAuth2ErrorCodes.INVALID_REQUEST,
+                "Redirect URI is not allowed",
+                null
+            ));
         }
     }
 
@@ -176,6 +214,13 @@ public class AuthService {
     }
 
     private UserDTO toUserDTO(User user) {
-        return new UserDTO(user.getId(), user.getEmail(), user.getDisplayName(), user.getTimezone());
+        return new UserDTO(
+            user.getId(),
+            user.getEmail(),
+            user.getDisplayName(),
+            user.getTimezone(),
+            user.getPictureUrl(),
+            user.getCreatedAt()
+        );
     }
 }

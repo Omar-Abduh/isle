@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { useAuth } from '@/hooks/use-auth'
 import { useOfflineSync } from '@/hooks/useOfflineSync'
 import { useNotifications } from '@/hooks/useNotifications'
+import { useAuthStore } from '@/store/authStore'
 
 import NotFound from '@/pages/not-found'
 import Login from '@/pages/Login'
@@ -33,7 +34,8 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
 
 /** Mounts global side-effect hooks once inside QueryClientProvider */
 function GlobalEffects() {
-  useOfflineSync()
+  const isAuthenticated = useAuthStore((state) => !!state.accessToken && !!state.user)
+  useOfflineSync(isAuthenticated)
   useNotifications()
   return null
 }

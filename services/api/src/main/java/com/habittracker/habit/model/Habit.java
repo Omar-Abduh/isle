@@ -2,7 +2,9 @@ package com.habittracker.habit.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.type.SqlTypes;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +29,8 @@ public class Habit {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "habit_type", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "habit_type", nullable = false, columnDefinition = "habit_type")
     private HabitType habitType = HabitType.POSITIVE;
 
     @Column(nullable = false, length = 255)

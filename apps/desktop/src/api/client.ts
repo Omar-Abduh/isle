@@ -6,6 +6,7 @@
  * - On refresh failure, clears session and redirects to /
  */
 import { useAuthStore } from '../store/authStore';
+import { useHabitStore } from '../store/habitStore';
 import { loadRefreshToken, saveRefreshToken, removeRefreshToken } from '../lib/stronghold';
 
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '');
@@ -32,6 +33,7 @@ async function doTokenRefresh(): Promise<string | null> {
   if (!res.ok) {
     await removeRefreshToken();
     useAuthStore.getState().logout();
+    useHabitStore.getState().setHabits([]);
     return null;
   }
 
@@ -39,9 +41,22 @@ async function doTokenRefresh(): Promise<string | null> {
   const { accessToken, refreshToken: newRefreshToken } = json.data[0] as {
     accessToken: string;
     refreshToken: string;
+    user?: {
+      id: string;
+      email: string;
+      displayName?: string;
+      timezone: string;
+      pictureUrl?: string;
+      joinedAt?: string;
+    };
   };
 
-  useAuthStore.getState().setAccessToken(accessToken);
+  const { setAccessToken, setSession } = useAuthStore.getState();
+  if (json.data[0]?.user) {
+    setSession(json.data[0].user, accessToken);
+  } else {
+    setAccessToken(accessToken);
+  }
   await saveRefreshToken(newRefreshToken);
   return accessToken;
 }

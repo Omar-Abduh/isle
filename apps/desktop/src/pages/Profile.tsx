@@ -180,6 +180,7 @@ export default function Profile() {
                         currentStreak={stats?.activeStreaks ?? 0}
                         longestStreak={stats?.longestStreak ?? 0}
                         initials={initials}
+                        pictureUrl={profile?.pictureUrl}
                       />
                     </div>
                   )}

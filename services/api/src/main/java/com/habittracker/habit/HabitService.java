@@ -29,7 +29,7 @@ public class HabitService {
     // ── CRUD ─────────────────────────────────────────────────────────────────
 
     public PageResponse<HabitResponse> listHabits(UUID userId, Pageable pageable) {
-        var page = habitRepository.findByUserId(userId, pageable);
+        var page = habitRepository.findByUserIdAndArchivedFalse(userId, pageable);
         return PageResponse.of(
             habitMapper.toResponseList(page.getContent()),
             pageable.getPageNumber(), pageable.getPageSize(), page.getTotalElements()
@@ -43,6 +43,8 @@ public class HabitService {
         habit.setDescription(req.description());
         habit.setHabitType(req.habitType());
         habit.setRrule(req.rrule());
+        habit = habitRepository.save(habit);
+        replaceSubHabits(habit, req);
         return habitMapper.toResponse(habitRepository.save(habit));
     }
 
@@ -53,6 +55,7 @@ public class HabitService {
         habit.setDescription(req.description());
         habit.setHabitType(req.habitType());
         habit.setRrule(req.rrule());
+        replaceSubHabits(habit, req);
         return habitMapper.toResponse(habitRepository.save(habit));
     }
 
@@ -71,21 +74,21 @@ public class HabitService {
         var habit = habitRepository.findByIdAndUserId(habitId, userId)
             .orElseThrow(() -> new ResourceNotFoundException("Habit not found: " + habitId));
 
-        var logEntry = habitLogRepository
-            .findByHabitIdAndSubHabitIdAndLogDate(habitId, req.subHabitId(), req.date())
-            .orElse(new HabitLog(habitId, req.subHabitId(), req.date()));
-
-        logEntry.setCompleted(req.completed());
-        logEntry.setLoggedAt(req.loggedAt());
-        habitLogRepository.save(logEntry);
-
-        // For COMPOSITE habits, streak only advances when ALL sub-habits are complete
-        boolean shouldCountCompletion = req.completed();
         if (habit.getHabitType() == HabitType.COMPOSITE) {
-            shouldCountCompletion = isParentComplete(habitId, req.date());
+            if (req.subHabitId() == null) {
+                throw new ResourceNotFoundException("Composite habits must be checked off one sub-task at a time");
+            }
+            subHabitRepository.findByIdAndParentId(req.subHabitId(), habitId)
+                .orElseThrow(() -> new ResourceNotFoundException("Sub-task not found: " + req.subHabitId()));
+            logSubHabitCompletion(habitId, req);
+            boolean parentComplete = isParentComplete(habitId, req.date());
+            upsertParentLog(habitId, req.date(), parentComplete, req.loggedAt());
+            updateStreakFastPath(habit, req.date(), parentComplete);
+        } else {
+            upsertParentLog(habitId, req.date(), req.completed(), req.loggedAt());
+            updateStreakFastPath(habit, req.date(), req.completed());
         }
 
-        updateStreakFastPath(habit, req.date(), shouldCountCompletion);
         return habitMapper.toResponse(habitRepository.save(habit));
     }
 
@@ -130,8 +133,7 @@ public class HabitService {
      */
     private void updateStreakFastPath(Habit habit, LocalDate date, boolean completed) {
         LocalDate yesterday = date.minusDays(1);
-        boolean prevDayLogged = habitLogRepository
-            .existsByHabitIdAndLogDateAndCompleted(habit.getId(), yesterday, true);
+        boolean prevDayLogged = habitLogRepository.existsCompletedParentLog(habit.getId(), yesterday);
 
         if (completed && prevDayLogged) {
             habit.setCurrentStreak(habit.getCurrentStreak() + 1);
@@ -150,6 +152,43 @@ public class HabitService {
         int total = subHabitRepository.countByParentId(parentId);
         int completed = habitLogRepository.countCompletedSubHabits(parentId, date);
         return total > 0 && completed == total;
+    }
+
+    private void logSubHabitCompletion(UUID habitId, LogRequest req) {
+        var logEntry = habitLogRepository
+            .findByHabitIdAndSubHabitIdAndLogDate(habitId, req.subHabitId(), req.date())
+            .orElse(new HabitLog(habitId, req.subHabitId(), req.date()));
+        logEntry.setCompleted(req.completed());
+        logEntry.setLoggedAt(req.loggedAt());
+        habitLogRepository.save(logEntry);
+    }
+
+    private void upsertParentLog(UUID habitId, LocalDate date, boolean completed, Instant loggedAt) {
+        var parentLog = habitLogRepository.findParentLog(habitId, date)
+            .orElse(new HabitLog(habitId, null, date));
+        parentLog.setCompleted(completed);
+        parentLog.setLoggedAt(loggedAt);
+        habitLogRepository.save(parentLog);
+    }
+
+    private void replaceSubHabits(Habit habit, HabitRequest req) {
+        habit.getSubHabits().clear();
+
+        if (req.habitType() != HabitType.COMPOSITE || req.subHabits() == null) {
+            return;
+        }
+
+        short sortOrder = 0;
+        for (String name : req.subHabits()) {
+            String trimmed = name == null ? "" : name.trim();
+            if (trimmed.isBlank()) continue;
+
+            var subHabit = new SubHabit();
+            subHabit.setParentId(habit.getId());
+            subHabit.setName(trimmed);
+            subHabit.setSortOrder(sortOrder++);
+            habit.getSubHabits().add(subHabit);
+        }
     }
 
     /**

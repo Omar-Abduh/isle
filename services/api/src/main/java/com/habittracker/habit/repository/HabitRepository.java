@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public interface HabitRepository extends JpaRepository<Habit, UUID> {
     Page<Habit> findByUserId(UUID userId, Pageable pageable);
+    Page<Habit> findByUserIdAndArchivedFalse(UUID userId, Pageable pageable);
     Optional<Habit> findByIdAndUserId(UUID id, UUID userId);
 
     // @SQLRestriction on Habit handles deleted_at IS NULL; archived=false comes from the query

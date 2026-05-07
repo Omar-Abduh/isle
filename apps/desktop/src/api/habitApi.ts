@@ -25,6 +25,7 @@ export interface HabitRequest {
   description?: string;
   habitType: 'POSITIVE' | 'NEGATIVE' | 'COMPOSITE';
   rrule: string;
+  subHabits?: string[];
 }
 
 export async function createHabit(req: HabitRequest): Promise<HabitResponse> {

@@ -25,13 +25,13 @@ function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms))
 }
 
-export function useOfflineSync() {
+export function useOfflineSync(enabled = true) {
   const queryClient = useQueryClient()
   const { queue, dequeue, incrementRetry } = useOfflineStore()
   const isFlushing = useRef(false)
 
   const flush = useCallback(async () => {
-    if (isFlushing.current || !navigator.onLine || queue.length === 0) return
+    if (!enabled || isFlushing.current || !navigator.onLine || queue.length === 0) return
     isFlushing.current = true
 
     let anySucceeded = false
@@ -66,16 +66,18 @@ export function useOfflineSync() {
     }
 
     isFlushing.current = false
-  }, [queue, dequeue, incrementRetry, queryClient])
+  }, [enabled, queue, dequeue, incrementRetry, queryClient])
 
   useEffect(() => {
+    if (!enabled) return
+
     // Flush immediately on mount (handles app restart while online)
     void flush()
 
     const handleOnline = () => void flush()
     window.addEventListener('online', handleOnline)
     return () => window.removeEventListener('online', handleOnline)
-  }, [flush])
+  }, [enabled, flush])
 
   return {
     queueLength: queue.length,

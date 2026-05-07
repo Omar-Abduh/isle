@@ -1,6 +1,7 @@
 package com.habittracker.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -32,26 +33,33 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            JwtDecoder jwtDecoder,
-                                           RateLimitFilter rateLimitFilter) throws Exception {
+                                           RateLimitFilter rateLimitFilter,
+                                           @Qualifier("corsConfigSource")
+                                           CorsConfigurationSource corsConfigurationSource,
+                                           @Value("${app.security.public-docs-enabled:false}")
+                                           boolean publicDocsEnabled) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .cors(c -> c.configurationSource(corsConfigSource()))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers("/actuator/health").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                .anyRequest().authenticated())
+            .cors(c -> c.configurationSource(corsConfigurationSource))
+            .authorizeHttpRequests(auth -> {
+                auth.requestMatchers("/api/v1/auth/**").permitAll();
+                auth.requestMatchers("/actuator/health").permitAll();
+                if (publicDocsEnabled) {
+                    auth.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll();
+                }
+                auth.anyRequest().authenticated();
+            })
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder)))
             .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
-    CorsConfigurationSource corsConfigSource() {
+    CorsConfigurationSource corsConfigSource(
+            @Value("#{'${app.cors.allowed-origin-patterns}'.split(',')}") List<String> allowedOriginPatterns) {
         var config = new CorsConfiguration();
-        // Allow all origins to make it compatible with Vercel out of the box
-        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedOriginPatterns(allowedOriginPatterns.stream().map(String::trim).toList());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Request-ID"));
         config.setMaxAge(3600L);

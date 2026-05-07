@@ -24,6 +24,12 @@ spring:
     schemas: habit_tracker
     locations: classpath:db/migration
 
+app:
+  cors:
+    allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:3000,http://127.0.0.1:3000,tauri://localhost,http://tauri.localhost}
+  security:
+    public-docs-enabled: ${PUBLIC_API_DOCS_ENABLED:false}
+
 jwt:
   private-key: ${JWT_PRIVATE_KEY_PATH}
   public-key: ${JWT_PUBLIC_KEY_PATH}
@@ -35,6 +41,7 @@ google:
   client-secret: ${GOOGLE_CLIENT_SECRET}
   token-endpoint: https://oauth2.googleapis.com/token
   jwks-uri: https://www.googleapis.com/oauth2/v3/certs
+  allowed-redirect-uris: ${GOOGLE_ALLOWED_REDIRECT_URIS:${VITE_REDIRECT_URI:http://localhost:8081/success.html}}
 
 logging:
   structured:

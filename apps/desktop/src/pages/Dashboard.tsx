@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
-import { Plus, Check, ArrowUpDown, Flame, Target, TrendingUp, Activity } from "lucide-react";
+import { Plus, Check, ArrowUpDown } from "lucide-react";
 import { 
   useGetTodayHabits, 
   useLogHabit, 
@@ -9,8 +9,6 @@ import {
   useUpdateHabit, 
   useDeleteHabit,
   useGetUserProfile,
-  useGetStatsSummary,
-  useGetWeeklyStats,
   getGetTodayHabitsQueryKey,
   getGetHabitHistoryQueryKey,
   getGetStatsSummaryQueryKey
@@ -253,8 +251,6 @@ export default function Dashboard() {
 
   const { data: todayHabits, isLoading } = useGetTodayHabits();
   const { data: profile } = useGetUserProfile();
-  const { data: stats } = useGetStatsSummary();
-  const { data: weeklyStats } = useGetWeeklyStats();
   const { prefs } = usePreferences();
   const createHabit = useCreateHabit();
   const updateHabit = useUpdateHabit();
@@ -482,68 +478,6 @@ export default function Dashboard() {
             <Plus className="h-4 w-4" /> Add Habit
           </Button>
         </header>
-
-        {/* ─── Stats Overview ─── */}
-        {stats && (
-          <div className="space-y-3">
-            {/* Stat Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-              {[
-                { label: 'Total Habits', value: stats.totalHabits, icon: Target, color: 'text-primary' },
-                { label: 'Best Streak', value: `${stats.longestStreak}d`, icon: Flame, color: 'text-amber-500' },
-                { label: 'Active Streaks', value: stats.activeStreaks, icon: TrendingUp, color: 'text-emerald-500' },
-                { label: 'Today', value: `${stats.completedToday}/${stats.totalHabits}`, icon: Activity, color: 'text-violet-500' },
-              ].map(({ label, value, icon: Icon, color }) => (
-                <div key={label} className="bg-card border border-border/50 rounded-xl p-3 sm:p-4 flex items-center gap-3 hover:border-primary/20 transition-colors">
-                  <div className={`h-9 w-9 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0 ${color}`}>
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-lg sm:text-xl font-bold text-foreground leading-none">{value}</p>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground/60 mt-0.5 truncate">{label}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* 7-Day Mini Chart */}
-            {weeklyStats && weeklyStats.length > 0 && (
-              <div className="bg-card border border-border/50 rounded-xl p-3 sm:p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Last 7 days</p>
-                  <p className="text-[10px] text-muted-foreground/50">
-                    {weeklyStats.reduce((a, b) => a + b.count, 0)} completions
-                  </p>
-                </div>
-                <div className="flex items-end gap-1.5 h-16">
-                  {weeklyStats.map((entry, i) => {
-                    const maxCount = Math.max(1, ...weeklyStats.map(e => e.count));
-                    const heightPct = Math.max(8, (entry.count / maxCount) * 100);
-                    const isToday = i === weeklyStats.length - 1;
-                    const dayLabel = new Date(entry.date + 'T12:00:00').toLocaleDateString('en', { weekday: 'short' }).slice(0, 2);
-                    return (
-                      <div key={entry.date} className="flex-1 flex flex-col items-center gap-1">
-                        <motion.div
-                          initial={{ height: 0 }}
-                          animate={{ height: `${heightPct}%` }}
-                          transition={{ duration: 0.4, delay: i * 0.05, ease: 'easeOut' }}
-                          className={`w-full rounded-sm transition-colors ${
-                            isToday
-                              ? 'bg-primary'
-                              : entry.count > 0 ? 'bg-primary/30' : 'bg-muted/60'
-                          }`}
-                        />
-                        <span className={`text-[9px] leading-none ${isToday ? 'text-primary font-medium' : 'text-muted-foreground/40'}`}>
-                          {dayLabel}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
 
         {/* ─── Filter & Sort Toolbar ─── */}
         {dueHabits.length > 0 && (

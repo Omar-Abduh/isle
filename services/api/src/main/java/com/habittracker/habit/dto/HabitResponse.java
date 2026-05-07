@@ -7,5 +7,5 @@ public record HabitResponse(
     UUID id, String name, String description,
     HabitType habitType, String rrule,
     int currentStreak, int longestStreak, boolean archived,
-    List<SubHabitDTO> subHabits, Instant createdAt
+    boolean completedToday, List<SubHabitDTO> subHabits, Instant createdAt
 ) {}

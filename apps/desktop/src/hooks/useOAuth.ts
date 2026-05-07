@@ -14,7 +14,7 @@ import { saveRefreshToken } from '../lib/stronghold';
 import { exchangeCode } from '../api/authApi';
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
-const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI as string; // e.g. https://your-vps/success.html
+const REDIRECT_URI = (import.meta.env.VITE_REDIRECT_URI ?? 'http://localhost:8081/success.html') as string;
 const SCOPES = 'openid email profile';
 
 // ── PKCE helpers ─────────────────────────────────────────────────────────────
@@ -58,6 +58,10 @@ export function useOAuth() {
   const pendingRef = useRef<OAuthState | null>(null);
 
   const startLogin = useCallback(async () => {
+    if (!CLIENT_ID) {
+      throw new Error('Missing VITE_GOOGLE_CLIENT_ID. Add it to infra/.env and restart Vite.');
+    }
+
     const { verifier, challenge } = await generatePKCE();
     const state = generateState();
     pendingRef.current = { verifier, state };
@@ -112,11 +116,18 @@ export function useOAuth() {
     sessionStorage.removeItem('isle_pkce_state');
     pendingRef.current = null;
 
-    const { accessToken, refreshToken, user } = await exchangeCode(code, verifier);
+    const { accessToken, refreshToken, user } = await exchangeCode(code, verifier, REDIRECT_URI);
 
     await saveRefreshToken(refreshToken);
     setSession(
-      { id: user.id, email: user.email, displayName: user.displayName, timezone: user.timezone },
+      {
+        id: user.id,
+        email: user.email,
+        displayName: user.displayName,
+        timezone: user.timezone,
+        pictureUrl: user.pictureUrl,
+        joinedAt: user.joinedAt,
+      },
       accessToken,
     );
   }, [setSession]);

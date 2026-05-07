@@ -3,8 +3,10 @@ import { create } from 'zustand';
 export interface AuthUser {
   id: string;
   email: string;
-  displayName: string;
+  displayName?: string;
   timezone: string;
+  pictureUrl?: string;
+  joinedAt?: string;
 }
 
 interface AuthState {

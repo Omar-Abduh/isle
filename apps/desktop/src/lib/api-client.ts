@@ -17,6 +17,7 @@ export interface UserProfile {
   email: string;
   displayName?: string;
   timezone?: string;
+  pictureUrl?: string;
   joinedAt?: string;
 }
 
@@ -96,6 +97,8 @@ export function useGetUserProfile(): UseQueryResult<UserProfile> {
         email: user.email,
         displayName: user.displayName,
         timezone: user.timezone,
+        pictureUrl: user.pictureUrl,
+        joinedAt: user.joinedAt,
       };
     },
   });
@@ -242,6 +245,7 @@ export function useCreateHabit() {
         description: data.description,
         habitType: data.habitType,
         rrule: data.rrule,
+        subHabits: data.habitType === 'COMPOSITE' ? data.subHabits : [],
       });
     },
     onSuccess: () => {
@@ -266,10 +270,13 @@ export function useUpdateHabit() {
         description: data.description,
         habitType: data.habitType!,
         rrule: data.rrule!,
+        subHabits: data.habitType === 'COMPOSITE' ? data.subHabits : [],
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getListHabitsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getGetTodayHabitsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getGetStatsSummaryQueryKey() });
     },
   });
 }
@@ -283,6 +290,7 @@ export function useDeleteHabit() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getListHabitsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getGetTodayHabitsQueryKey() });
       queryClient.invalidateQueries({ queryKey: getGetStatsSummaryQueryKey() });
     },
   });

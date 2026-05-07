@@ -24,7 +24,7 @@ public class AuthController {
 
     @PostMapping("/exchange")
     public ResponseEntity<PageResponse<AuthResponse>> exchange(@Valid @RequestBody AuthExchangeRequest req) {
-        AuthResponse auth = authService.exchange(req.code(), req.codeVerifier());
+        AuthResponse auth = authService.exchange(req.code(), req.codeVerifier(), req.redirectUri());
         return ResponseEntity.ok(PageResponse.single(auth));
     }
 

@@ -9,6 +9,7 @@ interface HabitSummaryCardProps {
   currentStreak?: number
   longestStreak?: number
   initials: string
+  pictureUrl?: string
 }
 
 export function HabitSummaryCardFront({
@@ -18,6 +19,7 @@ export function HabitSummaryCardFront({
   currentStreak = 0,
   longestStreak = 0,
   initials,
+  pictureUrl,
 }: HabitSummaryCardProps) {
   return (
     <div className="relative w-full h-full [transform-style:preserve-3d] select-none">
@@ -31,7 +33,16 @@ export function HabitSummaryCardFront({
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
               <div className="h-24 w-24 rounded-full bg-primary/15 border-2 border-primary/30 flex items-center justify-center shadow-lg">
-                <span className="text-4xl font-black text-primary">{initials}</span>
+                {pictureUrl ? (
+                  <img
+                    src={pictureUrl}
+                    alt=""
+                    referrerPolicy="no-referrer"
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  <span className="text-4xl font-black text-primary">{initials}</span>
+                )}
               </div>
               <div className="text-center">
                 <p className="text-xl font-bold text-foreground">{displayName}</p>

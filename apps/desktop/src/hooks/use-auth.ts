@@ -11,40 +11,54 @@
  * attempted so the user doesn't have to re-login after restarting the app.
  */
 import { useEffect, useState, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
+import { useHabitStore } from '../store/habitStore';
 import { loadRefreshToken, removeRefreshToken } from '../lib/stronghold';
 import { refreshTokens, logout as serverLogout } from '../api/authApi';
 import { saveRefreshToken } from '../lib/stronghold';
 import { useOAuth } from './useOAuth';
 
+let authInitPromise: Promise<void> | null = null;
+
+async function initialiseAuthSession(): Promise<void> {
+  const { accessToken } = useAuthStore.getState();
+  if (accessToken) return;
+
+  const storedRefreshToken = await loadRefreshToken();
+  if (!storedRefreshToken) return;
+
+  try {
+    const {
+      accessToken: newAccess,
+      refreshToken: newRefresh,
+      user: refreshedUser,
+    } = await refreshTokens(storedRefreshToken);
+
+    await saveRefreshToken(newRefresh);
+    useAuthStore.getState().setSession(refreshedUser, newAccess);
+  } catch {
+    const { accessToken: currentAccess } = useAuthStore.getState();
+    if (!currentAccess) {
+      await removeRefreshToken();
+      useAuthStore.getState().logout();
+    }
+  }
+}
+
 export function useAuth() {
-  const { user, accessToken, setAccessToken, logout: clearStore } = useAuthStore();
+  const { user, accessToken, logout: clearStore } = useAuthStore();
   const { startLogin, handleCallback } = useOAuth();
+  const queryClient = useQueryClient();
   const [isInitialising, setIsInitialising] = useState(true);
 
   // ── Silent refresh on app start ─────────────────────────────────────────
   useEffect(() => {
-    (async () => {
-      try {
-        const storedRefreshToken = await loadRefreshToken();
-        if (storedRefreshToken && !accessToken) {
-          const { accessToken: newAccess, refreshToken: newRefresh } =
-            await refreshTokens(storedRefreshToken);
-          // Rotate — save the new refresh token
-          await saveRefreshToken(newRefresh);
-          // We need the user from the existing store or we fetch a profile
-          // For now, set access token; profile will be loaded by useGetUserProfile
-          setAccessToken(newAccess);
-        }
-      } catch {
-        // Refresh token is expired or invalid — user must re-login
-        await removeRefreshToken();
-        clearStore();
-      } finally {
-        setIsInitialising(false);
-      }
-    })();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!authInitPromise) {
+      authInitPromise = initialiseAuthSession();
+    }
+
+    void authInitPromise.finally(() => setIsInitialising(false));
   }, []);
 
   // ── Deep-link / Web-popup listener ─────────────────────────────────────────
@@ -65,7 +79,8 @@ export function useAuth() {
     } else {
       // Setup Web popup message listener
       const handleMessage = async (event: MessageEvent) => {
-        if (event.data?.type === 'oauth_callback') {
+        const expectedOrigin = new URL(import.meta.env.VITE_REDIRECT_URI ?? 'http://localhost:8081/success.html').origin;
+        if (event.origin === expectedOrigin && event.data?.type === 'oauth_callback') {
           const { code, state } = event.data;
           try {
             await handleCallback(`?code=${code}&state=${state}`);
@@ -88,8 +103,10 @@ export function useAuth() {
       await serverLogout();
     } catch { /* ignore network error on logout */ }
     await removeRefreshToken();
+    queryClient.clear();
+    useHabitStore.getState().setHabits([]);
     clearStore();
-  }, [clearStore]);
+  }, [clearStore, queryClient]);
 
   return {
     user,

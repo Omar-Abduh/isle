@@ -87,6 +87,11 @@ VITE_API_BASE_URL=http://localhost:8081
 VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
 VITE_REDIRECT_URI=http://localhost:8081/success.html
 VITE_DEEP_LINK_SCHEME=habittracker
+
+# Security allowlists
+GOOGLE_ALLOWED_REDIRECT_URIS=http://localhost:8081/success.html
+CORS_ALLOWED_ORIGIN_PATTERNS=http://localhost:3000,http://127.0.0.1:3000,tauri://localhost,http://tauri.localhost
+PUBLIC_API_DOCS_ENABLED=true
 COMPOSE_PROJECT_NAME=isle
 ```
 
@@ -120,6 +125,33 @@ pnpm dev
 pnpm tauri dev
 ```
 > **Note:** If working mostly on UI/UX, running `pnpm dev` in a browser is much faster.
+
+### 3. Verify Local Web Auth + API
+1. Open `http://localhost:3000`.
+2. Sign in with Google. Google must redirect to `http://localhost:8081/success.html`.
+3. Create a habit from the dashboard. The request should hit `POST http://localhost:8081/api/v1/habits`.
+4. Refresh the browser. The app should silently call `/api/v1/auth/refresh` and stay logged in.
+
+If the popup closes but the app stays logged out, confirm these values match exactly in `infra/.env`, Google Cloud Console, and the backend container environment:
+```dotenv
+VITE_REDIRECT_URI=http://localhost:8081/success.html
+GOOGLE_ALLOWED_REDIRECT_URIS=http://localhost:8081/success.html
+CORS_ALLOWED_ORIGIN_PATTERNS=http://localhost:3000,http://127.0.0.1:3000,tauri://localhost,http://tauri.localhost
+PUBLIC_API_DOCS_ENABLED=true
+```
+
+For Vercel web builds, set the frontend project environment variables:
+```dotenv
+VITE_API_BASE_URL=https://api.yourdomain.com
+VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
+VITE_REDIRECT_URI=https://api.yourdomain.com/success.html
+```
+
+Then set the API/backend environment variables:
+```dotenv
+GOOGLE_ALLOWED_REDIRECT_URIS=https://api.yourdomain.com/success.html
+CORS_ALLOWED_ORIGIN_PATTERNS=https://your-vercel-project.vercel.app,https://*.vercel.app
+```
 
 ---
 
@@ -168,6 +200,9 @@ cd isle/infra
    - Change `POSTGRES_PASSWORD` and `SPRING_DATASOURCE_PASSWORD` to a highly secure randomly generated string.
    - Update `VITE_API_BASE_URL` to `https://api.yourdomain.com`.
    - Update `VITE_REDIRECT_URI` to `https://api.yourdomain.com/success.html`.
+   - Set `GOOGLE_ALLOWED_REDIRECT_URIS=https://api.yourdomain.com/success.html`.
+   - Set `CORS_ALLOWED_ORIGIN_PATTERNS` to your production web origins, for example `https://your-vercel-project.vercel.app,https://app.yourdomain.com`.
+   - Keep `PUBLIC_API_DOCS_ENABLED=false` unless you intentionally want public Swagger docs.
 
 ### 3. Generate TLS Certificate (HTTPS)
 ```bash

@@ -4,6 +4,7 @@ export interface SubHabitDTO {
   id: string
   name: string
   sortOrder: number
+  completedToday?: boolean
 }
 
 export interface HabitResponse {
@@ -15,6 +16,7 @@ export interface HabitResponse {
   currentStreak: number
   longestStreak: number
   archived: boolean
+  completedToday?: boolean
   subHabits: SubHabitDTO[]
   createdAt: string
 }
@@ -38,6 +40,7 @@ export interface HabitRequest {
   description?: string
   habitType: HabitType
   rrule: string
+  subHabits?: string[]
 }
 
 export interface LogRequest {
