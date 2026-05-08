@@ -92,7 +92,6 @@ jobs:
 
       - name: Run smoke test
         run: |
-          sleep 90
           chmod +x infra/check.sh
           ./infra/check.sh
 
