@@ -61,7 +61,46 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker build services/api -t local-smoke-test:${{ github.sha }}
+      - name: Set up Docker Compose environment
+        run: |
+          cd infra
+          cat > .env << EOF
+          POSTGRES_PASSWORD=test
+          POSTGRES_DB=isle_test
+          POSTGRES_USER=ht_test_user
+          SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/isle_test
+          SPRING_DATASOURCE_USERNAME=ht_test_user
+          SPRING_DATASOURCE_PASSWORD=test
+          JWT_PRIVATE_KEY_PATH=/run/secrets/jwt_private
+          JWT_PUBLIC_KEY_PATH=/run/secrets/jwt_public
+          GOOGLE_CLIENT_ID=test
+          GOOGLE_CLIENT_SECRET=test
+          CORS_ALLOWED_ORIGIN_PATTERNS=http://localhost:8081
+          PUBLIC_API_DOCS_ENABLED=true
+          EOF
+
+      - name: Generate test JWT keys
+        run: |
+          mkdir -p infra/secrets
+          openssl genrsa -out infra/secrets/jwt_private.pem 2048
+          openssl rsa -in infra/secrets/jwt_private.pem -pubout -out infra/secrets/jwt_public.pem
+
+      - name: Start Isle smoke stack
+        run: |
+          cd infra
+          docker compose up -d --build
+
+      - name: Run smoke test
+        run: |
+          sleep 90
+          chmod +x infra/check.sh
+          ./infra/check.sh
+
+      - name: Cleanup smoke stack
+        if: always()
+        run: |
+          cd infra
+          docker compose down -v
 
   tauri-rust-check:
     needs: [frontend]
