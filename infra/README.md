@@ -1,232 +1,124 @@
-# Isle — Habit Tracker
+# Infrastructure & Deployment
 
-A Tauri v2 desktop app (React + TypeScript) backed by a Spring Boot 3.4 REST API, PostgreSQL 16, Nginx, and Google OAuth 2.0 PKCE.
+This directory contains the Docker Compose setup, Nginx configuration, and environment configurations for deploying the Isle Habit Tracker.
 
----
-
-## 🏗 Architecture
-
-```text
-isle/
-├── apps/desktop/          # Tauri + React + Zustand (desktop app)
-│   └── src-tauri/         # Rust backend (deep-link, Stronghold, notifications)
-├── services/api/          # Spring Boot 3.4 REST API (Java 21)
-└── infra/                 # Docker Compose, Nginx, secrets, .env configuration
-```
-
-### Auth Flow (PKCE)
-1. `useOAuth.startLogin()` → opens system browser with code_challenge (S256)
-2. Google → redirects to `https://your-domain.com/success.html?code=…&state=…` (or localhost)
-3. `success.html` → fires `habittracker://auth/callback?code=…&state=…` (deep link)
-4. Tauri deep-link → `useOAuth.ts` → `POST /api/v1/auth/exchange`
-5. Backend → verifies PKCE, issues access JWT (15 min) + opaque refresh (30 days)
-6. Frontend → access token saved to Zustand | refresh token saved to encrypted Tauri Stronghold vault
+The Isle application consists of two parts:
+1. **Frontend**: A React/Vite application (deployed via Vercel).
+2. **Backend**: A Spring Boot API and PostgreSQL database (deployed on a VPS using Docker).
 
 ---
 
-## 🛠 Required Toolchain
+## 1. Backend Deployment (VPS)
 
-| Tool     | Install                                                |
-|----------|--------------------------------------------------------|
-| Rust     | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh` |
-| Node.js  | `nvm install 20` (Min v20 LTS)                         |
-| pnpm     | `npm i -g pnpm` (Min v9)                               |
-| Java     | `sdk install java 21-tem` (Min v21 LTS)                |
-| Docker   | [Docker Desktop](https://docs.docker.com/engine/install/) |
+Deploy the Spring Boot API, PostgreSQL database, and an Nginx reverse proxy on a Linux VPS (Ubuntu/Debian).
 
----
-
-## 🔐 Configuration (One-Time Setup)
-
-Both the backend and frontend are configured via a single shared `.env` file located in the `infra/` folder.
-
-### 1. Google Cloud Console
-1. Go to Google Cloud Console → Create Project "Isle"
-2. **APIs & Services** → OAuth consent screen → External
-3. **Credentials** → Create OAuth Client ID → **Desktop app**
-4. Add Authorized redirect URIs (e.g. `http://localhost:8081/success.html` for local testing)
-5. Keep your Client ID and Client Secret ready.
-
-### 2. Generate RSA Keypair
-This is required to sign JWT tokens. Run from the project root:
-```bash
-mkdir -p infra/secrets
-
-# Generate PKCS8 keys for Spring Boot
-openssl genrsa 2048 | openssl pkcs8 -topk8 -nocrypt -outform PEM -out infra/secrets/jwt_private.pem
-openssl rsa -in infra/secrets/jwt_private.pem -pubout -out infra/secrets/jwt_public.pem
-
-chmod 600 infra/secrets/*.pem
-```
-
-### 3. Setup Global `.env`
-Create `infra/.env` (or modify the existing one). Make sure you fill in the Google credentials:
-
-```dotenv
-# ─── PostgreSQL ───────────────────────────────────────────────────────────────
-POSTGRES_DB=habittracker
-POSTGRES_USER=ht_user
-POSTGRES_PASSWORD=devpassword
-
-# ─── Spring Boot ──────────────────────────────────────────────────────────────
-SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/habittracker
-SPRING_DATASOURCE_USERNAME=ht_user
-SPRING_DATASOURCE_PASSWORD=devpassword
-
-JWT_PRIVATE_KEY_PATH=/run/secrets/jwt_private
-JWT_PUBLIC_KEY_PATH=/run/secrets/jwt_public
-JWT_ACCESS_EXPIRY_MINUTES=15
-JWT_REFRESH_EXPIRY_DAYS=30
-
-# Google OAuth — Client Secret is BACKEND ONLY, never in frontend
-GOOGLE_CLIENT_ID=your_google_client_id_here
-GOOGLE_CLIENT_SECRET=your_google_client_secret_here
-
-# ─── Tauri / Frontend (Vite build-time variables) ────────────────────────────
-VITE_API_BASE_URL=http://localhost:8081
-VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
-VITE_REDIRECT_URI=http://localhost:8081/success.html
-VITE_DEEP_LINK_SCHEME=habittracker
-
-# Security allowlists
-GOOGLE_ALLOWED_REDIRECT_URIS=http://localhost:8081/success.html
-CORS_ALLOWED_ORIGIN_PATTERNS=http://localhost:3000,http://127.0.0.1:3000,tauri://localhost,http://tauri.localhost
-PUBLIC_API_DOCS_ENABLED=true
-COMPOSE_PROJECT_NAME=isle
-```
-
----
-
-## 💻 Running Locally (Development)
-
-### 1. Start the Backend Stack
-We use Docker Compose to run the PostgreSQL database, the Spring Boot Java Backend, and an Nginx reverse proxy. The API will be exposed on **port 8081**.
-
-```bash
-# From project root
-cd infra
-docker-compose up -d --build
-```
-*Wait ~1-2 minutes for the database to migrate and Spring Boot to start.*
-**Test it:** Open **`http://localhost:8081/swagger-ui.html`** in your browser. You should see the interactive API documentation!
-
-### 2. Start the Frontend
-The frontend uses Vite and lives in `apps/desktop`. It reads configuration directly from `infra/.env`.
-
-```bash
-# In a new terminal tab, from project root
-cd apps/desktop
-pnpm install
-
-# Option A: Run as a standard web app (in your browser)
-pnpm dev
-
-# Option B: Run native desktop shell (with hot reloading)
-pnpm tauri dev
-```
-> **Note:** If working mostly on UI/UX, running `pnpm dev` in a browser is much faster.
-
-### 3. Verify Local Web Auth + API
-1. Open `http://localhost:3000`.
-2. Sign in with Google. Google must redirect to `http://localhost:8081/success.html`.
-3. Create a habit from the dashboard. The request should hit `POST http://localhost:8081/api/v1/habits`.
-4. Refresh the browser. The app should silently call `/api/v1/auth/refresh` and stay logged in.
-
-If the popup closes but the app stays logged out, confirm these values match exactly in `infra/.env`, Google Cloud Console, and the backend container environment:
-```dotenv
-VITE_REDIRECT_URI=http://localhost:8081/success.html
-GOOGLE_ALLOWED_REDIRECT_URIS=http://localhost:8081/success.html
-CORS_ALLOWED_ORIGIN_PATTERNS=http://localhost:3000,http://127.0.0.1:3000,tauri://localhost,http://tauri.localhost
-PUBLIC_API_DOCS_ENABLED=true
-```
-
-For Vercel web builds, set the frontend project environment variables:
-```dotenv
-VITE_API_BASE_URL=https://api.yourdomain.com
-VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
-VITE_REDIRECT_URI=https://api.yourdomain.com/success.html
-```
-
-Then set the API/backend environment variables:
-```dotenv
-GOOGLE_ALLOWED_REDIRECT_URIS=https://api.yourdomain.com/success.html
-CORS_ALLOWED_ORIGIN_PATTERNS=https://your-vercel-project.vercel.app,https://*.vercel.app
-```
-
----
-
-## 📦 Building Native Desktop App (macOS `.dmg`)
-
-To share your application, you can compile the app down to a native installer `.dmg`.
-
-### 1. Compile the Application
-Ensure the backend is configured securely in `infra/.env` (change `VITE_API_BASE_URL` to your production URL if packaging for production!).
-```bash
-cd apps/desktop
-pnpm install
-pnpm dlx @tauri-apps/cli build
-```
-
-### 2. Find and Open Your `.dmg`
-- Wait for the Rust compiler to finish building everything.
-- Your installer will be generated at: `apps/desktop/src-tauri/target/release/bundle/macos/Isle.dmg`
-- Double-click `Isle.dmg` to mount it.
-- Drag "Isle" into your **Applications** folder.
-- **MacOS Gatekeeper Note:** On the first run, macOS might block the unassigned application. If so, right-click (or Control-click) "Isle" in Applications and click **Open**.
-
----
-
-## 🚀 Hosting on a VPS (Production)
-
-Deploying to production involves pushing your codebase to a Linux VPS and spinning up Docker along with a real SSL certificate.
-
-### 1. Prepare VPS & Source Code
-SSH into your Linux VPS (Ubuntu/Debian recommended).
+### Prerequisites
+SSH into your VPS and install Docker:
 ```bash
 sudo apt update && sudo apt install -y docker.io docker-compose-plugin certbot openssl git
 sudo usermod -aG docker $USER
 ```
-Relogin (or type `su - $USER`) to apply docker group permissions.
 
-Clone your repository to the server:
+### Configuration
+Clone the repository and set up your production environment variables:
 ```bash
 git clone https://github.com/your-username/isle.git
 cd isle/infra
+
+# Create your production .env
+cp .env.example .env.prod
 ```
 
-### 2. Configure Production Secrets
-1. Regenerate your RSA keypair exclusively for the server in `infra/secrets/` (same exact command as Setup Step 2).
-2. Copy `.env` to `.env.prod`. **CRITCAL EDITS:**
-   - Change `POSTGRES_PASSWORD` and `SPRING_DATASOURCE_PASSWORD` to a highly secure randomly generated string.
-   - Update `VITE_API_BASE_URL` to `https://api.yourdomain.com`.
-   - Update `VITE_REDIRECT_URI` to `https://api.yourdomain.com/success.html`.
-   - Set `GOOGLE_ALLOWED_REDIRECT_URIS=https://api.yourdomain.com/success.html`.
-   - Set `CORS_ALLOWED_ORIGIN_PATTERNS` to your production web origins, for example `https://your-vercel-project.vercel.app,https://app.yourdomain.com`.
-   - Keep `PUBLIC_API_DOCS_ENABLED=false` unless you intentionally want public Swagger docs.
+Edit `.env.prod`:
+- `POSTGRES_PASSWORD`: Use a strong, random 32-character string.
+- `SPRING_DATASOURCE_PASSWORD`: Must exactly match `POSTGRES_PASSWORD`.
+- `GOOGLE_ALLOWED_REDIRECT_URIS`: Your Vercel frontend URL (e.g., `https://isle.vercel.app/success.html`).
+- `CORS_ALLOWED_ORIGIN_PATTERNS`: Your Vercel domain (e.g., `https://isle.vercel.app`).
 
-### 3. Generate TLS Certificate (HTTPS)
+### Generate JWT RSA Keys
+The backend requires RSA keys to sign and verify JWT tokens.
 ```bash
-# Nginx must not be running yet! (We need port 80 open)
+mkdir -p secrets
+openssl genrsa 2048 | openssl pkcs8 -topk8 -nocrypt -outform PEM -out secrets/jwt_private.pem
+openssl rsa -in secrets/jwt_private.pem -pubout -out secrets/jwt_public.pem
+chmod 600 secrets/*.pem
+```
+*(For more details on secrets, see [secrets/README.md](./secrets/README.md))*
+
+### TLS / HTTPS Setup
+1. Generate an SSL certificate using Certbot (ensure port 80 is open and Nginx is not running yet).
+```bash
 sudo certbot certonly --standalone -d api.yourdomain.com --agree-tos -m admin@yourdomain.com
 ```
+2. Update `nginx.conf` (or create an `nginx.conf.prod`) to map to `/etc/letsencrypt/live/api.yourdomain.com/`.
 
-### 4. Adjust Nginx & Start the Service
-Open `infra/nginx.conf.prod` (or modify `nginx.conf` and map volume appropriately in `docker-compose.yml`) to use port 443 and SSL context. Check docker-compose network bindings.
-Finally, start your production environment:
+### Start the Services
 ```bash
 docker-compose --env-file .env.prod up -d --build
 ```
-Access `https://api.yourdomain.com/swagger-ui.html` to confirm it is live!
+Your API will now be live securely at `https://api.yourdomain.com`.
 
 ---
 
-## 🩺 Useful Commands
+## 2. Frontend Deployment (Vercel)
 
-**View Backend Logs:**
-`docker logs -f isle-backend-1`
+The React web application can be deployed seamlessly to Vercel for free.
 
-**Rebuild Backend without cache:**
-`docker-compose build --no-cache backend && docker-compose up -d --build backend`
+1. Connect your GitHub repository to Vercel.
+2. Select the `apps/desktop` directory as the Root Directory.
+3. Use the following build settings (Vercel auto-detects Vite):
+   - **Framework Preset**: Vite
+   - **Build Command**: `npm run build` or `pnpm run build`
+   - **Output Directory**: `dist`
+4. Configure the following Environment Variables in Vercel:
+   - `VITE_API_BASE_URL`: `https://api.yourdomain.com` (Your VPS URL)
+   - `VITE_GOOGLE_CLIENT_ID`: Your Google OAuth Client ID
+   - `VITE_REDIRECT_URI`: `https://your-vercel-project.vercel.app/success.html`
+5. Click **Deploy**.
 
-**Database Access (from host):**
-`docker exec -it isle-db-1 psql -U ht_user -d habittracker`
+---
+
+## Database Management
+
+### Daily Backup Cron Job
+Keep your database safe with automated backups:
+```bash
+# Add to: sudo crontab -e
+0 2 * * * docker exec $(docker ps -qf "name=isle-db") pg_dump -U ht_user habittracker | gzip > /backups/isle_$(date +\%Y\%m\%d).sql.gz && find /backups -name "*.sql.gz" -mtime +7 -delete
+```
+
+### Seeding Data
+If you need to seed dummy data for a user on your VPS:
+```bash
+docker cp seed.sql $(docker ps -qf "name=isle-db"):/seed.sql
+docker exec -it $(docker ps -qf "name=isle-db") psql -U ht_user -d habittracker -f /seed.sql
+```
+
+---
+
+## 3. Desktop Application Build (Tauri)
+
+The frontend can be compiled into a native `.dmg` (macOS) or `.exe` (Windows) using Tauri.
+
+### Local Compilation
+Ensure your `apps/desktop/.env.local` points to your production server URL (`VITE_API_BASE_URL`).
+```bash
+cd apps/desktop
+pnpm install
+pnpm tauri build
+```
+The compiled installer will be available in `apps/desktop/src-tauri/target/release/bundle/`.
+
+### GitHub Actions (CI/CD)
+To automate the desktop app builds, the repository includes a GitHub Action (`.github/workflows/ci.yml`) that compiles the native application on every new version tag.
+
+1. Create the following secrets in **GitHub Settings → Secrets and variables → Actions**:
+   - `VITE_API_BASE_URL`: `https://api.yourdomain.com`
+   - `VITE_GOOGLE_CLIENT_ID`: Your Google OAuth Client ID
+   - `VITE_REDIRECT_URI`: `https://your-vercel-project.vercel.app/success.html`
+2. Push a new semantic version tag to trigger the build:
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+3. GitHub Actions will build and attach the `.dmg`, `.exe`, and `.AppImage` to a new GitHub Release.
