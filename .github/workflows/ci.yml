@@ -97,4 +97,4 @@ jobs:
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
           VITE_REDIRECT_URI: ${{ secrets.VITE_REDIRECT_URI }}
           VITE_DEEP_LINK_SCHEME: isle
-        run: pnpm tauri build
+        run: pnpm exec tauri build
