@@ -45,6 +45,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> {
                 auth.requestMatchers("/api/v1/auth/**").permitAll();
                 auth.requestMatchers("/actuator/health").permitAll();
+                auth.requestMatchers("/success.html").permitAll();
                 if (publicDocsEnabled) {
                     auth.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll();
                 }

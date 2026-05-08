@@ -45,7 +45,6 @@ services:
       - "8081:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./success.html:/usr/share/nginx/html/success.html:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on: [backend]
     networks: [internal]
