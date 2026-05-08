@@ -20,8 +20,9 @@ export function HabitHistoryGrid({ logs, days = 30, color = "#247E84" }: HabitHi
   
   // Fill in completions
   logs.forEach(log => {
-    if (dateMap.has(log.date)) {
-      const entry = dateMap.get(log.date);
+    const logDate = (log as any).logDate || log.date;
+    if (dateMap.has(logDate)) {
+      const entry = dateMap.get(logDate);
       entry.completed = log.completed;
     }
   });
@@ -37,10 +38,10 @@ export function HabitHistoryGrid({ logs, days = 30, color = "#247E84" }: HabitHi
               <div
                 className={`w-8 h-8 sm:w-10 sm:h-10 rounded-sm transition-colors duration-300 border ${
                   entry.completed 
-                    ? 'shadow-sm' 
+                    ? (color ? 'shadow-sm' : 'bg-primary border-primary shadow-sm')
                     : 'bg-muted/50 border-border/50 hover:border-border'
                 }`}
-                style={entry.completed ? { backgroundColor: color, borderColor: `${color}40` } : {}}
+                style={entry.completed && color ? { backgroundColor: color, borderColor: color, opacity: 0.9 } : {}}
               />
             </TooltipTrigger>
             <TooltipContent>

@@ -41,7 +41,7 @@ export default function HabitHistory() {
             <Skeleton className="h-8 w-48" />
           ) : habit ? (
             <div className="flex flex-col">
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight uppercase truncate max-w-[70vw]" style={{ color: habit.color || '#FFF' }}>
+              <h1 className={`text-3xl md:text-4xl font-bold tracking-tight uppercase truncate max-w-[70vw] ${!habit.color && 'text-primary'}`} style={habit.color ? { color: habit.color } : {}}>
                 {habit.name}
               </h1>
               <p className="text-sm font-medium text-muted-foreground mt-1 uppercase tracking-wider">
@@ -72,7 +72,7 @@ export default function HabitHistory() {
                         <span>Less</span>
                         <div className="flex gap-2">
                           <div className="w-4 h-4 bg-muted/50 border border-border/50 rounded-sm"></div>
-                          <div className="w-4 h-4 shadow-sm rounded-sm" style={{ backgroundColor: habit.color || '#FFF', opacity: 0.8 }}></div>
+                          <div className={`w-4 h-4 shadow-sm rounded-sm ${!habit.color && 'bg-primary'}`} style={habit.color ? { backgroundColor: habit.color, opacity: 0.8 } : { opacity: 0.8 }}></div>
                         </div>
                         <span>More</span>
                       </div>
@@ -88,7 +88,7 @@ export default function HabitHistory() {
                     <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-6">Current Streak</h3>
                     <StreakRing currentStreak={habit.currentStreak} longestStreak={habit.longestStreak} size={140} strokeWidth={8} color={habit.color} />
                     <div className="mt-8">
-                      <p className="text-5xl font-bold tracking-tighter" style={{ color: habit.color || '#FFF' }}>{habit.currentStreak}</p>
+                      <p className={`text-5xl font-bold tracking-tighter ${!habit.color && 'text-primary'}`} style={habit.color ? { color: habit.color } : {}}>{habit.currentStreak}</p>
                       <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground mt-2">Days</p>
                     </div>
                  </CardContent>

@@ -20,7 +20,7 @@ export function WeeklyChart({ data }: WeeklyChartProps) {
           const dateLabel = new Date(entry.date + 'T12:00:00').toLocaleDateString('en', { month: 'short', day: 'numeric' });
 
           return (
-            <div key={entry.date} className="flex-1 flex flex-col items-center gap-2">
+            <div key={entry.date} className="flex-1 h-full flex flex-col items-center gap-2">
               {/* Count label */}
               <span className={`text-xs font-medium tabular-nums ${isToday ? 'text-primary' : 'text-muted-foreground/60'}`}>
                 {entry.count}
@@ -36,7 +36,7 @@ export function WeeklyChart({ data }: WeeklyChartProps) {
                     isToday
                       ? 'bg-primary'
                       : entry.count > 0
-                        ? 'bg-primary/25'
+                        ? 'bg-primary/50'
                         : 'bg-muted/50'
                   }`}
                 />
