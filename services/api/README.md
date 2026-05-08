@@ -1,3 +1,9 @@
+<div align="center">
+
+![Isle Logo](../../apps/desktop/public/Isle-logo-blue.svg)
+
+</div>
+
 # Isle — Backend Engineering
 
 The backend is a high-performance REST API built with Spring Boot 3.4 and Java 21. It manages users, securely authenticates sessions, parses recurrence logic (RRule), and persists habit logs to a PostgreSQL 16 database.

@@ -1,3 +1,9 @@
+<div align="center">
+
+![Isle Logo](public/Isle-logo-blue.svg)
+
+</div>
+
 # Isle — Frontend Engineering
 
 The frontend is a hybrid application built with React 18, TypeScript, and Vite. It can run as a standard web application in any modern browser, or be compiled into a highly optimized native desktop application for macOS and Windows using Tauri.

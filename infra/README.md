@@ -1,3 +1,9 @@
+<div align="center">
+
+![Isle Logo](../apps/desktop/public/Isle-logo-blue.svg)
+
+</div>
+
 # Infrastructure & Deployment
 
 This directory contains the Docker Compose setup, Nginx configuration, and environment configurations for deploying the Isle Habit Tracker.

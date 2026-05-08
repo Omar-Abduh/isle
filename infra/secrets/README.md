@@ -1,3 +1,9 @@
+<div align="center">
+
+![Isle Logo](../../apps/desktop/public/Isle-logo-blue.svg)
+
+</div>
+
 # JWT Key Secrets
 
 These files are mounted into the backend container via Docker secrets.
