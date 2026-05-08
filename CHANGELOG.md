@@ -20,7 +20,7 @@
 
 * add frontend build step to tauri release matrix ([d3eed0d](https://github.com/Omar-Abduh/isle/commit/d3eed0d6945e2b88a9d9ed0f9b565c0bc2268cef))
 
-# 1.0.0-beta.1 (2026-05-08)
+# [1.0.0-beta.1](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.1) (2026-05-08)
 
 
 ### Bug Fixes
