@@ -9,7 +9,7 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.4.1</version>
     </parent>
-    <groupId>com.habittracker</groupId>
+    <groupId>com.isle</groupId>
     <artifactId>api</artifactId>
     <version>1.0.0</version>
     <properties>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.8.4</version>
+            <version>2.8.9</version>
         </dependency>
         <!-- Data -->
         <dependency>

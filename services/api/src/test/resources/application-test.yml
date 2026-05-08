@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:tc:postgresql:16:///habittracker_test}
+    url: ${SPRING_DATASOURCE_URL:jdbc:tc:postgresql:16:///isle_test}
   flyway:
     schemas: habit_tracker
 

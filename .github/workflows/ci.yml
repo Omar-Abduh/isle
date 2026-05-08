@@ -22,7 +22,7 @@ jobs:
         image: postgres:16-alpine
         env:
           POSTGRES_PASSWORD: test
-          POSTGRES_DB: habittracker_test
+          POSTGRES_DB: isle_test
           POSTGRES_USER: ht_test_user
         ports:
           - 5432:5432
@@ -37,7 +37,7 @@ jobs:
       - run: mvn verify
         working-directory: services/api
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/habittracker_test
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/isle_test
           SPRING_DATASOURCE_USERNAME: ht_test_user
           SPRING_DATASOURCE_PASSWORD: test
           JWT_PRIVATE_KEY_PATH: src/test/resources/test-jwt-private.pem
@@ -61,31 +61,57 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker build services/api -t local-smoke-test:${{ github.sha }}
+      - name: Set up Docker Compose environment
+        run: |
+          cd infra
+          cat > .env << EOF
+          POSTGRES_PASSWORD=test
+          POSTGRES_DB=isle_test
+          POSTGRES_USER=ht_test_user
+          SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/isle_test
+          SPRING_DATASOURCE_USERNAME=ht_test_user
+          SPRING_DATASOURCE_PASSWORD=test
+          JWT_PRIVATE_KEY_PATH=/run/secrets/jwt_private
+          JWT_PUBLIC_KEY_PATH=/run/secrets/jwt_public
+          GOOGLE_CLIENT_ID=test
+          GOOGLE_CLIENT_SECRET=test
+          CORS_ALLOWED_ORIGIN_PATTERNS=http://localhost:8081
+          PUBLIC_API_DOCS_ENABLED=true
+          EOF
 
-  # Builds cross-platform Tauri desktop binaries on every version tag push (v*)
-  tauri-build:
+      - name: Generate test JWT keys
+        run: |
+          mkdir -p infra/secrets
+          openssl genrsa -out infra/secrets/jwt_private.pem 2048
+          openssl rsa -in infra/secrets/jwt_private.pem -pubout -out infra/secrets/jwt_public.pem
+          chmod 644 infra/secrets/*.pem
+
+      - name: Start Isle smoke stack
+        run: |
+          cd infra
+          docker compose up -d --build
+
+      - name: Run smoke test
+        run: |
+          chmod +x infra/check.sh
+          ./infra/check.sh
+
+      - name: Cleanup smoke stack
+        if: always()
+        run: |
+          cd infra
+          docker compose down -v
+
+  tauri-rust-check:
     needs: [frontend]
-    if: startsWith(github.ref, 'refs/tags/v')
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [macos-latest, windows-latest, ubuntu-latest]
-    runs-on: ${{ matrix.platform }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v3
-        with: { version: 9 }
-
-      - uses: actions/setup-node@v4
-        with: { node-version: 24 }
-
-      - uses: dtolnay/rust-toolchain@stable  # plan fix #7 — correct action name
+      - uses: dtolnay/rust-toolchain@stable
 
       # Linux system deps required for Tauri/WebKit
       - name: Install Linux build deps
-        if: matrix.platform == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -94,20 +120,6 @@ jobs:
             librsvg2-dev \
             patchelf
 
-      - run: pnpm install
-        working-directory: apps/desktop
-
-      - uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
-          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
-          VITE_REDIRECT_URI: ${{ secrets.VITE_REDIRECT_URI }}
-          VITE_DEEP_LINK_SCHEME: habittracker
-        with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'Isle ${{ github.ref_name }}'
-          releaseBody: 'See the assets below to download and install this version.'
-          releaseDraft: true
-          prerelease: ${{ contains(github.ref_name, '-') }}
-          projectPath: apps/desktop
+      - name: Check Tauri Rust code
+        working-directory: apps/desktop/src-tauri
+        run: cargo check

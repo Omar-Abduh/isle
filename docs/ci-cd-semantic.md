@@ -52,9 +52,11 @@ flowchart TD
 
 CI runs quality and correctness checks before release logic:
 
-- Backend unit tests
-- Backend integration tests
-- Frontend build/checks
+- Backend unit tests (`backend-unit`)
+- Backend integration tests with PostgreSQL (`backend-integration`)
+- Frontend build and type-checking (`frontend`)
+- Docker smoke test for backend (`docker-smoke-test`) — verifies compilation
+- Tauri smoke test for desktop (`tauri-smoke-test`) — verifies Tauri build compilation
 
 Goal: block invalid changes before release automation.
 
@@ -74,15 +76,16 @@ Semantic Release performs:
    - `services/api/pom.xml`
 6. Commit release artifacts.
 7. Publish backend Docker image to Docker Hub.
-8. Back-merge source branch into downstream branches.
+8. Publish Tauri desktop binaries (macOS, Windows, Linux) to GitHub Releases.
+9. Back-merge source branch into downstream branches.
 
 ## 4. Branch Release Matrix
 
-| Branch | Release Type | Example | Docker Tags | Back-merge Target |
-| --- | --- | --- | --- | --- |
-| `main` | Stable | `v1.4.2` | `isle:1.4.2`, `isle:latest` | `preview`, then `dev` |
-| `preview` | Prerelease (`beta`) | `v1.5.0-beta.1` | `isle:1.5.0-beta.1`, `isle:beta` | `dev` |
-| `dev` | None | N/A | N/A | N/A |
+| Branch | Release Type | Example | Docker Tags | Tauri Release | Back-merge Target |
+| --- | --- | --- | --- | --- | --- |
+| `main` | Stable | `v1.4.2` | `isle:1.4.2`, `isle:latest` | Final release | `preview`, then `dev` |
+| `preview` | Prerelease (`beta`) | `v1.5.0-beta.1` | `isle:1.5.0-beta.1`, `isle:beta` | Pre-release | `dev` |
+| `dev` | None | N/A | N/A | N/A | N/A |
 
 ## 5. Commit-to-Version Rules
 
@@ -117,8 +120,11 @@ sequenceDiagram
 ## 7. Required Secrets
 
 - `GH_PAT`: required for authenticated checkout/push and protected branch operations.
-- `DOCKERHUB_USERNAME`: Docker Hub namespace/user for image publishing.
-- `DOCKERHUB_TOKEN`: Docker Hub access token for authenticated push.
+- `DOCKERHUB_USERNAME`: Docker Hub namespace/user for backend image publishing.
+- `DOCKERHUB_TOKEN`: Docker Hub access token for authenticated image push.
+- `VITE_API_BASE_URL`: Vite environment variable for API endpoint (required for Tauri builds).
+- `VITE_GOOGLE_CLIENT_ID`: Vite environment variable for OAuth.
+- `VITE_REDIRECT_URI`: Vite environment variable for OAuth callback.
 - `NPM_TOKEN`: not required for publishing because npm publishing is disabled.
 
 ## 8. Safety Controls
@@ -137,8 +143,9 @@ sequenceDiagram
 ## 10. Quick Operational Checklist
 
 1. Ensure branches exist: `main`, `preview`, `dev`.
-2. Configure `GH_PAT` in repository secrets.
-3. Configure `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` in repository secrets.
-4. Enforce Conventional Commits in PRs.
-5. Merge to `preview` for beta validation and `beta` image publication.
-6. Merge to `main` for production release and `latest` image publication.
+2. Configure `GH_PAT` in repository secrets (for GitHub authentication).
+3. Configure `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` in repository secrets (for Docker Hub publishing).
+4. Configure Vite environment variables: `VITE_API_BASE_URL`, `VITE_GOOGLE_CLIENT_ID`, `VITE_REDIRECT_URI` (required for Tauri builds and CI smoke tests).
+5. Enforce Conventional Commits in PRs.
+6. Merge to `preview` for beta validation, `beta` image publication, and pre-release Tauri binaries.
+7. Merge to `main` for production release, `latest` image publication, and final Tauri binaries.

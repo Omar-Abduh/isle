@@ -12,6 +12,21 @@ It is available both as a native desktop application (powered by Tauri) and a we
 
 ---
 
+rsvg-convert -w 16   -h 16   Isle-icon-black.svg -o icon.iconset/icon_16x16.png
+rsvg-convert -w 32   -h 32   Isle-icon-black.svg -o icon.iconset/icon_16x16@2x.png
+
+rsvg-convert -w 32   -h 32   Isle-icon-black.svg -o icon.iconset/icon_32x32.png
+rsvg-convert -w 64   -h 64   Isle-icon-black.svg -o icon.iconset/icon_32x32@2x.png
+
+rsvg-convert -w 128  -h 128  Isle-icon-black.svg -o icon.iconset/icon_128x128.png
+rsvg-convert -w 256  -h 256  Isle-icon-black.svg -o icon.iconset/icon_128x128@2x.png
+
+rsvg-convert -w 256  -h 256  Isle-icon-black.svg -o icon.iconset/icon_256x256.png
+rsvg-convert -w 512  -h 512  Isle-icon-black.svg -o icon.iconset/icon_256x256@2x.png
+
+rsvg-convert -w 512  -h 512  Isle-icon-black.svg -o icon.iconset/icon_512x512.png
+rsvg-convert -w 1024 -h 1024 Isle-icon-black.svg -o icon.iconset/icon_512x512@2x.png
+
 ## ✨ Features
 
 - **Rich Habit Types**: Supports Positive (build a habit), Negative (break a bad habit), and Composite (grouped routines, e.g., "Morning Routine" with multiple sub-habits).
