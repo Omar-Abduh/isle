@@ -60,6 +60,7 @@ export interface HabitLogEntry {
 }
 
 import type { WeeklyStatEntry } from '../api/habitApi';
+export type { WeeklyStatEntry };
 
 export interface StatsSummary {
   totalHabits: number;
