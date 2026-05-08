@@ -26,27 +26,27 @@ export function HabitSummaryCardFront({
       <div className="absolute inset-0 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] [transform-style:preserve-3d]">
         <div className="absolute inset-0 rounded-[24px] bg-card border border-white/10 overflow-hidden [backface-visibility:hidden]">
           <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-primary/30 via-background to-primary/10 dark:from-primary/20 dark:via-background dark:to-primary/5 flex items-center justify-center">
-            <span className="text-[10rem] md:text-[14rem] font-black tracking-[0.1em] uppercase text-foreground/[0.08] dark:text-foreground/[0.06] select-none pointer-events-none">
+            <span className="text-[10rem] md:text-[14rem] font-black tracking-[0.1em] uppercase text-foreground/[0.08] dark:text-foreground/[0.06] select-none pointer-events-none leading-none mt-[-2rem]">
               {initials}
             </span>
           </div>
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center pb-20 md:pb-24">
             <div className="flex flex-col items-center gap-4">
-              <div className="h-24 w-24 rounded-full bg-primary/15 border-2 border-primary/30 flex items-center justify-center shadow-lg">
+              <div className="h-28 w-28 md:h-32 md:w-32 rounded-full bg-primary/15 border-4 border-primary/20 flex items-center justify-center shadow-xl overflow-hidden relative">
                 {pictureUrl ? (
                   <img
                     src={pictureUrl}
                     alt=""
                     referrerPolicy="no-referrer"
-                    className="h-full w-full rounded-full object-cover"
+                    className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span className="text-4xl font-black text-primary">{initials}</span>
+                  <span className="text-5xl font-black text-primary">{initials}</span>
                 )}
               </div>
-              <div className="text-center">
-                <p className="text-xl font-bold text-foreground">{displayName}</p>
-                <p className="text-sm text-muted-foreground mt-0.5">{email}</p>
+              <div className="text-center px-6 max-w-[280px]">
+                <p className="text-2xl font-bold text-foreground tracking-tight truncate">{displayName}</p>
+                <p className="text-xs font-medium text-muted-foreground mt-1 truncate">{email}</p>
               </div>
             </div>
           </div>
