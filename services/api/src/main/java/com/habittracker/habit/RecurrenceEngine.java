@@ -51,7 +51,7 @@ public class RecurrenceEngine {
             net.fortuna.ical4j.model.Date rangeStart = toIcalDate(date);
             net.fortuna.ical4j.model.Date rangeEnd   = toIcalDate(date.plusDays(1)); // exclusive end
             var dates = recur.getDates(seed, rangeStart, rangeEnd, Value.DATE);
-            return !dates.isEmpty();
+            return dates.stream().anyMatch(d -> d.equals(rangeStart));
         } catch (Exception e) {
             // Malformed RRULE — treat as not due
             return false;
