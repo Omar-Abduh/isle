@@ -1,4 +1,3 @@
-use tauri::Manager;
 use tauri_plugin_stronghold::Builder as StrongholdBuilder;
 
 pub fn run() {

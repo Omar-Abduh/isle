@@ -9,13 +9,7 @@
     "deep-link:default",
     "store:default",
     "notification:default",
-    "stronghold:allow-initialize",
-    "stronghold:allow-create-client",
-    "stronghold:allow-load-client",
-    "stronghold:allow-get-store",
-    "stronghold:allow-store-insert",
-    "stronghold:allow-store-get",
-    "stronghold:allow-store-remove",
-    "stronghold:allow-save"
+    "stronghold:default",
+    "stronghold:allow-remove-store-record"
   ]
 }
