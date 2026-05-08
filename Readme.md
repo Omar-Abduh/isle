@@ -1,3 +1,9 @@
+<div align="center">
+
+![Isle Logo](apps/desktop/public/Isle-full-logo.svg)
+
+</div>
+
 # Isle — Advanced Habit Tracker
 
 Isle is a modern, high-performance habit tracking application built for consistency and beautifully crafted analytics. It features a stunning glassmorphic UI, robust recurrence logic, and a strict timezone-aware backend.
@@ -16,95 +22,31 @@ It is available both as a native desktop application (powered by Tauri) and a we
 
 ---
 
-## 🏛 Architecture
+## 📖 Documentation
 
-Isle is built using a decoupled client-server architecture:
+### Core Architecture & Design
+- **[Architecture](./docs/architecture.md)** — System design, components, and infrastructure
+- **[System Flow & Architecture](./docs/system-flow-architecture.md)** — End-to-end runtime flows with architecture diagrams
+- **[Application Logic](./docs/application-logic.md)** — Recurrence engine, streak calculation, and timezone handling
+- **[Database Schema](./docs/database-schema.md)** — Entity relationships and data model
+- **[Semantic Versioning & CI/CD](./docs/semantic-release.md)** — Release strategy, branch flow, and automated versioning
+- **[CI/CD with Semantic Release](./docs/ci-cd-semantic.md)** — CI gates, CD release flow, and branch cascade behavior
 
-```mermaid
-graph TD
-    subgraph Frontend [Isle Desktop & Web]
-        UI[React 18 + Tailwind]
-        State[Zustand + React Query]
-        Tauri[Tauri Core / Rust]
-        UI <--> State
-        State <--> Tauri
-    end
+### Module-Specific Guides
+- **[Backend Engineering (Spring Boot)](./services/api/README.md)** — API setup, authentication, recurrence engine
+- **[Frontend Engineering (React + Tauri)](./apps/desktop/README.md)** — Web & desktop development, OAuth flow
+- **[Infrastructure & Deployment](./infra/README.md)** — Docker, VPS setup, Vercel deployment, CI/CD
+- **[Secrets & Security](./infra/secrets/README.md)** — JWT key generation and management
 
-    subgraph Backend [Isle API / Spring Boot]
-        Auth[OAuth PKCE + JWT]
-        Recurrence[RecurrenceEngine]
-        API[REST Controllers]
-        Auth <--> API
-        Recurrence <--> API
-    end
+### Project Standards
+- **[Contributing](./CONTRIBUTING.md)** — Commit convention and pull request guidelines
 
-    subgraph Database [Storage]
-        PG[(PostgreSQL 16)]
-    end
-
-    Frontend -- "HTTPS / JSON\n(X-Timezone injected)" --> Backend
-    Backend -- "JDBC" --> PG
-```
-
-### Application Logic
-
-1. **Recurrence Engine (`RRULE`)**: Instead of relying on crons, the backend uses iCal `RRULE` strings (e.g., `FREQ=WEEKLY;BYDAY=MO,WE,FR`) to calculate whether a habit is "due" on a given client-local date.
-2. **Streak Calculation**: Streaks are strictly mathematically derived from the continuous intersection of "due dates" and "logged dates". If a user misses a due date, the `current_streak` falls to 0. 
-3. **Timezone Awareness**: The backend *never* relies on UTC system time to judge if a habit was completed "today". All requests from the frontend inject `X-Timezone`, shifting the boundaries of "today" so streaks behave exactly as the user expects, regardless of geography.
+### Getting Started
+For a quick start guide and project overview, see [Plan.md](./Plan.md).
 
 ---
 
-## 🗄 Database Schema
+## 📋 License & Security
 
-The persistence layer is managed by PostgreSQL, using strict foreign key constraints and `UUID` primary keys.
-
-```mermaid
-erDiagram
-    USERS ||--o{ HABITS : creates
-    USERS {
-        uuid id PK
-        string google_id "Unique"
-        string email
-        string display_name
-        string timezone
-    }
-
-    HABITS ||--o{ SUB_HABITS : contains
-    HABITS ||--o{ HABIT_LOGS : logs
-    HABITS {
-        uuid id PK
-        uuid user_id FK
-        string name
-        string habit_type "POSITIVE, NEGATIVE, COMPOSITE"
-        string rrule "e.g., FREQ=DAILY"
-        int current_streak
-        int longest_streak
-    }
-
-    SUB_HABITS ||--o{ HABIT_LOGS : logs
-    SUB_HABITS {
-        uuid id PK
-        uuid parent_id FK
-        string name
-        int sort_order
-    }
-
-    HABIT_LOGS {
-        uuid id PK
-        uuid habit_id FK
-        uuid sub_habit_id FK "Nullable"
-        date log_date
-        boolean completed
-        timestamp logged_at
-    }
-```
-
----
-
-## 📚 Technical Documentation
-
-For technical guides on how to build, run, and deploy the application, please refer to the specific module READMEs:
-
-- **[Infrastructure & Deployment (Vercel & VPS)](./infra/README.md)**
-- **[Frontend Architecture (Tauri + React)](./apps/desktop/README.md)**
-- **[Backend Architecture (Spring Boot)](./services/api/README.md)**
+- **[LICENSE](./LICENSE)** — MIT License
+- **[SECURITY](./SECURITY.md)** — Security policy, vulnerability reporting, and best practices
