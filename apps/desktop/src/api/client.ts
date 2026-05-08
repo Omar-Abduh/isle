@@ -88,6 +88,9 @@ export async function apiFetch<T>(
   if (!headers.has('Content-Type') && options.body) {
     headers.set('Content-Type', 'application/json');
   }
+  if (!headers.has('X-Timezone')) {
+    headers.set('X-Timezone', Intl.DateTimeFormat().resolvedOptions().timeZone);
+  }
 
   const res = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
 

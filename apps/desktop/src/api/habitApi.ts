@@ -91,6 +91,16 @@ export async function getHabitStats(habitId: string): Promise<HabitStats> {
   return json.data[0];
 }
 
+export interface WeeklyStatEntry {
+  date: string;
+  count: number;
+}
+
+export async function getWeeklyStats(): Promise<WeeklyStatEntry[]> {
+  const json = await apiFetch<PageResponse<WeeklyStatEntry>>('/api/v1/habits/stats/weekly');
+  return json.data;
+}
+
 /**
  * Aggregated stats for the Dashboard summary card.
  * Derives from the local habit list since there is no dedicated endpoint.

@@ -15,8 +15,8 @@ public class HabitMapper {
 
     private final HabitLogRepository habitLogRepository;
 
-    public HabitResponse toResponse(Habit habit) {
-        LocalDate today = LocalDate.now();
+    public HabitResponse toResponse(Habit habit, String timezone) {
+        LocalDate today = LocalDate.now(java.time.ZoneId.of(timezone));
         List<SubHabitDTO> subHabitDTOs = habit.getSubHabits().stream()
             .map(s -> new SubHabitDTO(
                 s.getId(),
@@ -45,7 +45,7 @@ public class HabitMapper {
         );
     }
 
-    public List<HabitResponse> toResponseList(List<Habit> habits) {
-        return habits.stream().map(this::toResponse).toList();
+    public List<HabitResponse> toResponseList(List<Habit> habits, String timezone) {
+        return habits.stream().map(h -> toResponse(h, timezone)).toList();
     }
 }

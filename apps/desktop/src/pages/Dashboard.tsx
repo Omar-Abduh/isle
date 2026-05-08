@@ -458,7 +458,16 @@ export default function Dashboard() {
           {/* Day progress + date */}
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground/60">{todayStr}</span>
-            <span className="text-[10px] text-muted-foreground/40 uppercase tracking-wider">{dayProgress}% of day</span>
+            <span className="text-[10px] text-muted-foreground/40 uppercase tracking-wider">
+              {(() => {
+                if (dayProgress < 20) return 'Just started the day';
+                if (dayProgress < 40) return 'Morning hustle';
+                if (dayProgress < 60) return 'Halfway through the day';
+                if (dayProgress < 80) return 'Day is winding down';
+                if (dayProgress < 95) return 'Day is about to end';
+                return 'Time to rest';
+              })()}
+            </span>
           </div>
           <div className="w-full h-[2px] bg-muted/40 rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-primary/30 via-primary to-primary/30 rounded-full" style={{ width: `${dayProgress}%` }} />

@@ -33,15 +33,15 @@ public class HabitService {
 
     // ── CRUD ─────────────────────────────────────────────────────────────────
 
-    public PageResponse<HabitResponse> listHabits(UUID userId, Pageable pageable) {
+    public PageResponse<HabitResponse> listHabits(UUID userId, Pageable pageable, String timezone) {
         var page = habitRepository.findByUserIdAndArchivedFalse(userId, pageable);
         return PageResponse.of(
-            habitMapper.toResponseList(page.getContent()),
+            habitMapper.toResponseList(page.getContent(), timezone),
             pageable.getPageNumber(), pageable.getPageSize(), page.getTotalElements()
         );
     }
 
-    public HabitResponse createHabit(UUID userId, HabitRequest req) {
+    public HabitResponse createHabit(UUID userId, HabitRequest req, String timezone) {
         var habit = new Habit();
         habit.setUserId(userId);
         habit.setName(req.name());
@@ -50,10 +50,10 @@ public class HabitService {
         habit.setRrule(req.rrule());
         habit = habitRepository.save(habit);
         replaceSubHabits(habit, req);
-        return habitMapper.toResponse(habitRepository.save(habit));
+        return habitMapper.toResponse(habitRepository.save(habit), timezone);
     }
 
-    public HabitResponse updateHabit(UUID id, UUID userId, HabitRequest req) {
+    public HabitResponse updateHabit(UUID id, UUID userId, HabitRequest req, String timezone) {
         var habit = habitRepository.findByIdAndUserId(id, userId)
             .orElseThrow(() -> new ResourceNotFoundException("Habit not found: " + id));
         habit.setName(req.name());
@@ -61,7 +61,7 @@ public class HabitService {
         habit.setHabitType(req.habitType());
         habit.setRrule(req.rrule());
         replaceSubHabits(habit, req);
-        return habitMapper.toResponse(habitRepository.save(habit));
+        return habitMapper.toResponse(habitRepository.save(habit), timezone);
     }
 
     public void archiveHabit(UUID id, UUID userId) {
@@ -73,9 +73,9 @@ public class HabitService {
 
     // ── Completion Logging ────────────────────────────────────────────────────
 
-    public HabitResponse logCompletion(UUID habitId, UUID userId, LogRequest req) {
+    public HabitResponse logCompletion(UUID habitId, UUID userId, LogRequest req, String timezone) {
         validateTimestamp(req.loggedAt());
-        validateLogDate(req.date());
+        validateLogDate(req.date(), timezone);
 
         var habit = habitRepository.findByIdAndUserId(habitId, userId)
             .orElseThrow(() -> new ResourceNotFoundException("Habit not found: " + habitId));
@@ -89,13 +89,13 @@ public class HabitService {
             logSubHabitCompletion(habitId, req);
             boolean parentComplete = isParentComplete(habitId, req.date());
             upsertParentLog(habitId, req.date(), parentComplete, req.loggedAt());
-            updateStreakFastPath(habit, req.date(), parentComplete);
+            updateStreakFastPath(habit, req.date(), parentComplete, timezone);
         } else {
             upsertParentLog(habitId, req.date(), req.completed(), req.loggedAt());
-            updateStreakFastPath(habit, req.date(), req.completed());
+            updateStreakFastPath(habit, req.date(), req.completed(), timezone);
         }
 
-        return habitMapper.toResponse(habitRepository.save(habit));
+        return habitMapper.toResponse(habitRepository.save(habit), timezone);
     }
 
     /**
@@ -142,6 +142,45 @@ public class HabitService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public List<WeeklyStatDTO> getWeeklyStats(UUID userId, String timezone) {
+        LocalDate today = LocalDate.now(ZoneId.of(timezone));
+        LocalDate sevenDaysAgo = today.minusDays(6);
+        
+        // Find all active habits for the user to join against logs
+        List<Habit> habits = habitRepository.findActiveByUserId(userId);
+        List<UUID> habitIds = habits.stream().map(Habit::getId).toList();
+        
+        if (habitIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // We fetch completed logs for these habits in the last 7 days
+        // Assuming habitLogRepository has a method, but since we don't, we can just fetch the dates
+        // A better approach is to use a repository query, but for simplicity we can just iterate.
+        // Let's create a map of date -> count
+        Map<LocalDate, Integer> counts = new HashMap<>();
+        for (int i = 0; i < 7; i++) {
+            counts.put(today.minusDays(i), 0);
+        }
+
+        for (UUID habitId : habitIds) {
+            List<LocalDate> dates = habitLogRepository.findCompletedDatesByHabitIdOrderByDateDesc(habitId);
+            for (LocalDate d : dates) {
+                if (!d.isBefore(sevenDaysAgo) && !d.isAfter(today)) {
+                    counts.put(d, counts.get(d) + 1);
+                }
+            }
+        }
+
+        List<WeeklyStatDTO> result = new ArrayList<>();
+        for (int i = 6; i >= 0; i--) {
+            LocalDate d = today.minusDays(i);
+            result.add(new WeeklyStatDTO(d.toString(), counts.get(d)));
+        }
+        return result;
+    }
+
     // ── Private Helpers ───────────────────────────────────────────────────────
 
     /**
@@ -155,8 +194,8 @@ public class HabitService {
      * cannot reliably determine the true streak without a full scan.  Nightly
      * reconciliation corrects any drift within 24 hours.
      */
-    private void updateStreakFastPath(Habit habit, LocalDate date, boolean completed) {
-        LocalDate today     = LocalDate.now(ZoneOffset.UTC);
+    private void updateStreakFastPath(Habit habit, LocalDate date, boolean completed, String timezone) {
+        LocalDate today     = LocalDate.now(ZoneId.of(timezone));
         LocalDate yesterday = today.minusDays(1);
 
         // Only apply the fast path for present-day or previous-day entries.
@@ -251,8 +290,8 @@ public class HabitService {
      *       prevent arbitrary back-fill that would corrupt streak fast-paths.</li>
      * </ul>
      */
-    private void validateLogDate(LocalDate date) {
-        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+    private void validateLogDate(LocalDate date, String timezone) {
+        LocalDate today = LocalDate.now(ZoneId.of(timezone));
         if (date.isAfter(today)) {
             throw new ClockDriftException("Log date cannot be in the future");
         }

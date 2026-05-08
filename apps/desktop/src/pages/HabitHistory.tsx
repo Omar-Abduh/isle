@@ -1,6 +1,7 @@
 import { useParams, Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 import { useGetHabitHistory, useListHabits } from "../lib/api-client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { HabitHistoryGrid } from "@/components/habits/HabitHistoryGrid";
@@ -44,7 +45,7 @@ export default function HabitHistory() {
                 {habit.name}
               </h1>
               <p className="text-sm font-medium text-muted-foreground mt-1 uppercase tracking-wider">
-                Started {new Date(habit.createdAt).toLocaleDateString()}
+                Started {formatDistanceToNow(new Date(habit.createdAt), { addSuffix: true })}
               </p>
             </div>
           ) : (

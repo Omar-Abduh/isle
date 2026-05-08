@@ -28,30 +28,33 @@ public class HabitController {
     @GetMapping("/habits")
     public ResponseEntity<PageResponse<HabitResponse>> listHabits(
             @AuthenticationPrincipal Jwt jwt,
+            @RequestHeader(value = "X-Timezone", defaultValue = "UTC") String timezone,
             @RequestParam(defaultValue = "0")  int page,
             @RequestParam(defaultValue = "20") int size) {
         size = Math.min(size, 100);
         UUID userId = UUID.fromString(jwt.getSubject());
         var pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return ResponseEntity.ok(habitService.listHabits(userId, pageable));
+        return ResponseEntity.ok(habitService.listHabits(userId, pageable, timezone));
     }
 
     @PostMapping("/habits")
     public ResponseEntity<PageResponse<HabitResponse>> createHabit(
             @AuthenticationPrincipal Jwt jwt,
+            @RequestHeader(value = "X-Timezone", defaultValue = "UTC") String timezone,
             @Valid @RequestBody HabitRequest req) {
         UUID userId = UUID.fromString(jwt.getSubject());
-        HabitResponse response = habitService.createHabit(userId, req);
+        HabitResponse response = habitService.createHabit(userId, req, timezone);
         return ResponseEntity.status(HttpStatus.CREATED).body(PageResponse.single(response));
     }
 
     @PutMapping("/habits/{id}")
     public ResponseEntity<PageResponse<HabitResponse>> updateHabit(
             @AuthenticationPrincipal Jwt jwt,
+            @RequestHeader(value = "X-Timezone", defaultValue = "UTC") String timezone,
             @PathVariable UUID id,
             @Valid @RequestBody HabitRequest req) {
         UUID userId = UUID.fromString(jwt.getSubject());
-        HabitResponse response = habitService.updateHabit(id, userId, req);
+        HabitResponse response = habitService.updateHabit(id, userId, req, timezone);
         return ResponseEntity.ok(PageResponse.single(response));
     }
 
@@ -69,9 +72,10 @@ public class HabitController {
     @PostMapping("/logs")
     public ResponseEntity<PageResponse<HabitResponse>> logCompletion(
             @AuthenticationPrincipal Jwt jwt,
+            @RequestHeader(value = "X-Timezone", defaultValue = "UTC") String timezone,
             @Valid @RequestBody LogRequest req) {
         UUID userId = UUID.fromString(jwt.getSubject());
-        HabitResponse response = habitService.logCompletion(req.habitId(), userId, req);
+        HabitResponse response = habitService.logCompletion(req.habitId(), userId, req, timezone);
         return ResponseEntity.ok(PageResponse.single(response));
     }
 
@@ -97,5 +101,14 @@ public class HabitController {
         UUID userId = UUID.fromString(jwt.getSubject());
         HabitStatsDTO stats = habitService.getStats(id, userId);
         return ResponseEntity.ok(PageResponse.single(stats));
+    }
+
+    @GetMapping("/habits/stats/weekly")
+    public ResponseEntity<PageResponse<WeeklyStatDTO>> getWeeklyStats(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestHeader(value = "X-Timezone", defaultValue = "UTC") String timezone) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+        var stats = habitService.getWeeklyStats(userId, timezone);
+        return ResponseEntity.ok(PageResponse.of(stats, 0, stats.size(), stats.size()));
     }
 }

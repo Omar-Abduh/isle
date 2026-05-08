@@ -59,10 +59,7 @@ export interface HabitLogEntry {
   loggedAt: string;
 }
 
-export interface WeeklyStatEntry {
-  date: string;
-  count: number;
-}
+import type { WeeklyStatEntry } from '../api/habitApi';
 
 export interface StatsSummary {
   totalHabits: number;
@@ -162,22 +159,7 @@ export function useGetHabitHistory(habitId?: string): UseQueryResult<HabitLogEnt
 export function useGetWeeklyStats(): UseQueryResult<WeeklyStatEntry[]> {
   return useQuery({
     queryKey: getGetWeeklyStatsQueryKey(),
-    queryFn: async () => {
-      const habits = await habitApi.listHabits();
-      // Build the past 7 days from actual completion data
-      const today = new Date();
-      return Array.from({ length: 7 }, (_, i) => {
-        const d = new Date(today);
-        d.setDate(d.getDate() - (6 - i));
-        const dateStr = d.toISOString().split('T')[0];
-        const isToday = i === 6;
-        // For today, use the live completedToday field
-        const count = isToday
-          ? habits.filter((h) => h.completedToday && !h.archived).length
-          : 0; // historical data would require separate /logs endpoint aggregation
-        return { date: dateStr, count };
-      });
-    },
+    queryFn: () => habitApi.getWeeklyStats(),
   });
 }
 
