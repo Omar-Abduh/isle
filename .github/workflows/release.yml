@@ -1,4 +1,3 @@
-name: Release
 
 on:
   push:
@@ -137,7 +136,7 @@ jobs:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
           VITE_REDIRECT_URI: ${{ secrets.VITE_REDIRECT_URI }}
-          VITE_DEEP_LINK_SCHEME: habittracker
+          VITE_DEEP_LINK_SCHEME: isle
         with:
           tagName: ${{ needs.semantic-release.outputs.git_tag }}
           prerelease: ${{ contains(needs.semantic-release.outputs.git_tag, '-') }}

@@ -1,0 +1,51 @@
+package com.isle.habit;
+
+import com.isle.habit.dto.HabitResponse;
+import com.isle.habit.dto.SubHabitDTO;
+import com.isle.habit.model.Habit;
+import com.isle.habit.repository.HabitLogRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import java.time.LocalDate;
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+public class HabitMapper {
+
+    private final HabitLogRepository habitLogRepository;
+
+    public HabitResponse toResponse(Habit habit, String timezone) {
+        LocalDate today = LocalDate.now(java.time.ZoneId.of(timezone));
+        List<SubHabitDTO> subHabitDTOs = habit.getSubHabits().stream()
+            .map(s -> new SubHabitDTO(
+                s.getId(),
+                s.getName(),
+                s.getSortOrder(),
+                habitLogRepository
+                    .findByHabitIdAndSubHabitIdAndLogDate(habit.getId(), s.getId(), today)
+                    .map(log -> log.isCompleted())
+                    .orElse(false)
+            ))
+            .toList();
+        boolean completedToday = habitLogRepository.existsCompletedParentLog(habit.getId(), today);
+
+        return new HabitResponse(
+            habit.getId(),
+            habit.getName(),
+            habit.getDescription(),
+            habit.getHabitType(),
+            habit.getRrule(),
+            habit.getCurrentStreak(),
+            habit.getLongestStreak(),
+            habit.isArchived(),
+            completedToday,
+            subHabitDTOs,
+            habit.getCreatedAt()
+        );
+    }
+
+    public List<HabitResponse> toResponseList(List<Habit> habits, String timezone) {
+        return habits.stream().map(h -> toResponse(h, timezone)).toList();
+    }
+}

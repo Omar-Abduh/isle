@@ -71,7 +71,7 @@ export function useAuth() {
         try {
           const { onOpenUrl } = await import('@tauri-apps/plugin-deep-link');
           unlisten = await onOpenUrl(async (urls: string[]) => {
-            const callbackUrl = urls.find((u) => u.startsWith('habittracker://auth/callback'));
+            const callbackUrl = urls.find((u) => u.startsWith('isle://auth/callback'));
             if (callbackUrl) await handleCallback(callbackUrl);
           });
         } catch { /* not in Tauri environment */ }

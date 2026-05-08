@@ -9,7 +9,7 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.4.1</version>
     </parent>
-    <groupId>com.habittracker</groupId>
+    <groupId>com.isle</groupId>
     <artifactId>api</artifactId>
     <version>1.0.0</version>
     <properties>

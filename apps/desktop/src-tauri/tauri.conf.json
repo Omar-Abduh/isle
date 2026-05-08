@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "identifier": "com.habittracker.app",
+  "identifier": "com.isle.app",
   "productName": "Isle",
   "version": "0.1.0",
   "build": {
@@ -28,7 +28,7 @@
     "deep-link": {
       "mobile": [],
       "desktop": {
-        "schemes": ["habittracker"]
+        "schemes": ["isle"]
       }
     }
   },
@@ -43,14 +43,7 @@
       "icons/icon.ico"
     ],
     "macOS": {
-      "infoPlist": {
-        "CFBundleURLTypes": [
-          {
-            "CFBundleURLSchemes": ["habittracker"],
-            "CFBundleURLName": "com.habittracker.app"
-          }
-        ]
-      }
+      "infoPlist": "Info.plist"
     }
   }
 }

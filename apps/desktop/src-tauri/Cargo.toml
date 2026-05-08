@@ -1,10 +1,10 @@
 [package]
-name = "habittracker"
+name = "isle"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "habittracker_lib"
+name = "isle_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

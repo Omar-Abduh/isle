@@ -22,7 +22,7 @@ jobs:
         image: postgres:16-alpine
         env:
           POSTGRES_PASSWORD: test
-          POSTGRES_DB: habittracker_test
+          POSTGRES_DB: isle_test
           POSTGRES_USER: ht_test_user
         ports:
           - 5432:5432
@@ -37,7 +37,7 @@ jobs:
       - run: mvn verify
         working-directory: services/api
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/habittracker_test
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/isle_test
           SPRING_DATASOURCE_USERNAME: ht_test_user
           SPRING_DATASOURCE_PASSWORD: test
           JWT_PRIVATE_KEY_PATH: src/test/resources/test-jwt-private.pem
