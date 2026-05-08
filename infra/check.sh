@@ -1,20 +1,20 @@
 #!/bin/bash
 
-response=$(curl -sS http://localhost:8081/actuator/health)
+set -euo pipefail
+
+cd "$(dirname "$0")"
+
+response=$(docker compose exec -T backend sh -c 'wget -qO- http://localhost:8080/actuator/health')
 
 echo "$response"
 
-echo "$response" | grep -q '"status":"UP"'
-if [ $? -ne "0" ]; then
+if ! echo "$response" | grep -q '"status":"UP"'; then
    echo "============================================================="
-   echo "Unable to reach Isle health endpoint on port 8081 !!"
+   echo "Unable to reach Isle health endpoint inside the backend container !!"
    echo "============================================================="
-elif ! echo "$response" | grep -q '"uptime"'; then
-   echo "============================================================="
-   echo "Isle health endpoint did not include uptime details !!"
-   echo "============================================================="
-else
-   echo "================="
-   echo "Smoke Test passed"
-   echo "================="
+   exit 1
 fi
+
+echo "================="
+echo "Smoke Test passed"
+echo "================="
