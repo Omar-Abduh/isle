@@ -64,6 +64,26 @@ docker-compose --env-file .env.prod up -d --build
 ```
 Your API will now be live securely at `https://api.yourdomain.com`.
 
+### Run the Released Docker Image
+The release pipeline publishes the backend API image to Docker Hub as `DOCKERHUB_USERNAME/isle:<tag>` and `DOCKERHUB_USERNAME/isle:latest` on `main`.
+
+Pull and run the image with the database and JWT key paths configured:
+```bash
+docker pull DOCKERHUB_USERNAME/isle:latest
+
+docker run -d \
+   --name isle-api \
+   -p 8080:8080 \
+   --env-file .env.prod \
+   -e JWT_PRIVATE_KEY_PATH=/run/secrets/jwt_private \
+   -e JWT_PUBLIC_KEY_PATH=/run/secrets/jwt_public \
+   -v $(pwd)/secrets/jwt_private.pem:/run/secrets/jwt_private:ro \
+   -v $(pwd)/secrets/jwt_public.pem:/run/secrets/jwt_public:ro \
+   DOCKERHUB_USERNAME/isle:latest
+```
+
+If you want the app to use the production database, make sure `SPRING_DATASOURCE_URL` in `.env.prod` points to your Postgres instance and that the database is reachable from the container.
+
 ---
 
 ## 2. Frontend Deployment (Vercel)
