@@ -47,3 +47,17 @@ logging:
   structured:
     format:
       console: ecs
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  health:
+    defaults:
+      enabled: false
+    livenessState:
+      enabled: false
+    readinessState:
+      enabled: false
+    diskSpace:
+      enabled: false
