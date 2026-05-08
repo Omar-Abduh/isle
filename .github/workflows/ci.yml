@@ -24,6 +24,8 @@ jobs:
           POSTGRES_PASSWORD: test
           POSTGRES_DB: habittracker_test
           POSTGRES_USER: ht_test_user
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -50,7 +52,7 @@ jobs:
       - uses: pnpm/action-setup@v3
         with: { version: 9 }
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
+        with: { node-version: 24 }
       - run: pnpm install && pnpm typecheck
         working-directory: apps/desktop
 
@@ -78,7 +80,7 @@ jobs:
         with: { version: 9 }
 
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
+        with: { node-version: 24 }
 
       - uses: dtolnay/rust-toolchain@stable  # plan fix #7 — correct action name
 
