@@ -32,14 +32,16 @@ flowchart TD
   G -- No --> H[No tag/version change]
   G -- Yes --> I[Create beta tag + notes + changelog]
   I --> J[Sync versions across apps]
-  J --> K[Back-merge preview -> dev]
+  J --> J1[Publish Docker image\nversion + beta tags]
+  J1 --> K[Back-merge preview -> dev]
 
   C -- main --> L[Run semantic-release stable release]
   L --> M{Release created?}
   M -- No --> N[No tag/version change]
   M -- Yes --> O[Create stable tag + notes + changelog]
   O --> P[Sync versions across apps]
-  P --> Q[Back-merge main -> preview]
+  P --> P1[Publish Docker image\nversion + latest tags]
+  P1 --> Q[Back-merge main -> preview]
   Q --> R[Back-merge main -> dev]
 
   C -- other branches --> S[CI only]
@@ -71,15 +73,16 @@ Semantic Release performs:
    - `apps/desktop/src-tauri/tauri.conf.json`
    - `services/api/pom.xml`
 6. Commit release artifacts.
-7. Back-merge source branch into downstream branches.
+7. Publish backend Docker image to Docker Hub.
+8. Back-merge source branch into downstream branches.
 
 ## 4. Branch Release Matrix
 
-| Branch | Release Type | Example | Back-merge Target |
-| --- | --- | --- | --- |
-| `main` | Stable | `v1.4.2` | `preview`, then `dev` |
-| `preview` | Prerelease (`beta`) | `v1.5.0-beta.1` | `dev` |
-| `dev` | None | N/A | N/A |
+| Branch | Release Type | Example | Docker Tags | Back-merge Target |
+| --- | --- | --- | --- | --- |
+| `main` | Stable | `v1.4.2` | `isle:1.4.2`, `isle:latest` | `preview`, then `dev` |
+| `preview` | Prerelease (`beta`) | `v1.5.0-beta.1` | `isle:1.5.0-beta.1`, `isle:beta` | `dev` |
+| `dev` | None | N/A | N/A | N/A |
 
 ## 5. Commit-to-Version Rules
 
@@ -114,11 +117,14 @@ sequenceDiagram
 ## 7. Required Secrets
 
 - `GH_PAT`: required for authenticated checkout/push and protected branch operations.
+- `DOCKERHUB_USERNAME`: Docker Hub namespace/user for image publishing.
+- `DOCKERHUB_TOKEN`: Docker Hub access token for authenticated push.
 - `NPM_TOKEN`: not required for publishing because npm publishing is disabled.
 
 ## 8. Safety Controls
 
 - Checkout uses `token: secrets.GH_PAT` in every release job.
+- Docker publish runs only when a release is actually created.
 - Back-merges use `-X theirs` to reduce merge-conflict failures.
 - Release workflow proceeds to back-merge only if an actual release was created.
 
@@ -132,6 +138,7 @@ sequenceDiagram
 
 1. Ensure branches exist: `main`, `preview`, `dev`.
 2. Configure `GH_PAT` in repository secrets.
-3. Enforce Conventional Commits in PRs.
-4. Merge to `preview` for beta validation.
-5. Merge to `main` for production release.
+3. Configure `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` in repository secrets.
+4. Enforce Conventional Commits in PRs.
+5. Merge to `preview` for beta validation and `beta` image publication.
+6. Merge to `main` for production release and `latest` image publication.

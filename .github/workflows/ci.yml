@@ -56,13 +56,12 @@ jobs:
       - run: pnpm install && pnpm typecheck
         working-directory: apps/desktop
 
-  docker-build:
-    needs: [backend-unit, backend-integration, frontend]
-    if: github.ref == 'refs/heads/main'
+  docker-smoke-test:
+    needs: [backend-unit, backend-integration]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker build services/api -t habittracker/api:${{ github.sha }}
+      - run: docker build services/api -t local-smoke-test:${{ github.sha }}
 
   # Builds cross-platform Tauri desktop binaries on every version tag push (v*)
   tauri-build:
@@ -110,5 +109,5 @@ jobs:
           releaseName: 'Isle ${{ github.ref_name }}'
           releaseBody: 'See the assets below to download and install this version.'
           releaseDraft: true
-          prerelease: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
           projectPath: apps/desktop

@@ -89,13 +89,28 @@ Dev
 
 ---
 
-## 🔐 Required Secrets
+## � Docker Image Publishing
+
+Isle publishes backend Docker images to Docker Hub automatically on every release:
+
+| Branch | Image Tag Pattern | Example |
+| --- | --- | --- |
+| `main` | `<version>`, `latest` | `<username>/isle:1.4.0`, `<username>/isle:latest` |
+| `preview` | `<version>`, `beta` | `<username>/isle:1.4.0-beta.1`, `<username>/isle:beta` |
+
+The `docker-publish` job runs after `semantic-release` completes successfully and only when a new version is created. Images are pushed to the namespace specified in `DOCKERHUB_USERNAME` secret.
+
+---
+
+## �🔐 Required Secrets
 
 The following GitHub repository secrets must be configured:
 
 | Secret Name | Purpose |
 | --- | --- |
 | `GH_PAT` | Personal Access Token used for authenticated pushes and protected branch operations |
+| `DOCKERHUB_USERNAME` | Docker Hub namespace/username for image publishing |
+| `DOCKERHUB_TOKEN` | Docker Hub access token for authenticated image push |
 | `NPM_TOKEN` *(optional)* | Required only if publishing packages to npm |
 
 ---
