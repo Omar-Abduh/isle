@@ -1,0 +1,63 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: habit_tracker
+  flyway:
+    schemas: habit_tracker
+    locations: classpath:db/migration
+
+app:
+  cors:
+    allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:3000,http://127.0.0.1:3000,tauri://localhost,http://tauri.localhost}
+  security:
+    public-docs-enabled: ${PUBLIC_API_DOCS_ENABLED:false}
+
+jwt:
+  private-key: ${JWT_PRIVATE_KEY_PATH}
+  public-key: ${JWT_PUBLIC_KEY_PATH}
+  access-expiry-minutes: ${JWT_ACCESS_EXPIRY_MINUTES:15}
+  refresh-expiry-days: ${JWT_REFRESH_EXPIRY_DAYS:30}
+
+google:
+  client-id: ${GOOGLE_CLIENT_ID}
+  client-secret: ${GOOGLE_CLIENT_SECRET}
+  token-endpoint: https://oauth2.googleapis.com/token
+  jwks-uri: https://www.googleapis.com/oauth2/v3/certs
+  allowed-redirect-uris: ${GOOGLE_ALLOWED_REDIRECT_URIS:${VITE_REDIRECT_URI:http://localhost:8081/success.html}}
+
+logging:
+  structured:
+    format:
+      console: ecs
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  health:
+    defaults:
+      enabled: false
+    livenessState:
+      enabled: false
+    readinessState:
+      enabled: false
+    diskSpace:
+      enabled: false
