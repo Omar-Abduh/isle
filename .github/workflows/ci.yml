@@ -92,6 +92,10 @@ jobs:
 
       - name: Run smoke test
         run: |
+          if ! command -v curl >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y curl
+          fi
           sleep 90
           chmod +x infra/check.sh
           ./infra/check.sh
