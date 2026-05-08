@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - preview
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  semantic-release:
+    runs-on: ubuntu-latest
+    outputs:
+      released: ${{ steps.release.outputs.released }}
+      source_branch: ${{ steps.meta.outputs.source_branch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install release dependencies
+        run: npm install
+
+      - name: Save source branch
+        id: meta
+        run: echo "source_branch=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Run semantic-release
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: node scripts/run-semantic-release.mjs
+
+  back-merge:
+    needs: semantic-release
+    if: needs.semantic-release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Configure Git identity
+        run: |
+          git config user.name "isle-release-bot"
+          git config user.email "release-bot@users.noreply.github.com"
+
+      - name: Back-merge main into preview and dev
+        if: needs.semantic-release.outputs.source_branch == 'main'
+        run: |
+          git fetch origin
+
+          git checkout preview
+          git merge origin/main -X theirs --no-edit || true
+          git push origin preview
+
+          if git show-ref --verify --quiet refs/remotes/origin/dev; then
+            git checkout dev
+            git merge origin/main -X theirs --no-edit || true
+            git push origin dev
+          else
+            echo "No dev branch found. Skipping lower-environment merge."
+          fi
+
+      - name: Back-merge preview into dev
+        if: needs.semantic-release.outputs.source_branch == 'preview'
+        run: |
+          git fetch origin
+
+          if git show-ref --verify --quiet refs/remotes/origin/dev; then
+            git checkout dev
+            git merge origin/preview -X theirs --no-edit || true
+            git push origin dev
+          else
+            echo "No dev branch found. Skipping lower-environment merge."
+          fi
