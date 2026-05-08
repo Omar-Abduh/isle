@@ -84,6 +84,7 @@ jobs:
           mkdir -p infra/secrets
           openssl genrsa -out infra/secrets/jwt_private.pem 2048
           openssl rsa -in infra/secrets/jwt_private.pem -pubout -out infra/secrets/jwt_public.pem
+          chmod 644 infra/secrets/*.pem
 
       - name: Start Isle smoke stack
         run: |
