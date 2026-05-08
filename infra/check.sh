@@ -10,9 +10,10 @@ retry_interval=10
 for i in $(seq 1 "$max_retries"); do
   echo "Attempt $i/$max_retries: checking backend health..."
 
-  if ! docker compose ps --status running | grep -q "^backend "; then
-    echo "  backend container is not running (restarting?). Current state:"
-    docker compose ps --filter "name=backend" --format "table {{.Name}}\t{{.Status}}\t{{.RunningFor}}"
+  ps_out=$(docker compose ps 2>/dev/null)
+  if ! echo "$ps_out" | grep -q "backend.*Up"; then
+    echo "  backend container is not running. Current state:"
+    echo "$ps_out"
     sleep "$retry_interval"
     continue
   fi
