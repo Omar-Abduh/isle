@@ -1,3 +1,10 @@
+# [1.0.0-beta.4](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.3...v1.0.0-beta.4) (2026-05-08)
+
+
+### Bug Fixes
+
+* serve success.html from spring boot static resources ([#7](https://github.com/Omar-Abduh/isle/issues/7)) ([8484b65](https://github.com/Omar-Abduh/isle/commit/8484b6564192c0dd26d3174aef901bd45dcb21d9))
+
 # [1.0.0-beta.3](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2026-05-08)
 
 
