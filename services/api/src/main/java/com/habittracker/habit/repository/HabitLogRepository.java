@@ -1,6 +1,8 @@
 package com.habittracker.habit.repository;
 
 import com.habittracker.habit.model.HabitLog;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDate;
@@ -9,22 +11,55 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface HabitLogRepository extends JpaRepository<HabitLog, UUID> {
+
     Optional<HabitLog> findByHabitIdAndSubHabitIdAndLogDate(UUID habitId, UUID subHabitId, LocalDate logDate);
 
-    boolean existsByHabitIdAndLogDateAndCompleted(UUID habitId, LocalDate logDate, boolean completed);
-
-    @Query("SELECT hl.logDate FROM HabitLog hl WHERE hl.habitId = :habitId AND hl.subHabitId IS NULL AND hl.completed = true ORDER BY hl.logDate DESC")
+    @Query("""
+        SELECT hl.logDate FROM HabitLog hl
+        WHERE hl.habitId = :habitId
+          AND hl.subHabitId IS NULL
+          AND hl.completed = true
+        ORDER BY hl.logDate DESC
+        """)
     List<LocalDate> findCompletedDatesByHabitIdOrderByDateDesc(UUID habitId);
 
-    @Query("SELECT hl FROM HabitLog hl WHERE hl.habitId = :habitId AND hl.subHabitId IS NULL AND hl.logDate = :date")
+    @Query("""
+        SELECT hl FROM HabitLog hl
+        WHERE hl.habitId = :habitId
+          AND hl.subHabitId IS NULL
+          AND hl.logDate = :date
+        """)
     Optional<HabitLog> findParentLog(UUID habitId, LocalDate date);
 
-    @Query("SELECT COUNT(hl) > 0 FROM HabitLog hl WHERE hl.habitId = :habitId AND hl.subHabitId IS NULL AND hl.logDate = :date AND hl.completed = true")
+    @Query("""
+        SELECT COUNT(hl) > 0 FROM HabitLog hl
+        WHERE hl.habitId = :habitId
+          AND hl.subHabitId IS NULL
+          AND hl.logDate = :date
+          AND hl.completed = true
+        """)
     boolean existsCompletedParentLog(UUID habitId, LocalDate date);
 
-    @Query("SELECT COUNT(hl) FROM HabitLog hl WHERE hl.habitId = :parentHabitId AND hl.subHabitId IS NOT NULL AND hl.logDate = :date AND hl.completed = true")
+    @Query("""
+        SELECT COUNT(hl) FROM HabitLog hl
+        WHERE hl.habitId = :parentHabitId
+          AND hl.subHabitId IS NOT NULL
+          AND hl.logDate = :date
+          AND hl.completed = true
+        """)
     int countCompletedSubHabits(UUID parentHabitId, LocalDate date);
 
-    @Query("SELECT hl FROM HabitLog hl WHERE hl.habitId = :habitId ORDER BY hl.logDate DESC")
-    List<HabitLog> findByHabitIdOrderByLogDateDesc(UUID habitId);
+    /**
+     * Paginated history for a habit (all log types, most recent first).
+     *
+     * <p>Previously the service loaded the full list and paginated in Java —
+     * a serious memory issue for habits with years of history. This query
+     * delegates pagination to the database.
+     */
+    @Query("""
+        SELECT hl FROM HabitLog hl
+        WHERE hl.habitId = :habitId
+        ORDER BY hl.logDate DESC
+        """)
+    Page<HabitLog> findPagedByHabitId(UUID habitId, Pageable pageable);
 }

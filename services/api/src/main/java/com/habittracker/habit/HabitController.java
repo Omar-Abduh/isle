@@ -28,7 +28,7 @@ public class HabitController {
     @GetMapping("/habits")
     public ResponseEntity<PageResponse<HabitResponse>> listHabits(
             @AuthenticationPrincipal Jwt jwt,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "0")  int page,
             @RequestParam(defaultValue = "20") int size) {
         size = Math.min(size, 100);
         UUID userId = UUID.fromString(jwt.getSubject());
@@ -79,8 +79,11 @@ public class HabitController {
     public ResponseEntity<PageResponse<HabitLogDTO>> getHabitHistory(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID id,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "0")  int page,
             @RequestParam(defaultValue = "30") int size) {
+        // Cap page size — previously uncapped unlike listHabits, allowing
+        // unbounded result sets that could OOM the server.
+        size = Math.min(size, 100);
         UUID userId = UUID.fromString(jwt.getSubject());
         return ResponseEntity.ok(habitService.getHistory(id, userId, page, size));
     }

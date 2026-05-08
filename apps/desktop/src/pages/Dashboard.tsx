@@ -385,6 +385,14 @@ export default function Dashboard() {
           setFormOpen(false);
           setEditingHabitId(null);
           toast({ title: "Success", description: "Habit updated." });
+        },
+        onError: (err: any) => {
+          console.error("Update habit error:", err);
+          toast({ 
+            title: "Error", 
+            description: err.body?.message || "Failed to update habit.", 
+            variant: "destructive" 
+          });
         }
       });
     } else {
@@ -394,6 +402,14 @@ export default function Dashboard() {
           queryClient.invalidateQueries({ queryKey: getGetStatsSummaryQueryKey() });
           setFormOpen(false);
           toast({ title: "Success", description: "Habit created." });
+        },
+        onError: (err: any) => {
+          console.error("Create habit error:", err);
+          toast({ 
+            title: "Error", 
+            description: err.body?.message || "Failed to create habit.", 
+            variant: "destructive" 
+          });
         }
       });
     }

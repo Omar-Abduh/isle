@@ -31,17 +31,26 @@ public class RecurrenceEngine {
     }
 
     /**
-     * Returns true if the given RRULE string matches the given date.
-     * Uses ical4j's Recur to evaluate the rule.
+     * Returns {@code true} if the given RRULE string produces an occurrence on {@code date}.
+     *
+     * <p>Previous implementation used {@code seed == periodStart == periodEnd}, creating
+     * a zero-width window. Some ical4j versions and rule types (e.g. FREQ=MONTHLY) would
+     * not reliably generate an occurrence within an empty range.
+     *
+     * <p>Fix: use {@code date - 1 day} as the seed so the recurrence series phases
+     * correctly regardless of rule type, and check a half-open {@code [date, date+1)}
+     * window to capture exactly one day.
      */
     public boolean isDueOnDate(String rrule, LocalDate date) {
         try {
             Recur recur = new Recur(rrule);
-            // Use a wide window, then check if the specific date appears
-            net.fortuna.ical4j.model.Date icalDate = toIcalDate(date);
-            // getDates returns all recurrence instances in [periodStart, periodEnd]
-            // We use the same date as seed, periodStart, and periodEnd to get a single-day window
-            var dates = recur.getDates(icalDate, icalDate, icalDate, Value.DATE);
+            // Seed one day before ensures the series phases correctly for any frequency
+            // (daily, weekly, monthly, etc.) without relying on the target date itself
+            // being the anchor point.
+            net.fortuna.ical4j.model.Date seed       = toIcalDate(date.minusDays(1));
+            net.fortuna.ical4j.model.Date rangeStart = toIcalDate(date);
+            net.fortuna.ical4j.model.Date rangeEnd   = toIcalDate(date.plusDays(1)); // exclusive end
+            var dates = recur.getDates(seed, rangeStart, rangeEnd, Value.DATE);
             return !dates.isEmpty();
         } catch (Exception e) {
             // Malformed RRULE — treat as not due
@@ -55,4 +64,3 @@ public class RecurrenceEngine {
         );
     }
 }
-

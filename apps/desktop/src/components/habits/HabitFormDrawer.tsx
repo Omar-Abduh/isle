@@ -78,6 +78,15 @@ export function HabitFormDrawer({ open, onOpenChange, habit, onSubmit, isPending
     }
   }, [habit, open, form]);
 
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === "habitType" && value.habitType !== "COMPOSITE") {
+        form.setValue("subHabits", []);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
   const handleSubmit = (data: FormValues) => {
     onSubmit(data);
   };
