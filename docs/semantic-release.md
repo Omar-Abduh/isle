@@ -31,17 +31,32 @@ Our `.github/workflows/release.yml` pipeline operates in two sequential jobs to 
 
 ---
 
-### Job 2: State Synchronization (Back-Merge)
+### Jobs 2-4: Artifact Publishing (Docker & Tauri)
 
-To prevent **Post-Release Amnesia** (where lower branches lose track of production tags), the pipeline performs an automated history synchronization immediately following a successful release.
+When a release is created (`released == 'true'`), three parallel publishing jobs execute:
+
+**Job 2: Docker Publishing (`docker-publish`)**
+- Builds and publishes backend Docker image to Docker Hub
+- Applies version-specific and branch-conditional tags:
+  - `main` → `isle:X.Y.Z`, `isle:latest`
+  - `preview` → `isle:X.Y.Z-betaN`, `isle:beta`
+
+**Job 3: Tauri Desktop Publishing (`tauri-publish`)**
+- Cross-platform build: macOS, Windows, Linux
+- Publishes binary artifacts to GitHub Releases
+- Automatically sets prerelease flag based on tag (beta tags marked as pre-release)
+
+**Job 4: State Synchronization (Back-Merge)**
+
+To prevent **Post-Release Amnesia** (where lower branches lose track of production tags), the pipeline performs an automated history synchronization immediately following release and artifact publishing.
 
 #### If released on `main`
 
-The bot performs a clean `git merge` of `main` downwards into both `preview` and `Dev`.
+The bot performs a clean `git merge` of `main` downwards into both `preview` and `dev`.
 
 #### If released on `preview`
 
-The bot merges `preview` downwards into `Dev`.
+The bot merges `preview` downwards into `dev`.
 
 #### Merge Mechanism
 
@@ -123,6 +138,8 @@ The following GitHub repository secrets must be configured:
 - Node.js
 - Git Tags
 - Protected Branch Workflows
+- Docker Hub
+- Tauri (cross-platform desktop)
 
 ---
 
@@ -135,5 +152,7 @@ The following GitHub repository secrets must be configured:
 - Safe protected-branch automation
 - Predictable release lifecycle
 - Production-grade CI/CD workflow
+- Automated multi-platform Tauri binary publishing
+- Automated backend Docker image publishing
 
 ---
