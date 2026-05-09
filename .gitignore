@@ -17,6 +17,7 @@ pnpm-debug.log*
 infra/secrets/*.pem
 infra/secrets/*.key
 infra/.env
+infra/.env*
 **/.env.local
 
 # Build artifacts
