@@ -1,3 +1,10 @@
+# [1.0.0-beta.16](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.15...v1.0.0-beta.16) (2026-05-09)
+
+
+### Bug Fixes
+
+* add vercel.json rewrite rule for SPA routing ([29a22c1](https://github.com/Omar-Abduh/isle/commit/29a22c1dc23750149042906e246f49e6c0b37982))
+
 # [1.0.0-beta.15](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.14...v1.0.0-beta.15) (2026-05-09)
 
 
