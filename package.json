@@ -1,6 +1,6 @@
 {
   "name": "isle-monorepo",
-  "version": "1.0.0",
+  "version": "1.0.1-beta.1",
   "private": true,
   "description": "Isle release orchestration",
   "scripts": {
