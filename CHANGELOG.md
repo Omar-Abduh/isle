@@ -1,3 +1,10 @@
+# [1.0.0-beta.15](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.14...v1.0.0-beta.15) (2026-05-09)
+
+
+### Bug Fixes
+
+* **ci:** add visible OAuth error alert and fetch timeout ([c7bcc16](https://github.com/Omar-Abduh/isle/commit/c7bcc1649d7d1a7f7ce81a34b1193a9f2a3bf1fc))
+
 # [1.0.0-beta.14](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.13...v1.0.0-beta.14) (2026-05-09)
 
 
