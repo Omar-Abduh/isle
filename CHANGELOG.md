@@ -1,3 +1,10 @@
+# [1.0.0-beta.19](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.18...v1.0.0-beta.19) (2026-05-09)
+
+
+### Bug Fixes
+
+* recalculate streak on uncheck instead of leaving it stale ([7df89f5](https://github.com/Omar-Abduh/isle/commit/7df89f53adb42b0b9cbc413e6f1a0969e71aa778))
+
 # [1.0.0-beta.18](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.17...v1.0.0-beta.18) (2026-05-09)
 
 
