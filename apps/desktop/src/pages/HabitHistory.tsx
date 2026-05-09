@@ -4,12 +4,12 @@ import { formatDistanceToNow } from "date-fns";
 import { useGetHabitHistory, useListHabits } from "../lib/api-client";
 import { useAppNavigate } from "@/hooks/useNavigate";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { HabitHistoryGrid } from "@/components/habits/HabitHistoryGrid";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { pageVariants } from "@/lib/animations";
-import { StreakRing } from "@/components/habits/StreakRing";
+import { HabitHistoryGrid } from "@isle/shared";
+import { Card, CardContent, CardHeader, CardTitle } from "@isle/shared";
+import { Skeleton } from "@isle/shared";
+import { Button } from "@isle/shared";
+import { pageVariants } from "@isle/shared";
+import { StreakRing } from "@isle/shared";
 
 export default function HabitHistory() {
   const { path, navigate } = useAppNavigate();
