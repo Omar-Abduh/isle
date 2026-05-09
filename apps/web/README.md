@@ -8,6 +8,8 @@
 
 The web-only variant of the Isle frontend. Deployed on Vercel.
 
+Part of the `@isle` monorepo — depends on `@isle/shared` for shared types, stores, hooks, and UI components.
+
 ## Differences from Desktop
 
 | Aspect | Web | Desktop |
@@ -33,11 +35,16 @@ The web-only variant of the Isle frontend. Deployed on Vercel.
 apps/web/
 ├── src/
 │   ├── api/            # API integration, interceptors, X-Timezone injection
-│   ├── components/     # UI components (shadcn/ui, habits, layout)
-│   ├── lib/            # Utilities, React Query hooks (api-client.ts)
+│   ├── components/     # App-specific UI components (layout, pages)
+│   ├── lib/            # Utilities, api-client.ts
 │   ├── pages/          # Full page views (Dashboard, History, etc.)
-│   └── store/          # Zustand state stores (auth, habits, offline queue)
+│   ├── store/          # App-specific Zustand stores (auth, habits)
+│   └── shared-src → ../../packages/shared/src/  # Symlink for Tailwind scanning
+├── vercel.json         # SPA rewrites + pnpm install command
+└── pnpm-lock.yaml → ../../pnpm-lock.yaml  # Symlink for Vercel pnpm detection
 ```
+
+> Shared components, hooks, and stores are imported from `@isle/shared` — see [packages/shared/README.md](../../packages/shared/README.md).
 
 ## Running Locally
 

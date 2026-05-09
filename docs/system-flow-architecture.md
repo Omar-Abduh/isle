@@ -13,8 +13,13 @@ This document explains how Isle is structured and how data moves across the syst
 ```mermaid
 graph LR
     subgraph Client[Client Layer]
-        Web[Web App\nReact + Vite]
-        Desktop[Desktop App\nTauri + React]
+        Shared[packages/shared\nTypes · Stores · Hooks · UI]
+        Web[Web App\nVite + React]
+        Desktop[Desktop App\nTauri v2 + React]
+        Mobile[Mobile App\nTauri v2 + Android]
+        Web --- Shared
+        Desktop --- Shared
+        Mobile --- Shared
     end
 
     subgraph API[Backend Layer]
@@ -31,7 +36,9 @@ graph LR
 
     Web --> Gateway
     Desktop --> Gateway
+    Mobile --> Gateway
     Desktop --> Vault
+    Mobile --> Vault
     Gateway --> Auth
     Gateway --> Recurrence
     Gateway --> Sync
@@ -126,10 +133,14 @@ flowchart LR
 graph TD
     User[User Device] --> FE[Vercel Frontend\nWeb App]
     User --> TA[Tauri Desktop App]
+    User --> MA[Tauri Mobile App\nAndroid APK]
     FE --> N[Nginx Reverse Proxy\nVPS]
     TA --> N
+    MA --> N
     N --> BE[Spring Boot API\nDocker]
     BE --> DB[(PostgreSQL 16\nDocker)]
+    TA --> SH[Stronghold Vault\nEncrypted local storage]
+    MA --> SH
 ```
 
 ## 8. Operational Notes
@@ -138,3 +149,4 @@ graph TD
 - Backend module details are in `services/api/README.md`.
 - Web frontend details are in `apps/web/README.md`.
 - Desktop frontend details are in `apps/desktop/README.md`.
+- Shared package details are in `packages/shared/README.md`.

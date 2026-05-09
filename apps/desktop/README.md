@@ -8,6 +8,8 @@
 
 The native desktop variant of the Isle frontend, built with Tauri v2 (Rust). Runs as a standalone `.dmg` (macOS), `.exe` (Windows), or `.AppImage` (Linux).
 
+Part of the `@isle` monorepo — depends on `@isle/shared` for shared types, stores, hooks, and UI components.
+
 ## Tech Stack
 - **Framework**: React 18 + TypeScript + Vite
 - **Desktop Runtime**: Tauri v2 (Rust)
@@ -22,16 +24,19 @@ The native desktop variant of the Isle frontend, built with Tauri v2 (Rust). Run
 apps/desktop/
 ├── src/
 │   ├── api/            # API integration, interceptors, X-Timezone injection
-│   ├── components/     # UI components (shadcn/ui, habits, layout)
-│   ├── hooks/          # useNavigate (unified nav), useOAuth (PKCE flow)
-│   ├── lib/            # Utilities, Stronghold vault, api-client.ts
-│   ├── pages/          # Full page views (Dashboard, History, etc.)
-│   └── store/          # Zustand stores (auth, habits, nav, offline queue)
-└── src-tauri/          # Tauri Rust workspace
+│   ├── components/     # App-specific UI components (layout, HabitCard overlay)
+│   ├── hooks/          # useOfflineSync, useNotifications, useStronghold
+│   ├── lib/            # stronghold.ts, api-client.ts
+│   ├── pages/          # Full page views (Dashboard, History, Settings)
+│   ├── store/          # navStore (state-based routing)
+│   └── shared-src → ../../packages/shared/src/  # Symlink for Tailwind scanning
+└── src-tauri/          # Tauri Rust workspace (shared with mobile)
     ├── src/lib.rs      # Native window logic, OAuth local server, deep linking, Stronghold vault
     ├── src/main.rs     # Entry point
     └── tauri.conf.json # Tauri configuration & permissions
 ```
+
+> Shared components, hooks, and stores are imported from `@isle/shared` — see [packages/shared/README.md](../../packages/shared/README.md).
 
 ## Running Locally
 
