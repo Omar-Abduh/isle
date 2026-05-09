@@ -1,3 +1,10 @@
+# [1.0.0-beta.20](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.19...v1.0.0-beta.20) (2026-05-09)
+
+
+### Features
+
+* expose app version in health endpoint and navbar ([f467baf](https://github.com/Omar-Abduh/isle/commit/f467bafcb4b55f16507eb2728de0391872a796a6))
+
 # [1.0.0-beta.19](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.18...v1.0.0-beta.19) (2026-05-09)
 
 
