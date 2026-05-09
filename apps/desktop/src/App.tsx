@@ -83,18 +83,18 @@ function TauriPageContent() {
 
   switch (path) {
     case '/':
-      return <Login />
+      return <Login key={path} />
     case '/dashboard':
-      return <ProtectedRoute component={Dashboard} />
+      return <ProtectedRoute key={path} component={Dashboard} />
     case '/analytics':
-      return <ProtectedRoute component={Analytics} />
+      return <ProtectedRoute key={path} component={Analytics} />
     case '/profile':
-      return <ProtectedRoute component={Profile} />
+      return <ProtectedRoute key={path} component={Profile} />
     default:
       if (path.startsWith('/history/')) {
-        return <ProtectedRoute component={HabitHistory} />
+        return <ProtectedRoute key={path} component={HabitHistory} />
       }
-      return <NotFound />
+      return <NotFound key={path} />
   }
 }
 

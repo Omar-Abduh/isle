@@ -169,6 +169,7 @@ export function useGetWeeklyStats(): UseQueryResult<WeeklyStatEntry[]> {
 export function useLogHabit() {
   const queryClient = useQueryClient();
   const { enqueue } = useOfflineStore();
+  const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
   return useMutation({
     mutationFn: async ({
@@ -180,7 +181,8 @@ export function useLogHabit() {
     }) => {
       const loggedAt = new Date().toISOString();
 
-      if (!navigator.onLine) {
+      // Tauri webview doesn't report navigator.onLine correctly
+      if (!isTauri && !navigator.onLine) {
         // Queue for later sync
         enqueue({
           habitId: id,
