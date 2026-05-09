@@ -1,5 +1,6 @@
+import { useEffect } from 'react'
 import { Switch, Route, Router as WouterRouter, Redirect } from 'wouter'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/toaster'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -35,8 +36,20 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
 /** Mounts global side-effect hooks once inside QueryClientProvider */
 function GlobalEffects() {
   const isAuthenticated = useAuthStore((state) => !!state.accessToken && !!state.user)
+  const queryClient = useQueryClient()
   useOfflineSync(isAuthenticated)
   useNotifications()
+
+  useEffect(() => {
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'visible') {
+        queryClient.invalidateQueries()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [queryClient])
+
   return null
 }
 
