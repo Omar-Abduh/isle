@@ -1,3 +1,10 @@
+# [1.0.0-beta.14](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.13...v1.0.0-beta.14) (2026-05-09)
+
+
+### Bug Fixes
+
+* update build config for Google OAuth and release pipeline ([1f51d02](https://github.com/Omar-Abduh/isle/commit/1f51d02f283183b548f12a0094320bbcec1486e0))
+
 # [1.0.0-beta.13](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.12...v1.0.0-beta.13) (2026-05-09)
 
 
