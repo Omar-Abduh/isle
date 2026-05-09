@@ -1,3 +1,10 @@
+# [1.0.0-beta.17](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.16...v1.0.0-beta.17) (2026-05-09)
+
+
+### Bug Fixes
+
+* resolve desktop navigation and check/uncheck refresh issues ([cd21993](https://github.com/Omar-Abduh/isle/commit/cd21993c52f006b5943203d1d4ef86c40c398738))
+
 # [1.0.0-beta.16](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.15...v1.0.0-beta.16) (2026-05-09)
 
 
