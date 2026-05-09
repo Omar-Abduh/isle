@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 import { useGetStatsSummary, useGetWeeklyStats, useListHabits } from "../lib/api-client";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { WeeklyChart } from "@/components/habits/WeeklyChart";
-import { Skeleton } from "@/components/ui/skeleton";
-import { StreakRing } from "@/components/habits/StreakRing";
+import { WeeklyChart } from "@isle/shared";
+import { Skeleton } from "@isle/shared";
+import { StreakRing } from "@isle/shared";
 import { Activity, CalendarDays, Flame, CheckCircle2, TrendingUp } from "lucide-react";
-import { pageVariants, staggerContainer, itemVariants } from "@/lib/animations";
+import { pageVariants, staggerContainer, itemVariants } from "@isle/shared";
 
 // ─── Stat Card ──────────────────────────────────────────────────
 

@@ -16,12 +16,12 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { SortableHabitCard, HabitCardDragOverlay } from "@/components/habits/HabitCard";
-import { HabitFormDrawer } from "@/components/habits/HabitFormDrawer";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/hooks/use-toast";
-import { usePreferences } from "@/hooks/use-preferences";
-import { pageVariants, staggerContainer } from "@/lib/animations";
+import { HabitFormDrawer } from "@isle/shared";
+import { Button } from "@isle/shared";
+import { Skeleton } from "@isle/shared";
+import { useToast } from "@isle/shared";
+import { usePreferences } from "@isle/shared";
+import { pageVariants, staggerContainer } from "@isle/shared";
 import {
   DndContext,
   closestCenter,
