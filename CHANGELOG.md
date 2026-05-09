@@ -1,4 +1,4 @@
-## [1.0.2-beta.1](https://github.com/Omar-Abduh/isle/compare/v1.0.1...v1.0.2-beta.1) (2026-05-09)
+## [1.0.2](https://github.com/Omar-Abduh/isle/compare/v1.0.1...v1.0.2) (2026-05-09)
 
 
 ### Bug Fixes
