@@ -1,3 +1,11 @@
+# [1.0.0-beta.12](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.11...v1.0.0-beta.12) (2026-05-09)
+
+
+### Bug Fixes
+
+* **ci:** ad-hoc sign macOS dmg to fix Gatekeeper damaged app error ([fd05666](https://github.com/Omar-Abduh/isle/commit/fd05666504cc35f53c863a748a8ca811d6c0808c))
+* force clean rebuild with new web client id ([47b8829](https://github.com/Omar-Abduh/isle/commit/47b88290c155e553693d0fda2a0a2a5a8dc9d797))
+
 # [1.0.0-beta.11](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.10...v1.0.0-beta.11) (2026-05-09)
 
 
