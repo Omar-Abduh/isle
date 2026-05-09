@@ -8,24 +8,9 @@
 
 Isle is a modern, high-performance habit tracking application built for consistency and beautifully crafted analytics. It features a stunning glassmorphic UI, robust recurrence logic, and a strict timezone-aware backend.
 
-It is available both as a native desktop application (powered by Tauri) and a web application.
+Available as a **web application** (Vercel), **native desktop** (Tauri v2), and **mobile** (Tauri v2 + Android).
 
 ---
-
-rsvg-convert -w 16   -h 16   Isle-icon-black.svg -o icon.iconset/icon_16x16.png
-rsvg-convert -w 32   -h 32   Isle-icon-black.svg -o icon.iconset/icon_16x16@2x.png
-
-rsvg-convert -w 32   -h 32   Isle-icon-black.svg -o icon.iconset/icon_32x32.png
-rsvg-convert -w 64   -h 64   Isle-icon-black.svg -o icon.iconset/icon_32x32@2x.png
-
-rsvg-convert -w 128  -h 128  Isle-icon-black.svg -o icon.iconset/icon_128x128.png
-rsvg-convert -w 256  -h 256  Isle-icon-black.svg -o icon.iconset/icon_128x128@2x.png
-
-rsvg-convert -w 256  -h 256  Isle-icon-black.svg -o icon.iconset/icon_256x256.png
-rsvg-convert -w 512  -h 512  Isle-icon-black.svg -o icon.iconset/icon_256x256@2x.png
-
-rsvg-convert -w 512  -h 512  Isle-icon-black.svg -o icon.iconset/icon_512x512.png
-rsvg-convert -w 1024 -h 1024 Isle-icon-black.svg -o icon.iconset/icon_512x512@2x.png
 
 ## ✨ Features
 
@@ -34,6 +19,57 @@ rsvg-convert -w 1024 -h 1024 Isle-icon-black.svg -o icon.iconset/icon_512x512@2x
 - **Dynamic Dashboard**: Beautiful UI featuring 30-day contribution grids, streak rings, relative time histories, and animated progress visualizations.
 - **Strict Timezone Integrity**: Your streak will never break just because you traveled. The backend enforces `X-Timezone` aware boundary checks for "today" based strictly on the user's local context.
 - **Secure Authentication**: Implements a robust Google OAuth 2.0 PKCE flow, safely storing refresh tokens in an encrypted local vault (Tauri Stronghold).
+
+---
+
+## 📦 Monorepo Structure
+
+```
+isle/
+├── apps/
+│   ├── web/              # Web frontend (Vite + React), deployed on Vercel
+│   ├── desktop/          # Desktop frontend (Tauri v2 + React), native builds
+│   └── mobile/           # Mobile frontend (Tauri v2 + React), Android APK
+├── packages/
+│   └── shared/           # @isle/shared — shared types, stores, hooks, UI components
+├── services/
+│   └── api/              # Spring Boot 3.4 REST API
+├── infra/                # Docker Compose, Nginx, Vercel config
+├── docs/                 # Architecture, flow, and deployment docs
+└── scripts/              # Build and release helpers
+```
+
+### Workspace Packages
+
+| Package | Location | Description |
+|---------|----------|-------------|
+| `@isle/web` | `apps/web/` | Web-only variant, Vite + React, Vercel-deployed |
+| `@isle/desktop` | `apps/desktop/` | Desktop variant, Tauri v2 + React, native .dmg/.exe/.AppImage |
+| `@isle/mobile` | `apps/mobile/` | Mobile variant, Tauri v2 + React, Android APK |
+| `@isle/shared` | `packages/shared/` | Shared types, Zustand stores, React hooks, shadcn/ui components |
+
+### Architecture
+
+```mermaid
+graph TD
+    subgraph Frontend
+        Shared[packages/shared]
+        Web[apps/web]
+        Desktop[apps/desktop]
+        Mobile[apps/mobile]
+        Web --> Shared
+        Desktop --> Shared
+        Mobile --> Shared
+    end
+
+    subgraph Backend
+        API[services/api - Spring Boot]
+        DB[(PostgreSQL 16)]
+    end
+
+    Frontend -- HTTPS/JSON --> API
+    API --> DB
+```
 
 ---
 
@@ -51,6 +87,7 @@ rsvg-convert -w 1024 -h 1024 Isle-icon-black.svg -o icon.iconset/icon_512x512@2x
 - **[Backend Engineering (Spring Boot)](./services/api/README.md)** — API setup, authentication, recurrence engine
 - **[Web Frontend (React)](./apps/web/README.md)** — Web-only variant, deployed on Vercel
 - **[Desktop Frontend (React + Tauri)](./apps/desktop/README.md)** — Native desktop builds, OAuth flow, Stronghold vault
+- **[Shared Package](./packages/shared/README.md)** — Cross-platform code extracted into `@isle/shared`
 - **[Infrastructure & Deployment](./infra/README.md)** — Docker, VPS setup, Vercel deployment, CI/CD
 - **[Secrets & Security](./infra/secrets/README.md)** — JWT key generation and management
 

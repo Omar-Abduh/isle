@@ -88,19 +88,21 @@ If you want the app to use the production database, make sure `SPRING_DATASOURCE
 
 ## 2. Frontend Deployment (Vercel)
 
-The React web application can be deployed seamlessly to Vercel for free.
+The React web application (`apps/web/`) is deployed on Vercel as part of the pnpm monorepo.
 
 1. Connect your GitHub repository to Vercel.
- 2. Select the `apps/web` directory as the Root Directory.
-3. Use the following build settings (Vercel auto-detects Vite):
+2. Set the **Root Directory** to `apps/web`.
+3. Vercel detects pnpm via the `apps/web/pnpm-lock.yaml` symlink → `../../pnpm-lock.yaml`.
+4. Use the following build settings:
    - **Framework Preset**: Vite
-   - **Build Command**: `npm run build` or `pnpm run build`
+   - **Build Command**: `pnpm run build` (default)
    - **Output Directory**: `dist`
-4. Configure the following Environment Variables in Vercel:
+   - **Install Command**: `pnpm install` (via `vercel.json`)
+5. Configure Environment Variables:
    - `VITE_API_BASE_URL`: `https://api.yourdomain.com` (Your VPS URL)
    - `VITE_GOOGLE_CLIENT_ID`: Your Google OAuth Client ID
    - `VITE_REDIRECT_URI`: `https://your-vercel-project.vercel.app/success.html`
-5. Click **Deploy**.
+6. Click **Deploy**.
 
 ---
 
