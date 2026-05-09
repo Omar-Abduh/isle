@@ -140,9 +140,30 @@ jobs:
           VITE_DEEP_LINK_SCHEME: isle
         run: pnpm tauri build
 
-      - name: Upload release assets
+      - name: Upload release assets (macOS)
+        if: matrix.platform == 'macos-latest'
+        shell: bash
         run: |
-          find apps/desktop/src-tauri/target/release/bundle -type f \( -name "*.dmg" -o -name "*.exe" -o -name "*.AppImage" \) -exec gh release upload "${{ needs.semantic-release.outputs.git_tag }}" {} --clobber \;
+          find apps/desktop/src-tauri/target/release/bundle -type f -name "*.dmg" -exec gh release upload "${{ needs.semantic-release.outputs.git_tag }}" {} --clobber \;
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Upload release assets (Windows)
+        if: matrix.platform == 'windows-latest'
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Path apps/desktop/src-tauri/target/release/bundle -Recurse -File
+          $files | Where-Object { $_.Extension -in '.exe', '.msi' } | ForEach-Object {
+            gh release upload "${{ needs.semantic-release.outputs.git_tag }}" $_.FullName --clobber
+          }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Upload release assets (Linux)
+        if: matrix.platform == 'ubuntu-latest'
+        shell: bash
+        run: |
+          find apps/desktop/src-tauri/target/release/bundle -type f -name "*.AppImage" -exec gh release upload "${{ needs.semantic-release.outputs.git_tag }}" {} --clobber \;
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
