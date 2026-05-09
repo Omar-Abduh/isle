@@ -140,17 +140,23 @@ jobs:
           VITE_DEEP_LINK_SCHEME: isle
         run: pnpm run build
 
-      - uses: tauri-apps/tauri-action@v0
+      - name: Build Tauri app
+        working-directory: apps/desktop
+        run: pnpm tauri build
+
+      - name: Clear extended attributes (Gatekeeper fix)
+        if: matrix.platform == 'macos-latest'
+        run: |
+          find apps/desktop/src-tauri/target/release/bundle -name "*.app" -exec xattr -cr {} \; 2>/dev/null || true
+
+      - name: Upload release assets
+        run: |
+          cd apps/desktop/src-tauri/target/release/bundle
+          for file in **/*.dmg **/*.exe **/*.AppImage; do
+            [ -e "$file" ] && gh release upload "${{ needs.semantic-release.outputs.git_tag }}" "$file" --clobber
+          done
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
-          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
-          VITE_REDIRECT_URI: ${{ secrets.VITE_REDIRECT_URI }}
-          VITE_DEEP_LINK_SCHEME: isle
-        with:
-          tagName: ${{ needs.semantic-release.outputs.git_tag }}
-          prerelease: ${{ contains(needs.semantic-release.outputs.git_tag, '-') }}
-          projectPath: apps/desktop
 
   back-merge:
     needs: semantic-release

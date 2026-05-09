@@ -68,10 +68,6 @@ export function useOAuth() {
     const state = generateState();
     pendingRef.current = { verifier, state };
 
-    // Store in sessionStorage so it survives a brief browser focus loss
-    sessionStorage.setItem('isle_pkce_verifier', verifier);
-    sessionStorage.setItem('isle_pkce_state', state);
-
     // Use local HTTP callback server in Tauri mode (bypasses deep-link which
     // doesn't work in `tauri dev` on macOS without a proper .app bundle).
     // Falls back to success.html + deep-link if the local server fails.
@@ -85,6 +81,11 @@ export function useOAuth() {
         console.error('Failed to start local OAuth server, falling back to deep-link:', e);
       }
     }
+
+    // Store in sessionStorage so it survives a brief browser focus loss
+    sessionStorage.setItem('isle_pkce_verifier', verifier);
+    sessionStorage.setItem('isle_pkce_state', state);
+    sessionStorage.setItem('isle_oauth_redirect_uri', redirectUri);
 
     const params = new URLSearchParams({
       client_id: CLIENT_ID,
@@ -124,17 +125,18 @@ export function useOAuth() {
     // Recover PKCE verifier from sessionStorage (survives focus switch)
     const verifier = sessionStorage.getItem('isle_pkce_verifier');
     const savedState = sessionStorage.getItem('isle_pkce_state');
+    const savedRedirectUri = sessionStorage.getItem('isle_oauth_redirect_uri');
 
-    if (!verifier || !savedState) throw new Error('PKCE session expired. Please try again.');
+    if (!verifier || !savedState || !savedRedirectUri) throw new Error('PKCE session expired. Please try again.');
     if (state !== savedState) throw new Error('State mismatch — possible CSRF attempt.');
 
     sessionStorage.removeItem('isle_pkce_verifier');
     sessionStorage.removeItem('isle_pkce_state');
+    sessionStorage.removeItem('isle_oauth_redirect_uri');
     pendingRef.current = null;
 
-    const { accessToken, refreshToken, user } = await exchangeCode(code, verifier, REDIRECT_URI);
+    const { accessToken, refreshToken, user } = await exchangeCode(code, verifier, savedRedirectUri);
 
-    await saveRefreshToken(refreshToken);
     setSession(
       {
         id: user.id,
@@ -145,6 +147,10 @@ export function useOAuth() {
         joinedAt: user.joinedAt,
       },
       accessToken,
+    );
+
+    saveRefreshToken(refreshToken).catch((e) =>
+      console.error('Failed to persist refresh token:', e),
     );
 
     navigate('/dashboard');
