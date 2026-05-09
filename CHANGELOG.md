@@ -1,3 +1,11 @@
+# [1.0.0-beta.9](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.8...v1.0.0-beta.9) (2026-05-09)
+
+
+### Bug Fixes
+
+* remove pnpm-workspace.yaml from apps/web to avoid workspace mode in CI ([662c8a3](https://github.com/Omar-Abduh/isle/commit/662c8a36a1850fd784084bd7f5eddaaa2f04906c))
+* remove pnpm-workspace.yaml from apps/web to avoid workspace mode in CI ([53616c3](https://github.com/Omar-Abduh/isle/commit/53616c34fb3862d9a8e69dd703c5030c6aa56c1c))
+
 # [1.0.0-beta.8](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.7...v1.0.0-beta.8) (2026-05-09)
 
 
