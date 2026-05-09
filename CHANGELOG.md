@@ -1,3 +1,11 @@
+# [1.0.0-beta.13](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.12...v1.0.0-beta.13) (2026-05-09)
+
+
+### Bug Fixes
+
+* **ci:** pass VITE env vars to Tauri build step so frontend gets Google Client ID ([9ea97e6](https://github.com/Omar-Abduh/isle/commit/9ea97e6425e090febae56c7321f71ab95ea440fd))
+* **ci:** use platform-specific upload steps for release assets ([da59916](https://github.com/Omar-Abduh/isle/commit/da59916986fb38d7b98c0ebcaa30783c60ba4d62))
+
 # [1.0.0-beta.12](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.11...v1.0.0-beta.12) (2026-05-09)
 
 
