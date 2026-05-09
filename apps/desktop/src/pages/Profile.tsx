@@ -3,10 +3,10 @@ import { format } from 'date-fns'
 import { useGetUserProfile, useUpdateUserProfile, useListHabits, useGetStatsSummary, getGetUserProfileQueryKey } from '../lib/api-client'
 import { useQueryClient } from '@tanstack/react-query'
 import { AppLayout } from '@/components/layout/AppLayout'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@isle/shared'
+import { Input } from '@isle/shared'
+import { Label } from '@isle/shared'
+import { Skeleton } from '@isle/shared'
 import {
   Drawer,
   DrawerContent,
@@ -15,16 +15,13 @@ import {
   DrawerDescription,
   DrawerFooter,
   DrawerClose,
-} from '@/components/ui/drawer'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
-import { useToast } from '@/hooks/use-toast'
-import { usePreferences } from '@/hooks/use-preferences'
-import { useIsMobile } from '@/hooks/use-mobile'
-import AnimatedList from '@/components/shared/AnimatedList'
-import { HabitSummaryCardFront } from '@/components/shared/HabitSummaryCard'
-import PageReveal from '@/components/shared/PageReveal'
-import { cn } from '@/lib/utils'
+} from '@isle/shared'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@isle/shared'
+import { Switch } from '@isle/shared'
+import { useToast } from '@isle/shared'
+import { usePreferences } from '@isle/shared'
+import { useIsMobile } from '@isle/shared'
+import { AnimatedList, HabitSummaryCardFront, PageReveal, cn } from '@isle/shared'
 
 // ─── Islamic Messages Toggle ───────────────────────────────────
 

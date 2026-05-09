@@ -9,7 +9,7 @@
  *  5. persist()            — access token → memory, refresh token → Stronghold
  */
 import { useCallback, useRef } from 'react';
-import { useAuthStore } from '../store/authStore';
+import { useAuthStore } from '@isle/shared';
 import { navigate } from './useNavigate';
 import { saveRefreshToken } from '../lib/stronghold';
 import { exchangeCode } from '../api/authApi';

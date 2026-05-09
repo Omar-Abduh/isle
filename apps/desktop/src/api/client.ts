@@ -5,8 +5,7 @@
  * - On 401, attempts one silent refresh via /auth/refresh
  * - On refresh failure, clears session and redirects to /
  */
-import { useAuthStore } from '../store/authStore';
-import { useHabitStore } from '../store/habitStore';
+import { useAuthStore, useHabitStore } from '@isle/shared';
 import { loadRefreshToken, saveRefreshToken, removeRefreshToken } from '../lib/stronghold';
 
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '');

@@ -7,7 +7,7 @@ import type {
   HabitResponse,
   HabitLogEntry,
   StatsSummary,
-} from '../lib/api-client';
+} from '@isle/shared';
 
 type PageResponse<T> = { success: boolean; data: T[]; total: number; hasMore: boolean };
 
