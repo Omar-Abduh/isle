@@ -27,6 +27,7 @@ public class HabitService {
     private final HabitLogRepository habitLogRepository;
     private final SubHabitRepository subHabitRepository;
     private final HabitMapper habitMapper;
+    private final StreakCalculator streakCalculator;
 
     /** Maximum number of days in the past a client may backfill a log entry for. */
     private static final int MAX_BACKFILL_DAYS = 7;
@@ -186,13 +187,13 @@ public class HabitService {
     /**
      * Fast-path streak update on check-in.
      *
-     * <p>Applies only when {@code date} is today or yesterday (UTC) and the log
-     * is a completion. All other cases are deferred to the nightly reconciliation
-     * which has access to the full history.
+     * <p>Applies only when {@code date} is today or yesterday (UTC). All other
+     * cases are deferred to the nightly reconciliation which has access to the
+     * full history.
      *
-     * <p>Rationale for not resetting on {@code completed = false}: an uncheck
-     * cannot reliably determine the true streak without a full scan.  Nightly
-     * reconciliation corrects any drift within 24 hours.
+     * <p>On uncheck ({@code completed = false}) the fast-path delegates to
+     * {@link StreakCalculator#calculateCurrentStreak} for a full scan, since a
+     * simple decrement cannot produce the correct value.
      */
     private void updateStreakFastPath(Habit habit, LocalDate date, boolean completed, String timezone) {
         LocalDate today     = LocalDate.now(ZoneId.of(timezone));
@@ -204,9 +205,13 @@ public class HabitService {
             return;
         }
 
-        // An uncheck cannot reliably update the streak without reading the full history.
-        // Leave it to the nightly reconciliation rather than risk corrupting the counter.
+        // Full recalculation from DB — the fast path can't decrement accurately.
         if (!completed) {
+            int recalculated = streakCalculator.calculateCurrentStreak(habit.getId());
+            habit.setCurrentStreak(recalculated);
+            if (recalculated > habit.getLongestStreak()) {
+                habit.setLongestStreak(recalculated);
+            }
             return;
         }
 
