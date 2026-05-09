@@ -1,3 +1,10 @@
+# [1.0.0-beta.11](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.10...v1.0.0-beta.11) (2026-05-09)
+
+
+### Bug Fixes
+
+* **ci:** use find for cross-platform glob in release upload ([54f2644](https://github.com/Omar-Abduh/isle/commit/54f26449b4d5abeca06bcdcba49cdd99f0533fd1))
+
 # [1.0.0-beta.10](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.9...v1.0.0-beta.10) (2026-05-09)
 
 
