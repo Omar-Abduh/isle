@@ -131,23 +131,14 @@ jobs:
       - run: pnpm install
         working-directory: apps/desktop
 
-      - name: Build frontend assets
+      - name: Build Tauri app
         working-directory: apps/desktop
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
           VITE_REDIRECT_URI: ${{ secrets.VITE_REDIRECT_URI }}
           VITE_DEEP_LINK_SCHEME: isle
-        run: pnpm run build
-
-      - name: Build Tauri app
-        working-directory: apps/desktop
         run: pnpm tauri build
-
-      - name: Clear extended attributes (Gatekeeper fix)
-        if: matrix.platform == 'macos-latest'
-        run: |
-          find apps/desktop/src-tauri/target/release/bundle -type d -name "*.app" -exec xattr -cr {} \; 2>/dev/null || true
 
       - name: Upload release assets
         run: |
