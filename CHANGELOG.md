@@ -1,3 +1,18 @@
+# [1.0.0-beta.7](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.6...v1.0.0-beta.7) (2026-05-09)
+
+
+### Bug Fixes
+
+* force clean rebuild with new web client id ([c918374](https://github.com/Omar-Abduh/isle/commit/c918374f25dc372b496d5028c1a8da98bc34acd3))
+
+# [1.0.0-beta.6](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.5...v1.0.0-beta.6) (2026-05-09)
+
+
+### Bug Fixes
+
+* gracefully handle deep-link registration error on launch ([3255bab](https://github.com/Omar-Abduh/isle/commit/3255baba19c2379cb90ac25595caa73b8928d59d))
+* move esbuild approval to package.json to avoid pnpm workspace mode ([8de713a](https://github.com/Omar-Abduh/isle/commit/8de713ac846e3007a26529a0500dee6b7cf4f700))
+
 # [1.0.0-beta.5](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.4...v1.0.0-beta.5) (2026-05-09)
 
 
