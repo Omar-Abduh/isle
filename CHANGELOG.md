@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/Omar-Abduh/isle/compare/v1.0.1...v1.0.2) (2026-05-09)
+
+
+### Bug Fixes
+
+* also update tauri.conf.json version in release workflow ([fb7d3c9](https://github.com/Omar-Abduh/isle/commit/fb7d3c9b8077c9e2d6527f62a50de3bac6b8c5cc))
+
 ## [1.0.1](https://github.com/Omar-Abduh/isle/compare/v1.0.0...v1.0.1) (2026-05-09)
 
 
