@@ -1,3 +1,10 @@
+# [1.0.0-beta.10](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.9...v1.0.0-beta.10) (2026-05-09)
+
+
+### Bug Fixes
+
+* **auth:** resolve redirect_uri_mismatch and Gatekeeper dmg issues ([70ab1d1](https://github.com/Omar-Abduh/isle/commit/70ab1d108689064014605e633a4f1a7e2cbe5ceb))
+
 # [1.0.0-beta.9](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.8...v1.0.0-beta.9) (2026-05-09)
 
 
