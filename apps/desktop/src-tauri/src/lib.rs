@@ -27,7 +27,9 @@ pub fn run() {
             #[cfg(desktop)]
             {
                 use tauri_plugin_deep_link::DeepLinkExt;
-                app.deep_link().register_all()?;   // plan fix #18
+                if let Err(e) = app.deep_link().register_all() {
+                    eprintln!("deep-link registration skipped: {e}");
+                }
             }
             Ok(())
         })
