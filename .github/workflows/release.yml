@@ -89,6 +89,20 @@ jobs:
 
           echo "EOF" >> "$GITHUB_OUTPUT"
 
+      - name: Set backend version from release tag
+        env:
+          RELEASE_VERSION: ${{ needs.semantic-release.outputs.version }}
+        run: |
+          node -e "
+            const fs = require('fs');
+            let c = fs.readFileSync('services/api/pom.xml', 'utf8');
+            c = c.replace(
+              /(<artifactId>api<\/artifactId>\s*\n\s*<version>)[^<]+(<\/version>)/,
+              '\$1' + process.env.RELEASE_VERSION + '\$2'
+            );
+            fs.writeFileSync('services/api/pom.xml', c);
+          "
+
       - name: Build and push API image
         uses: docker/build-push-action@v6
         with:
@@ -130,6 +144,17 @@ jobs:
 
       - run: pnpm install
         working-directory: apps/desktop
+
+      - name: Set desktop version from release tag
+        env:
+          RELEASE_VERSION: ${{ needs.semantic-release.outputs.version }}
+        run: |
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('apps/desktop/package.json', 'utf8'));
+            pkg.version = process.env.RELEASE_VERSION;
+            fs.writeFileSync('apps/desktop/package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
 
       - name: Build Tauri app
         working-directory: apps/desktop
