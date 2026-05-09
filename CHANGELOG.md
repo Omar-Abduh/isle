@@ -1,3 +1,10 @@
+# [1.0.0-beta.5](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.4...v1.0.0-beta.5) (2026-05-09)
+
+
+### Bug Fixes
+
+* trigger rebuild to bake in corrected oauth uri ([fead8e5](https://github.com/Omar-Abduh/isle/commit/fead8e51cee733677d96018c05f60ace1575ef0a))
+
 # [1.0.0-beta.4](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.3...v1.0.0-beta.4) (2026-05-08)
 
 
