@@ -1,3 +1,11 @@
+# [1.0.0-beta.18](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.17...v1.0.0-beta.18) (2026-05-09)
+
+
+### Features
+
+* invalidate queries on app visibility change for cross-client sync ([77bb6fa](https://github.com/Omar-Abduh/isle/commit/77bb6fa55c735992e1b90f95ccbc809c6a81bd5c))
+* invalidate queries on visibility change for cross-client sync (web) ([d336b9d](https://github.com/Omar-Abduh/isle/commit/d336b9d4ae727dc4eeea87ffda8dfa5c353c47a8))
+
 # [1.0.0-beta.17](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.16...v1.0.0-beta.17) (2026-05-09)
 
 
