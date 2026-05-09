@@ -24,6 +24,13 @@ infra/.env
 **/dist/
 **/node_modules/
 **/.tauri/
+**/gen/
+
+# Tauri bundled installers
+*.dmg
+*.msi
+*.deb
+*.AppImage
 
 # IDE
 .idea/
