@@ -1,3 +1,11 @@
+## [1.0.1](https://github.com/Omar-Abduh/isle/compare/v1.0.0...v1.0.1) (2026-05-09)
+
+
+### Bug Fixes
+
+* bump version to 1.0.0 and set release tag version in CI builds ([4f622fc](https://github.com/Omar-Abduh/isle/commit/4f622fc84ecb71b641167a215813b6da44d3084d))
+* remove FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 flag causing CI failures ([1ec217d](https://github.com/Omar-Abduh/isle/commit/1ec217d579957aa574869198131d102fbad318ee))
+
 # 1.0.0 (2026-05-09)
 
 
