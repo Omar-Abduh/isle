@@ -4,8 +4,7 @@ import { IsleLogo } from '@/components/shared/IsleLogo'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { useAuth } from '@/hooks/use-auth'
 import { useAppNavigate } from '@/hooks/useNavigate'
-
-const APP_VERSION = 'v1.0.0'
+import { version as appVersion } from '../../../package.json'
 
 const navLinks: { href: string; label: string; disabled?: boolean }[] = [
   { href: '/dashboard', label: 'Today' },
@@ -358,7 +357,7 @@ export const Nav: React.FC = () => {
               <p className="text-[10px] lg:text-[0.65vw] text-foreground/70 dark:text-muted-foreground/40 uppercase tracking-[0.25em] mb-1 lg:mb-[0.3vw] font-medium">
                 Version
               </p>
-              <p className="text-xs lg:text-[0.8vw] font-mono text-muted-foreground/60">{APP_VERSION || 'v1.0.0'}</p>
+              <p className="text-xs lg:text-[0.8vw] font-mono text-muted-foreground/60">v{appVersion}</p>
             </div>
 
             <div className="lg:mt-auto pt-0 lg:pt-4 border-l pl-4 lg:border-l-0 lg:pl-0 lg:border-t border-border/20">
