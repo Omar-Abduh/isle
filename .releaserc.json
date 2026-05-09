@@ -28,6 +28,7 @@
         "assets": [
           "CHANGELOG.md",
           "package.json",
+          "apps/web/package.json",
           "apps/desktop/package.json",
           "apps/desktop/src-tauri/tauri.conf.json",
           "services/api/pom.xml"

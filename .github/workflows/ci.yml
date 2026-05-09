@@ -45,7 +45,18 @@ jobs:
           GOOGLE_CLIENT_ID: test
           GOOGLE_CLIENT_SECRET: test
 
-  frontend:
+  web-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 24 }
+      - run: pnpm install && pnpm typecheck
+        working-directory: apps/web
+
+  desktop-frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -103,7 +114,7 @@ jobs:
           docker compose down -v
 
   tauri-rust-check:
-    needs: [frontend]
+    needs: [desktop-frontend]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

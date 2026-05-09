@@ -66,15 +66,54 @@ export function useAuth() {
     let unlisten: (() => void) | undefined;
 
     if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
-      // Setup Tauri deep-link listener
+      // Setup Tauri deep-link listener + local HTTP server callback listener
       (async () => {
         try {
-          const { onOpenUrl } = await import('@tauri-apps/plugin-deep-link');
+          const { getCurrent, onOpenUrl } = await import('@tauri-apps/plugin-deep-link');
+
+          // Capture deep-link that launched the app (fires before onOpenUrl is registered)
+          const startUrls = await getCurrent();
+          if (startUrls) {
+            const callbackUrl = startUrls.find((u) => u.startsWith('isle://auth/callback'));
+            if (callbackUrl) {
+              try {
+                await handleCallback(callbackUrl);
+              } catch (e) {
+                console.error('OAuth callback failed:', e);
+              }
+            }
+          }
+
+          // Handle deep-links while the app is running
           unlisten = await onOpenUrl(async (urls: string[]) => {
             const callbackUrl = urls.find((u) => u.startsWith('isle://auth/callback'));
-            if (callbackUrl) await handleCallback(callbackUrl);
+            if (callbackUrl) {
+              try {
+                await handleCallback(callbackUrl);
+              } catch (e) {
+                console.error('OAuth callback failed:', e);
+              }
+            }
           });
         } catch { /* not in Tauri environment */ }
+
+        // Also listen for callbacks from the local HTTP OAuth server
+        try {
+          const { listen } = await import('@tauri-apps/api/event');
+          const oauthUnlisten = await listen<{ code: string; state: string }>(
+            'oauth-code-received',
+            async (event) => {
+              const { code, state } = event.payload;
+              try {
+                await handleCallback(`?code=${code}&state=${state}`);
+              } catch (e) {
+                console.error('OAuth callback from local server failed:', e);
+              }
+            },
+          );
+          const prev = unlisten;
+          unlisten = () => { prev?.(); oauthUnlisten(); };
+        } catch { /* local server not available */ }
       })();
     } else {
       // Setup Web popup message listener

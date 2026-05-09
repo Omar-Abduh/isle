@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useLocation } from 'wouter'
 import { gsap, useGSAP, SplitText } from '@/lib/gsap'
 import { IsleLogo } from '@/components/shared/IsleLogo'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { useAuth } from '@/hooks/use-auth'
+import { useAppNavigate } from '@/hooks/useNavigate'
 
 const APP_VERSION = 'v1.0.0'
 
@@ -16,7 +16,7 @@ const navLinks: { href: string; label: string; disabled?: boolean }[] = [
 export const Nav: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [location, setLocation] = useLocation()
+  const { path, navigate } = useAppNavigate()
   const { logout } = useAuth()
 
   const desktopNavRef = useRef<HTMLElement>(null)
@@ -39,12 +39,12 @@ export const Nav: React.FC = () => {
   const isInitialMount = useRef(true)
 
   const activeIndex = navLinks.findIndex(
-    link => !link.disabled && (location === link.href)
+    link => !link.disabled && (path === link.href)
   )
 
   const getPageLabel = () => {
     if (activeIndex >= 0) return navLinks[activeIndex].label;
-    if (location.includes('history')) return 'History';
+    if (path.includes('history')) return 'History';
     return isMobile ? '' : 'Navigate';
   };
 
@@ -215,10 +215,10 @@ export const Nav: React.FC = () => {
     try {
       setIsOpen(false)
       logout()
-      setLocation("/");
+      navigate("/");
     } catch (error) {
       console.error('Logout failed', error)
-      setLocation("/");
+      navigate("/");
     }
   };
 
@@ -236,9 +236,9 @@ export const Nav: React.FC = () => {
         className="fixed left-1/2 -translate-x-1/2 z-50 bg-background/50 backdrop-blur-2xl border border-white/[0.08] dark:border-white/[0.08] hidden lg:flex items-center justify-between top-[2%] w-[95vw] rounded-2xl px-[2vw] py-[1.1vw] shadow-xl shadow-black/10 dark:shadow-black/30"
       >
         <div className="flex items-center gap-[0.8vw]">
-          <a href="/dashboard" onClick={(e) => { e.preventDefault(); setIsOpen(false); setLocation('/dashboard'); }} className="hover:opacity-80 transition-opacity">
+          <button onClick={() => { setIsOpen(false); navigate('/dashboard'); }} className="hover:opacity-80 transition-opacity">
             <IsleLogo className="h-[2.2vw] w-[2.2vw] text-foreground transition-colors group-hover:text-primary" />
-          </a>
+          </button>
         </div>
 
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
@@ -273,9 +273,9 @@ export const Nav: React.FC = () => {
         ref={mobileNavRef}
         className="fixed left-1/2 -translate-x-1/2 z-50 bg-background/50 backdrop-blur-2xl border border-white/[0.08] dark:border-white/[0.08] flex items-center justify-between lg:hidden bottom-[2%] w-[94vw] rounded-2xl px-5 py-3.5 shadow-xl shadow-black/10 dark:shadow-black/30"
       >
-        <a href="/dashboard" onClick={(e) => { e.preventDefault(); setIsOpen(false); setLocation('/dashboard'); }} className="hover:opacity-80 transition-opacity">
+        <button onClick={() => { setIsOpen(false); navigate('/dashboard'); }} className="hover:opacity-80 transition-opacity">
           <IsleLogo className="h-7 w-7 text-foreground transition-colors group-hover:text-primary" />
-        </a>
+        </button>
 
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
           <div className="h-1 w-1 rounded-full bg-primary animate-pulse" />
@@ -338,8 +338,8 @@ export const Nav: React.FC = () => {
                 <a
                   ref={el => { linksRef.current[index] = el as unknown as HTMLAnchorElement }}
                   href={link.href}
-                  onClick={(e) => { e.preventDefault(); setIsOpen(false); setLocation(link.href); }}
-                  className={`text-[7vw] lg:text-[2.6vw] font-semibold tracking-tight transition-colors ${location === link.href
+                  onClick={(e) => { e.preventDefault(); setIsOpen(false); navigate(link.href); }}
+                  className={`text-[7vw] lg:text-[2.6vw] font-semibold tracking-tight transition-colors ${path === link.href
                       ? 'text-primary'
                       : 'text-foreground hover:text-primary'
                     }`}

@@ -4,17 +4,17 @@
 
 </div>
 
-# Isle — Frontend Engineering
+# Isle — Desktop Frontend (Tauri)
 
-The frontend is a hybrid application built with React 18, TypeScript, and Vite. It can run as a standard web application in any modern browser, or be compiled into a highly optimized native desktop application for macOS and Windows using Tauri.
+The native desktop variant of the Isle frontend, built with Tauri v2 (Rust). Runs as a standalone `.dmg` (macOS), `.exe` (Windows), or `.AppImage` (Linux).
 
 ## Tech Stack
 - **Framework**: React 18 + TypeScript + Vite
 - **Desktop Runtime**: Tauri v2 (Rust)
 - **Styling**: Tailwind CSS + Framer Motion (for animations)
-- **State Management**: Zustand
+- **State Management**: Zustand (routing via navStore, not wouter)
 - **Data Fetching**: React Query (TanStack Query v5)
-- **Routing**: Wouter (Lightweight)
+- **Routing**: zustand navStore (state-based, no hash routing)
 
 ## Folder Structure
 
@@ -23,15 +23,17 @@ apps/desktop/
 ├── src/
 │   ├── api/            # API integration, interceptors, X-Timezone injection
 │   ├── components/     # UI components (shadcn/ui, habits, layout)
-│   ├── lib/            # Utilities, React Query hooks (api-client.ts)
+│   ├── hooks/          # useNavigate (unified nav), useOAuth (PKCE flow)
+│   ├── lib/            # Utilities, Stronghold vault, api-client.ts
 │   ├── pages/          # Full page views (Dashboard, History, etc.)
-│   └── store/          # Zustand state stores (auth, habits, offline queue)
+│   └── store/          # Zustand stores (auth, habits, nav, offline queue)
 └── src-tauri/          # Tauri Rust workspace
-    ├── src/main.rs     # Native window logic, deep linking, Stronghold vault
+    ├── src/lib.rs      # Native window logic, OAuth local server, deep linking, Stronghold vault
+    ├── src/main.rs     # Entry point
     └── tauri.conf.json # Tauri configuration & permissions
 ```
 
-## Running the Frontend
+## Running Locally
 
 ### Prerequisites
 Make sure your backend is running, or set `VITE_API_BASE_URL` to the production backend in a `.env.local` file.
@@ -40,16 +42,16 @@ Make sure your backend is running, or set `VITE_API_BASE_URL` to the production 
 pnpm install
 ```
 
-### 1. Web Mode (Fastest for UI Dev)
-Run the application completely in the browser. Deep linking and native features are automatically mocked or bypassed (e.g., OAuth redirects are handled via URL parameters instead of OS intents).
+### 1. Vite Dev Server (Fastest for UI Dev)
+Run the React app in the browser without Tauri. Deep-linking and native features are bypassed.
 
 ```bash
 pnpm dev
 ```
 Open `http://localhost:1420`.
 
-### 2. Native Desktop Mode (Tauri)
-Run the application inside the Tauri native OS window. Hot-reloading is still active.
+### 2. Tauri Desktop (with hot-reload)
+Run the application inside the Tauri native OS window. Hot-reloading is still active for React changes.
 
 ```bash
 pnpm tauri dev
@@ -57,11 +59,15 @@ pnpm tauri dev
 
 ## Authentication Flow
 
-Isle uses a strict Google OAuth 2.0 PKCE flow to prevent authorization code interception. 
+Isle uses a strict Google OAuth 2.0 PKCE flow. In the desktop variant:
 
-When running in Desktop mode, the browser redirects back to a `success.html` page hosted alongside the backend, which immediately fires a custom OS protocol deep-link (`habittracker://auth/callback?code=...`). Tauri intercepts this deep link at the Rust layer and pushes the OAuth code to the React frontend to complete the exchange.
+1. User clicks "Sign in with Google"
+2. The app starts a local HTTP server on `127.0.0.1:1421` and opens the system browser to Google's consent page, with `redirect_uri=http://127.0.0.1:1421/callback`
+3. Google redirects to the local HTTP server; the Rust backend extracts the OAuth code and emits a Tauri event to the webview
+4. The frontend exchanges the code for JWT tokens
+5. Refresh token is stored in the Tauri Stronghold (encrypted native vault)
 
-Refresh tokens are securely stored in the Tauri Stronghold (an encrypted native memory vault), ensuring that long-lived credentials cannot be extracted by malicious processes.
+In production builds, deep-links (`isle://auth/callback`) are used instead of the local HTTP server, since the bundled `.app` can register with macOS for the `isle://` URL scheme.
 
 ## Local API Mocking
 

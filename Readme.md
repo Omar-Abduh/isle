@@ -49,7 +49,8 @@ rsvg-convert -w 1024 -h 1024 Isle-icon-black.svg -o icon.iconset/icon_512x512@2x
 
 ### Module-Specific Guides
 - **[Backend Engineering (Spring Boot)](./services/api/README.md)** — API setup, authentication, recurrence engine
-- **[Frontend Engineering (React + Tauri)](./apps/desktop/README.md)** — Web & desktop development, OAuth flow
+- **[Web Frontend (React)](./apps/web/README.md)** — Web-only variant, deployed on Vercel
+- **[Desktop Frontend (React + Tauri)](./apps/desktop/README.md)** — Native desktop builds, OAuth flow, Stronghold vault
 - **[Infrastructure & Deployment](./infra/README.md)** — Docker, VPS setup, Vercel deployment, CI/CD
 - **[Secrets & Security](./infra/secrets/README.md)** — JWT key generation and management
 

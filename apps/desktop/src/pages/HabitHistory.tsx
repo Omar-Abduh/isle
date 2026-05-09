@@ -1,8 +1,8 @@
-import { useParams, Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useGetHabitHistory, useListHabits } from "../lib/api-client";
+import { useAppNavigate } from "@/hooks/useNavigate";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { HabitHistoryGrid } from "@/components/habits/HabitHistoryGrid";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,9 +12,9 @@ import { pageVariants } from "@/lib/animations";
 import { StreakRing } from "@/components/habits/StreakRing";
 
 export default function HabitHistory() {
-  const { id } = useParams();
+  const { path, navigate } = useAppNavigate();
+  const id = path.startsWith('/history/') ? path.split('/history/')[1] : undefined;
   
-  // Find the habit from the list (no separate useGetHabit needed)
   const { data: allHabits, isLoading: loadingHabit } = useListHabits();
   const habit = allHabits?.find(h => h.id === id) ?? null;
   
@@ -32,10 +32,8 @@ export default function HabitHistory() {
         variants={pageVariants}
       >
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild className="rounded-full">
-            <Link href="/dashboard">
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')} className="rounded-full">
+            <ArrowLeft className="h-5 w-5" />
           </Button>
           {loadingHabit ? (
             <Skeleton className="h-8 w-48" />
