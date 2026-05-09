@@ -1,0 +1,214 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - preview
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  semantic-release:
+    runs-on: ubuntu-latest
+    outputs:
+      released: ${{ steps.release.outputs.released }}
+      version: ${{ steps.release.outputs.version }}
+      git_tag: ${{ steps.release.outputs.git_tag }}
+      source_branch: ${{ steps.meta.outputs.source_branch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install release dependencies
+        run: npm install
+
+      - name: Save source branch
+        id: meta
+        run: echo "source_branch=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Run semantic-release
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: node scripts/run-semantic-release.mjs
+
+  docker-publish:
+    needs: semantic-release
+    if: needs.semantic-release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Compute image tags
+        id: tags
+        run: |
+          IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/isle"
+          VERSION="${{ needs.semantic-release.outputs.version }}"
+          BRANCH="${{ needs.semantic-release.outputs.source_branch }}"
+
+          echo "tags<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$IMAGE:$VERSION" >> "$GITHUB_OUTPUT"
+
+          if [ "$BRANCH" = "main" ]; then
+            echo "$IMAGE:latest" >> "$GITHUB_OUTPUT"
+          elif [ "$BRANCH" = "preview" ]; then
+            echo "$IMAGE:beta" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./services/api
+          push: true
+          tags: ${{ steps.tags.outputs.tags }}
+
+  tauri-publish:
+    needs: semantic-release
+    if: needs.semantic-release.outputs.released == 'true'
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with: { version: 9 }
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 24 }
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      # Linux system deps required for Tauri/WebKit
+      - name: Install Linux build deps
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
+      - run: pnpm install
+        working-directory: apps/desktop
+
+      - name: Build Tauri app
+        working-directory: apps/desktop
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+          VITE_REDIRECT_URI: ${{ secrets.VITE_REDIRECT_URI }}
+          VITE_DEEP_LINK_SCHEME: isle
+        run: pnpm tauri build
+
+      - name: Upload release assets (macOS)
+        if: matrix.platform == 'macos-latest'
+        shell: bash
+        run: |
+          find apps/desktop/src-tauri/target/release/bundle -type f -name "*.dmg" -exec gh release upload "${{ needs.semantic-release.outputs.git_tag }}" {} --clobber \;
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Upload release assets (Windows)
+        if: matrix.platform == 'windows-latest'
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Path apps/desktop/src-tauri/target/release/bundle -Recurse -File
+          $files | Where-Object { $_.Extension -in '.exe', '.msi' } | ForEach-Object {
+            gh release upload "${{ needs.semantic-release.outputs.git_tag }}" $_.FullName --clobber
+          }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Upload release assets (Linux)
+        if: matrix.platform == 'ubuntu-latest'
+        shell: bash
+        run: |
+          find apps/desktop/src-tauri/target/release/bundle -type f -name "*.AppImage" -exec gh release upload "${{ needs.semantic-release.outputs.git_tag }}" {} --clobber \;
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
+  back-merge:
+    needs: semantic-release
+    if: needs.semantic-release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Configure Git identity
+        run: |
+          git config user.name "isle-release-bot"
+          git config user.email "release-bot@users.noreply.github.com"
+
+      - name: Back-merge main into preview and dev
+        if: needs.semantic-release.outputs.source_branch == 'main'
+        run: |
+          git fetch origin
+
+          git checkout preview
+          git merge origin/main -X theirs --no-edit
+          git push origin preview
+
+          if git show-ref --verify --quiet refs/remotes/origin/dev; then
+            git checkout dev
+            git merge origin/main -X theirs --no-edit
+            git push origin dev
+          else
+            echo "No dev branch found. Skipping lower-environment merge."
+          fi
+
+      - name: Back-merge preview into dev
+        if: needs.semantic-release.outputs.source_branch == 'preview'
+        run: |
+          git fetch origin
+
+          if git show-ref --verify --quiet refs/remotes/origin/dev; then
+            git checkout dev
+            git merge origin/preview -X theirs --no-edit
+            git push origin dev
+          else
+            echo "No dev branch found. Skipping lower-environment merge."
+          fi

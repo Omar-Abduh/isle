@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:tc:postgresql:16:///isle_test}
+  flyway:
+    schemas: habit_tracker
+
+app:
+  cors:
+    allowed-origin-patterns: http://localhost:3000
+  security:
+    public-docs-enabled: true
+
+jwt:
+  private-key: src/test/resources/test-jwt-private.pem
+  public-key: src/test/resources/test-jwt-public.pem
+  access-expiry-minutes: 15
+  refresh-expiry-days: 30
+
+google:
+  client-id: test-client-id
+  client-secret: test-client-secret
+  token-endpoint: http://localhost:9999/token
+  jwks-uri: http://localhost:9999/certs
+  allowed-redirect-uris: http://localhost:8081/success.html
