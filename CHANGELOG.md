@@ -1,3 +1,10 @@
+# [1.0.0-beta.8](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.7...v1.0.0-beta.8) (2026-05-09)
+
+
+### Bug Fixes
+
+* add local OAuth callback server for Tauri dev mode ([f3f0768](https://github.com/Omar-Abduh/isle/commit/f3f076826f0c22885f69894877ca439dc706f139))
+
 # [1.0.0-beta.7](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.6...v1.0.0-beta.7) (2026-05-09)
 
 

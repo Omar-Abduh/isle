@@ -1,6 +1,6 @@
 {
   "name": "@workspace/isle",
-  "version": "1.0.0-beta.6",
+  "version": "1.0.0-beta.8",
   "private": true,
   "type": "module",
   "pnpm": {
@@ -52,7 +52,6 @@
     "@tailwindcss/typography": "^0.5.15",
     "@tailwindcss/vite": "^4.2.4",
     "@tanstack/react-query": "^5.28.0",
-
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.42",
     "@types/react-dom": "^18.2.17",
