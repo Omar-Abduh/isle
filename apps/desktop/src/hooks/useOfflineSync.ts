@@ -29,9 +29,10 @@ export function useOfflineSync(enabled = true) {
   const queryClient = useQueryClient()
   const { queue, dequeue, incrementRetry } = useOfflineStore()
   const isFlushing = useRef(false)
+  const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
 
   const flush = useCallback(async () => {
-    if (!enabled || isFlushing.current || !navigator.onLine || queue.length === 0) return
+    if (!enabled || isFlushing.current || (!isTauri && !navigator.onLine) || queue.length === 0) return
     isFlushing.current = true
 
     let anySucceeded = false

@@ -161,36 +161,29 @@ function HabitCard({ habit, completedToday, onLog, onEdit, onDelete, dragListene
                   <div className="relative z-10 flex items-center gap-6 sm:gap-8">
                     {([
                       { icon: Pencil, label: 'Edit', action: () => { setMenuOpen(false); onEdit(); }, destructive: false },
-                      { icon: BarChart3, label: 'History', action: () => setMenuOpen(false), destructive: false, href: `/history/${habit.id}` },
+                      { icon: BarChart3, label: 'History', action: () => { setMenuOpen(false); navigate(`/history/${habit.id}`); }, destructive: false },
                       { icon: Trash2, label: 'Delete', action: () => { setMenuOpen(false); setDeleteOpen(true); }, destructive: true },
-                    ] as { icon: any; label: string; action: () => void; destructive: boolean; href?: string }[]).map((item) => {
-                      const btn = (
-                        <motion.button
-                          key={item.label}
-                          initial={{ opacity: 0, scale: 0.85 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.85 }}
-                          onClick={(e) => { e.stopPropagation(); item.action(); }}
-                          className="flex flex-col items-center gap-1.5"
-                        >
-                          <div className={`h-11 w-11 rounded-full flex items-center justify-center transition-colors ${
-                            item.destructive 
-                              ? 'bg-destructive/10 hover:bg-destructive/20' 
-                              : 'bg-foreground/8 hover:bg-foreground/15'
-                          }`}>
-                            <item.icon className={`h-[18px] w-[18px] ${item.destructive ? 'text-destructive' : 'text-foreground'}`} />
-                          </div>
-                          <span className={`text-[10px] font-medium ${item.destructive ? 'text-destructive' : 'text-foreground/70'}`}>
-                            {item.label}
-                          </span>
-                        </motion.button>
-                      );
-                      return (
-                        <div key={item.label} onClick={() => item.href && navigate(item.href)}>
-                          {btn}
+                    ] as { icon: any; label: string; action: () => void; destructive: boolean }[]).map((item) => (
+                      <motion.button
+                        key={item.label}
+                        initial={{ opacity: 0, scale: 0.85 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.85 }}
+                        onClick={(e) => { e.stopPropagation(); item.action(); }}
+                        className="flex flex-col items-center gap-1.5"
+                      >
+                        <div className={`h-11 w-11 rounded-full flex items-center justify-center transition-colors ${
+                          item.destructive 
+                            ? 'bg-destructive/10 hover:bg-destructive/20' 
+                            : 'bg-foreground/8 hover:bg-foreground/15'
+                        }`}>
+                          <item.icon className={`h-[18px] w-[18px] ${item.destructive ? 'text-destructive' : 'text-foreground'}`} />
                         </div>
-                      );
-                    })}
+                        <span className={`text-[10px] font-medium ${item.destructive ? 'text-destructive' : 'text-foreground/70'}`}>
+                          {item.label}
+                        </span>
+                      </motion.button>
+                    ))}
                   </div>
 
                   <motion.button
