@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@11.0.8",
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild"
