@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, MoreHorizontal, Trash2, Pencil, BarChart3, GripVertical, X } from "lucide-react";
-import { Link } from "wouter";
 import { HabitResponse } from "../../lib/api-client";
+import { useAppNavigate } from "@/hooks/useNavigate";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -124,6 +124,7 @@ interface InternalProps extends HabitCardProps {
 }
 
 function HabitCard({ habit, completedToday, onLog, onEdit, onDelete, dragListeners }: InternalProps) {
+  const { navigate } = useAppNavigate();
   const [isHovered, setIsHovered] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -184,9 +185,11 @@ function HabitCard({ habit, completedToday, onLog, onEdit, onDelete, dragListene
                           </span>
                         </motion.button>
                       );
-                      return item.href 
-                        ? <Link key={item.label} href={item.href}>{btn}</Link> 
-                        : <div key={item.label}>{btn}</div>;
+                      return (
+                        <div key={item.label} onClick={() => item.href && navigate(item.href)}>
+                          {btn}
+                        </div>
+                      );
                     })}
                   </div>
 
@@ -234,13 +237,13 @@ function HabitCard({ habit, completedToday, onLog, onEdit, onDelete, dragListene
 
               {/* Title + description */}
               <div className="flex-1 min-w-0">
-                <Link href={`/history/${habit.id}`} className="hover:underline decoration-primary decoration-2 underline-offset-4">
+                <button onClick={() => navigate(`/history/${habit.id}`)} className="text-left hover:underline decoration-primary decoration-2 underline-offset-4">
                   <h3 className={`text-base sm:text-lg font-semibold truncate transition-colors leading-tight ${
                     completedToday ? 'text-primary' : 'text-foreground'
                   }`}>
                     {habit.name}
                   </h3>
-                </Link>
+                </button>
                 {habit.description && (
                   <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 mt-0.5">
                     {habit.description}

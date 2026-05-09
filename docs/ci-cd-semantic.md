@@ -54,9 +54,10 @@ CI runs quality and correctness checks before release logic:
 
 - Backend unit tests (`backend-unit`)
 - Backend integration tests with PostgreSQL (`backend-integration`)
-- Frontend build and type-checking (`frontend`)
+- Web frontend type-checking (`web-frontend`)
+- Desktop frontend type-checking (`desktop-frontend`)
 - Docker smoke test for backend (`docker-smoke-test`) — verifies compilation
-- Tauri smoke test for desktop (`tauri-smoke-test`) — verifies Tauri build compilation
+- Tauri Rust compilation check (`tauri-rust-check`) — verifies Tauri build compiles
 
 Goal: block invalid changes before release automation.
 
@@ -71,6 +72,7 @@ Semantic Release performs:
 3. Generate changelog and GitHub release notes.
 4. Create Git tag in format `vX.Y.Z`.
 5. Run version synchronization script:
+   - `apps/web/package.json`
    - `apps/desktop/package.json`
    - `apps/desktop/src-tauri/tauri.conf.json`
    - `services/api/pom.xml`

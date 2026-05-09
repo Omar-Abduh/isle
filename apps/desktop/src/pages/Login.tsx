@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useLocation } from 'wouter'
 import { useAuth } from '@/hooks/use-auth'
+import { useAuthStore } from '@/store/authStore'
+import { useAppNavigate } from '@/hooks/useNavigate'
 import { Button } from '@/components/ui/button'
 import Reveal from '@/components/shared/Reveal'
 import RevealText from '@/components/shared/RevealText'
@@ -21,13 +22,27 @@ function GoogleIcon({ className }: { className?: string }) {
 
 export default function Login() {
   const { isAuthenticated, isInitialising, login } = useAuth()
-  const [, setLocation] = useLocation()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const { navigate } = useAppNavigate();
+
+  // Force navigation when the store is updated (works even from Tauri callbacks)
   useEffect(() => {
-    if (isAuthenticated && !isInitialising) setLocation('/dashboard')
-  }, [isAuthenticated, isInitialising, setLocation])
+    const unsub = useAuthStore.subscribe((state) => {
+      if (state.accessToken && state.user && !isInitialising) {
+        setIsLoading(false)
+        navigate('/dashboard')
+      }
+    })
+    return unsub
+  }, [isInitialising, navigate])
+
+  useEffect(() => {
+    if (isAuthenticated && !isInitialising) {
+      setIsLoading(false)
+    }
+  }, [isAuthenticated, isInitialising])
 
   const handleLogin = async () => {
     try {

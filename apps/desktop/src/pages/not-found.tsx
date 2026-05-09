@@ -1,12 +1,13 @@
-import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Home, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAppNavigate } from "@/hooks/useNavigate";
 
 export default function NotFound() {
+  const { navigate } = useAppNavigate();
+
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background relative overflow-hidden">
-      {/* Decorative background elements */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
       
       <motion.div 
@@ -35,11 +36,9 @@ export default function NotFound() {
           The page you are looking for doesn't exist, has been moved, or is currently unavailable.
         </p>
 
-        <Button asChild size="lg" className="h-12 px-8 rounded-full shadow-lg shadow-primary/20 group">
-          <Link href="/dashboard">
-            <Home className="mr-2 h-4 w-4 transition-transform group-hover:-translate-y-0.5" />
-            Back to Dashboard
-          </Link>
+        <Button onClick={() => navigate('/dashboard')} size="lg" className="h-12 px-8 rounded-full shadow-lg shadow-primary/20 group">
+          <Home className="mr-2 h-4 w-4 transition-transform group-hover:-translate-y-0.5" />
+          Back to Dashboard
         </Button>
       </motion.div>
     </div>

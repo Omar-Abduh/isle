@@ -1,4 +1,6 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from 'wouter'
+import { useEffect } from 'react'
+import { Switch, Route, Router as WouterRouter } from 'wouter'
+import { useHashLocation } from 'wouter/use-hash-location'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/toaster'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -7,6 +9,8 @@ import { useAuth } from '@/hooks/use-auth'
 import { useOfflineSync } from '@/hooks/useOfflineSync'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useAuthStore } from '@/store/authStore'
+import { useNavStore } from '@/store/navStore'
+import { useAppNavigate } from '@/hooks/useNavigate'
 
 import NotFound from '@/pages/not-found'
 import Login from '@/pages/Login'
@@ -18,7 +22,7 @@ import Profile from '@/pages/Profile'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5,   // 5 min
+      staleTime: 1000 * 60 * 5,
       retry: 2,
       refetchOnWindowFocus: true,
     },
@@ -27,12 +31,19 @@ const queryClient = new QueryClient({
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, isInitialising } = useAuth()
+  const { navigate } = useAppNavigate()
+
+  useEffect(() => {
+    if (!isInitialising && !isAuthenticated) {
+      navigate('/')
+    }
+  }, [isAuthenticated, isInitialising, navigate])
+
   if (isInitialising) return null
-  if (!isAuthenticated) return <Redirect to="/" />
+  if (!isAuthenticated) return null
   return <Component />
 }
 
-/** Mounts global side-effect hooks once inside QueryClientProvider */
 function GlobalEffects() {
   const isAuthenticated = useAuthStore((state) => !!state.accessToken && !!state.user)
   useOfflineSync(isAuthenticated)
@@ -40,36 +51,64 @@ function GlobalEffects() {
   return null
 }
 
-function Router() {
+// ── Web Router (uses wouter with useHashLocation) ─────────────
+
+function WebRouter() {
   return (
-    <Switch>
-      <Route path="/" component={Login} />
-      <Route path="/dashboard">
-        <ProtectedRoute component={Dashboard} />
-      </Route>
-      <Route path="/analytics">
-        <ProtectedRoute component={Analytics} />
-      </Route>
-      <Route path="/history/:id">
-        <ProtectedRoute component={HabitHistory} />
-      </Route>
-      <Route path="/profile">
-        <ProtectedRoute component={Profile} />
-      </Route>
-      <Route component={NotFound} />
-    </Switch>
+    <WouterRouter hook={useHashLocation}>
+      <Switch>
+        <Route path="/" component={Login} />
+        <Route path="/dashboard">
+          <ProtectedRoute component={Dashboard} />
+        </Route>
+        <Route path="/analytics">
+          <ProtectedRoute component={Analytics} />
+        </Route>
+        <Route path="/history/:id">
+          <ProtectedRoute component={HabitHistory} />
+        </Route>
+        <Route path="/profile">
+          <ProtectedRoute component={Profile} />
+        </Route>
+        <Route component={NotFound} />
+      </Switch>
+    </WouterRouter>
   )
 }
 
+// ── Tauri Router (uses zustand navStore) ──────────────────────
+
+function TauriPageContent() {
+  const path = useNavStore((s) => s.path)
+
+  switch (path) {
+    case '/':
+      return <Login />
+    case '/dashboard':
+      return <ProtectedRoute component={Dashboard} />
+    case '/analytics':
+      return <ProtectedRoute component={Analytics} />
+    case '/profile':
+      return <ProtectedRoute component={Profile} />
+    default:
+      if (path.startsWith('/history/')) {
+        return <ProtectedRoute component={HabitHistory} />
+      }
+      return <NotFound />
+  }
+}
+
+// ── App ───────────────────────────────────────────────────────
+
 function App() {
+  const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="isle-ui-theme">
         <TooltipProvider>
           <GlobalEffects />
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-            <Router />
-          </WouterRouter>
+          {isTauri ? <TauriPageContent /> : <WebRouter />}
           <Toaster />
         </TooltipProvider>
       </ThemeProvider>

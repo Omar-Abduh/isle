@@ -136,4 +136,5 @@ graph TD
 
 - Release automation is documented in `docs/semantic-release.md`.
 - Backend module details are in `services/api/README.md`.
-- Frontend module details are in `apps/desktop/README.md`.
+- Web frontend details are in `apps/web/README.md`.
+- Desktop frontend details are in `apps/desktop/README.md`.

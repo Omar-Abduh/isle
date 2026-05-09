@@ -10,11 +10,13 @@
  */
 import { useCallback, useRef } from 'react';
 import { useAuthStore } from '../store/authStore';
+import { navigate } from './useNavigate';
 import { saveRefreshToken } from '../lib/stronghold';
 import { exchangeCode } from '../api/authApi';
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
 const REDIRECT_URI = (import.meta.env.VITE_REDIRECT_URI ?? 'http://localhost:8081/success.html') as string;
+const TAURI_LOCAL_REDIRECT_URI = 'http://127.0.0.1:1421/callback';
 const SCOPES = 'openid email profile';
 
 // ── PKCE helpers ─────────────────────────────────────────────────────────────
@@ -70,9 +72,23 @@ export function useOAuth() {
     sessionStorage.setItem('isle_pkce_verifier', verifier);
     sessionStorage.setItem('isle_pkce_state', state);
 
+    // Use local HTTP callback server in Tauri mode (bypasses deep-link which
+    // doesn't work in `tauri dev` on macOS without a proper .app bundle).
+    // Falls back to success.html + deep-link if the local server fails.
+    let redirectUri = REDIRECT_URI;
+    if (isTauri()) {
+      try {
+        const { invoke } = await import('@tauri-apps/api/core');
+        await invoke('start_oauth_server');
+        redirectUri = TAURI_LOCAL_REDIRECT_URI;
+      } catch (e) {
+        console.error('Failed to start local OAuth server, falling back to deep-link:', e);
+      }
+    }
+
     const params = new URLSearchParams({
       client_id: CLIENT_ID,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: redirectUri,
       response_type: 'code',
       scope: SCOPES,
       state,
@@ -130,6 +146,8 @@ export function useOAuth() {
       },
       accessToken,
     );
+
+    navigate('/dashboard');
   }, [setSession]);
 
   return { startLogin, handleCallback };

@@ -91,7 +91,7 @@ If you want the app to use the production database, make sure `SPRING_DATASOURCE
 The React web application can be deployed seamlessly to Vercel for free.
 
 1. Connect your GitHub repository to Vercel.
-2. Select the `apps/desktop` directory as the Root Directory.
+ 2. Select the `apps/web` directory as the Root Directory.
 3. Use the following build settings (Vercel auto-detects Vite):
    - **Framework Preset**: Vite
    - **Build Command**: `npm run build` or `pnpm run build`

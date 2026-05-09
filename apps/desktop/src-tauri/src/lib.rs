@@ -1,4 +1,11 @@
+use std::collections::HashMap;
+use std::thread;
+use tauri::{AppHandle, Emitter};
 use tauri_plugin_stronghold::Builder as StrongholdBuilder;
+use tiny_http::{Response, Server};
+use url::form_urlencoded;
+
+const OAUTH_SERVER_PORT: u16 = 1421;
 
 pub fn run() {
     tauri::Builder::default()
@@ -33,9 +40,53 @@ pub fn run() {
             }
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_machine_id_cmd])
+        .invoke_handler(tauri::generate_handler![get_machine_id_cmd, start_oauth_server])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+/// Starts a local HTTP server on 127.0.0.1:{port} to capture the OAuth redirect.
+/// The server listens for a single request to `/callback?code=...&state=...`,
+/// emits the result as a Tauri event, then continues listening (avoids race
+/// with the browser closing the connection).
+#[tauri::command]
+fn start_oauth_server(app_handle: AppHandle) -> Result<u16, String> {
+    let addr = format!("127.0.0.1:{}", OAUTH_SERVER_PORT);
+    let server =
+        Server::http(&addr).map_err(|e| format!("Failed to start OAuth server on {addr}: {e}"))?;
+
+    let port = server
+        .server_addr()
+        .to_ip()
+        .map(|ip| ip.port())
+        .unwrap_or(OAUTH_SERVER_PORT);
+
+    thread::spawn(move || {
+        for request in server.incoming_requests() {
+            let url = request.url().to_string();
+            let params: HashMap<String, String> =
+                form_urlencoded::parse(url.split('?').nth(1).unwrap_or("").as_bytes())
+                    .into_owned()
+                    .collect();
+
+            if let (Some(code), Some(state)) = (params.get("code"), params.get("state")) {
+                let _ = app_handle.emit(
+                    "oauth-code-received",
+                    serde_json::json!({ "code": code, "state": state }),
+                );
+                let _ = request.respond(
+                    Response::from_string("Login successful! You can close this window."),
+                );
+            } else {
+                let _ = request.respond(
+                    Response::from_string("Missing code or state parameter.")
+                        .with_status_code(400),
+                );
+            }
+        }
+    });
+
+    Ok(port)
 }
 
 /// Exposed to frontend via `invoke("get_machine_id")` for Stronghold password derivation.

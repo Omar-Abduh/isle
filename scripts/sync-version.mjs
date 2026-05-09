@@ -14,6 +14,11 @@ if (!nextVersion) {
 const rootDir = process.cwd();
 const normalizedVersion = nextVersion.startsWith("v") ? nextVersion.slice(1) : nextVersion;
 
+const webPackagePath = path.join(rootDir, "apps/web/package.json");
+const webPackage = JSON.parse(readFileSync(webPackagePath, "utf8"));
+webPackage.version = normalizedVersion;
+writeFileSync(webPackagePath, `${JSON.stringify(webPackage, null, 2)}\n`, "utf8");
+
 const desktopPackagePath = path.join(rootDir, "apps/desktop/package.json");
 const desktopPackage = JSON.parse(readFileSync(desktopPackagePath, "utf8"));
 desktopPackage.version = normalizedVersion;
