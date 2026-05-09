@@ -34,17 +34,25 @@ export async function exchangeCode(
   codeVerifier: string,
   redirectUri: string,
 ): Promise<AuthTokensResponse> {
-  const res = await fetch(`${BASE_URL}/api/v1/auth/exchange`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code, codeVerifier, redirectUri }),
-  });
-  if (!res.ok) {
-    const body = await res.json().catch(() => null);
-    throw new Error(body?.detail ?? `Exchange failed: ${res.status}`);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/auth/exchange`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, codeVerifier, redirectUri }),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      throw new Error(body?.detail ?? `Exchange failed: ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data[0] as AuthTokensResponse;
+  } finally {
+    clearTimeout(timer);
   }
-  const json = await res.json();
-  return json.data[0] as AuthTokensResponse;
 }
 
 /** Silent token rotation — called by api/client.ts on 401 */

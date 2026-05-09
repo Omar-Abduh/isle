@@ -104,11 +104,12 @@ export function useAuth() {
             'oauth-code-received',
             async (event) => {
               const { code, state } = event.payload;
-              try {
-                await handleCallback(`?code=${code}&state=${state}`);
-              } catch (e) {
-                console.error('OAuth callback from local server failed:', e);
-              }
+                try {
+                  await handleCallback(`?code=${code}&state=${state}`);
+                } catch (e) {
+                  console.error('OAuth callback from local server failed:', e);
+                  alert(`OAuth failed: ${e instanceof Error ? e.message : e}`);
+                }
             },
           );
           const prev = unlisten;
