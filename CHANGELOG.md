@@ -1,3 +1,10 @@
+# [1.0.0-beta.7](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.6...v1.0.0-beta.7) (2026-05-09)
+
+
+### Bug Fixes
+
+* force clean rebuild with new web client id ([c918374](https://github.com/Omar-Abduh/isle/commit/c918374f25dc372b496d5028c1a8da98bc34acd3))
+
 # [1.0.0-beta.6](https://github.com/Omar-Abduh/isle/compare/v1.0.0-beta.5...v1.0.0-beta.6) (2026-05-09)
 
 
