@@ -2,5 +2,5 @@
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
-  "installCommand": "pnpm --dir ../../ install --frozen-lockfile"
+  "installCommand": "ln -sf ../../pnpm-lock.yaml pnpm-lock.yaml && pnpm install --no-frozen-lockfile"
 }
