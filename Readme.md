@@ -34,7 +34,7 @@ isle/
 │   └── shared/           # @isle/shared — shared types, stores, hooks, UI components
 ├── services/
 │   └── api/              # Spring Boot 3.4 REST API
-├── infra/                # Docker Compose, Nginx, Vercel config
+├── infra/                # Docker Compose, Nginx, deployment configs
 ├── docs/                 # Architecture, flow, and deployment docs
 └── scripts/              # Build and release helpers
 ```
