@@ -32,18 +32,22 @@ Part of the `@isle` monorepo — depends on `@isle/shared` for shared types, sto
 ## Folder Structure
 
 ```
-apps/web/
-├── src/
-│   ├── api/            # API integration, interceptors, X-Timezone injection
-│   ├── components/     # App-specific UI components (layout, pages)
-│   ├── lib/            # Utilities, api-client.ts
-│   ├── pages/          # Full page views (Dashboard, History, etc.)
-│   ├── store/          # App-specific Zustand stores (auth, habits)
-│   └── shared-src → ../../packages/shared/src/  # Symlink for Tailwind scanning
-├── vercel.json         # SPA rewrites + pnpm install command
-└── pnpm-lock.yaml → ../../pnpm-lock.yaml  # Symlink for Vercel pnpm detection
+isle/
+├── vercel.json           # Vercel config at repo root: build, install, output
+├── pnpm-workspace.yaml   # Root workspace: packages are apps/* and packages/*
+├── pnpm-lock.yaml        # Single lockfile for the whole monorepo
+└── apps/web/
+    ├── src/
+    │   ├── api/            # API integration, interceptors, X-Timezone injection
+    │   ├── components/     # App-specific UI components (layout, pages)
+    │   ├── lib/            # Utilities, api-client.ts
+    │   ├── pages/          # Full page views (Dashboard, History, etc.)
+    │   ├── store/          # App-specific Zustand stores (auth, habits)
+    │   └── shared-src → ../../packages/shared/src/  # Symlink for Tailwind scanning
+    └── ...
 ```
 
+> Vercel uses the repo root as its Root Directory. The build runs `pnpm --filter @isle/web build` and serves from `apps/web/dist/`.
 > Shared components, hooks, and stores are imported from `@isle/shared` — see [packages/shared/README.md](../../packages/shared/README.md).
 
 ## Running Locally
@@ -70,6 +74,12 @@ Isle uses Google OAuth 2.0 PKCE. In the web variant:
 
 ## Building for Production
 
+From the repo root:
+```bash
+pnpm --filter @isle/web build
+```
+
+Or from `apps/web/`:
 ```bash
 pnpm build
 ```
