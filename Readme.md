@@ -89,6 +89,7 @@ graph TD
 - **[Desktop Frontend (React + Tauri)](./apps/desktop/README.md)** — Native desktop builds, OAuth flow, Stronghold vault
 - **[Shared Package](./packages/shared/README.md)** — Cross-platform code extracted into `@isle/shared`
 - **[Infrastructure & Deployment](./infra/README.md)** — Docker, VPS setup, Vercel deployment, CI/CD
+- **[CI/CD Pipeline](./docs/ci-cd-pipeline.md)** — CI quality gates, semantic-release, Docker publishing, Tauri builds, branch flow
 - **[Secrets & Security](./infra/secrets/README.md)** — JWT key generation and management
 
 ### Project Standards
