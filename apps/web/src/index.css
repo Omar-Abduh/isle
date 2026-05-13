@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../node_modules/@isle/shared/src";
 
 @custom-variant dark (&:is(.dark *));
 

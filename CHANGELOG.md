@@ -1,3 +1,64 @@
+# [1.1.0-beta.5](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.4...v1.1.0-beta.5) (2026-05-13)
+
+
+### Bug Fixes
+
+* add [@source](https://github.com/source) directive for @isle/shared so Tailwind v4 scans shared components during Vercel build ([6167766](https://github.com/Omar-Abduh/isle/commit/6167766d520bfe90cbd252198b7231af187517b2))
+* add [@source](https://github.com/source) directive to include @isle/shared in Tailwind v4 scanning ([a6be860](https://github.com/Omar-Abduh/isle/commit/a6be860336a0f3845947ddb1d9f5766f91edb7cf))
+* simplify [@source](https://github.com/source) path for @isle/shared scanning ([f25eb78](https://github.com/Omar-Abduh/isle/commit/f25eb78a50332cf93668a90e72cacebd333ad66d))
+* upload .deb alongside .AppImage in Linux release ([f1c2ee4](https://github.com/Omar-Abduh/isle/commit/f1c2ee48b957125bf28d4ba0d1b78ae78b721ef1))
+* use node_modules path for [@source](https://github.com/source) to include @isle/shared classes in Vercel build ([c611807](https://github.com/Omar-Abduh/isle/commit/c611807622816c8f98ce13f89dac0cf5c59e23d1))
+
+# [1.1.0-beta.4](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.3...v1.1.0-beta.4) (2026-05-13)
+
+
+### Bug Fixes
+
+* use node_modules path for [@source](https://github.com/source) to include @isle/shared classes in Vercel build ([8d5b8c0](https://github.com/Omar-Abduh/isle/commit/8d5b8c019e613ecbf2745886003af5d82c29bc9c))
+
+# [1.1.0-beta.3](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.2...v1.1.0-beta.3) (2026-05-13)
+
+
+### Bug Fixes
+
+* add [@source](https://github.com/source) directive to include @isle/shared in Tailwind v4 scanning ([5e44d06](https://github.com/Omar-Abduh/isle/commit/5e44d06e7a5966423f87e65ce7ec3e50d0df0415))
+* simplify [@source](https://github.com/source) path for @isle/shared scanning ([e813d64](https://github.com/Omar-Abduh/isle/commit/e813d642900960d119a24275ea45adf75176097d))
+
+# [1.1.0-beta.2](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.1...v1.1.0-beta.2) (2026-05-13)
+
+
+### Bug Fixes
+
+* add [@source](https://github.com/source) directive for @isle/shared so Tailwind v4 scans shared components during Vercel build ([ed9d2b0](https://github.com/Omar-Abduh/isle/commit/ed9d2b0d7d122fabf3fb46aff2b02bc6aaab11c2))
+
+# [1.1.0-beta.1](https://github.com/Omar-Abduh/isle/compare/v1.0.3-beta.1...v1.1.0-beta.1) (2026-05-13)
+
+
+### Bug Fixes
+
+* add @isle/shared dependency to web and desktop apps ([bb0edb5](https://github.com/Omar-Abduh/isle/commit/bb0edb5522efd44b655515135b426661e558181d))
+* add refactor type to semantic-release release rules ([512bd7d](https://github.com/Omar-Abduh/isle/commit/512bd7d8b673a2f5f06395a45ad839ab7ca83bea))
+* add refactor type to semantic-release release rules ([9481f47](https://github.com/Omar-Abduh/isle/commit/9481f4731d4df33392b199ab80fa4e2660511512))
+* move onlyBuiltDependencies to root package.json ([869318e](https://github.com/Omar-Abduh/isle/commit/869318e9e7dfef8b370526d5c38f2c32f6a646b1))
+* remove stale lockfiles from pre-monorepo era that break Vercel CI ([5031cd0](https://github.com/Omar-Abduh/isle/commit/5031cd018526c726ee56c78f2027442d917c6b92))
+* rename web/desktop packages to @isle/web and @isle/desktop ([ae8ce23](https://github.com/Omar-Abduh/isle/commit/ae8ce23b8eace9e96af2ddea017dfb6ad06144bf))
+* resolve Vercel build failures, package naming, and pnpm config issues ([a1e70d0](https://github.com/Omar-Abduh/isle/commit/a1e70d0fab390d539dc60d23b3d0b539238d5cd9))
+* resolve Vercel build failures, package naming, and pnpm config issues ([#22](https://github.com/Omar-Abduh/isle/issues/22)) ([81c6286](https://github.com/Omar-Abduh/isle/commit/81c6286d005e9586401a7c7945b9b157d2a278c3))
+* resolve Vercel build failures, package naming, and pnpm config issues ([#24](https://github.com/Omar-Abduh/isle/issues/24)) ([2926736](https://github.com/Omar-Abduh/isle/commit/2926736aa43e30060e1914ea015d39929b41aaad))
+* restore missing root devDependencies wiped by back-merge ([264245e](https://github.com/Omar-Abduh/isle/commit/264245e7d1607e0f1f8d040155ac4d64a3e3f9d4))
+* **web:** add packageManager field so Vercel detects pnpm ([579b0f0](https://github.com/Omar-Abduh/isle/commit/579b0f0ebb16b17727e9b4e4c186c49c5da16157))
+* **web:** add pnpm-lock.yaml symlink so Vercel detects pnpm ([3486e55](https://github.com/Omar-Abduh/isle/commit/3486e55f69f6a5a2a2329eea1cf852fb64208930))
+* **web:** add workspace config for Vercel and declare missing Tauri dependency ([03ba8f5](https://github.com/Omar-Abduh/isle/commit/03ba8f596abb87fb7d569575245c552cac9da198))
+* **web:** disable frozen-lockfile in Vercel install command ([aa0af0f](https://github.com/Omar-Abduh/isle/commit/aa0af0fc439bca3e5138d6e1761060b04820a065))
+* **web:** disable frozen-lockfile in vercel.json and remove packageManager field ([6358c8c](https://github.com/Omar-Abduh/isle/commit/6358c8c5c4cc3f9ffa2143a96ca3a2ece3d9f678))
+* **web:** run pnpm install from repo root via --dir flag ([d4b7e71](https://github.com/Omar-Abduh/isle/commit/d4b7e714b1261b9ebf078fe5e1990e8447f3aa67))
+
+
+### Features
+
+* add @isle/shared workspace package with extracted components, stores, hooks, and utilities ([1e661bb](https://github.com/Omar-Abduh/isle/commit/1e661bb5aa39dfa94088d80fdd10250d970b6a73))
+* add pnpm workspace configuration with shared package support ([c08388f](https://github.com/Omar-Abduh/isle/commit/c08388f229e17c96541df7cb57d7d9a85cda7dd7))
+
 ## [1.0.3-beta.1](https://github.com/Omar-Abduh/isle/compare/v1.0.2...v1.0.3-beta.1) (2026-05-13)
 
 
