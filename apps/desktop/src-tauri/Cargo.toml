@@ -15,12 +15,14 @@ tauri                     = { version = "2", features = [] }
 tauri-plugin-store        = "2"
 tauri-plugin-deep-link    = "2"
 tauri-plugin-shell        = "2"
-tauri-plugin-stronghold   = "2"
 tauri-plugin-notification = "2"          # plan fix #13
 serde                     = { version = "1", features = ["derive"] }
 serde_json                = "1"
-argon2                    = "0.5"
-machine-uid               = "0.5"
 uuid                      = { version = "1", features = ["v4"] }   # plan fix #12
-tiny_http                 = "0.12"
 url                       = "2"
+
+[target.'cfg(not(target_os = "android"))'.dependencies]
+machine-uid               = "0.5"
+tiny_http                 = "0.12"
+tauri-plugin-stronghold   = "2"
+argon2                    = "0.5"
