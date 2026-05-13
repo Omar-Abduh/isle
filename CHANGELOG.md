@@ -1,3 +1,10 @@
+# [1.1.0-beta.7](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.6...v1.1.0-beta.7) (2026-05-13)
+
+
+### Bug Fixes
+
+* trigger Android Tauri build for release artifacts ([f8015b9](https://github.com/Omar-Abduh/isle/commit/f8015b97b059912e313ec7e24ee1c6af78131ace))
+
 # [1.1.0-beta.6](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.5...v1.1.0-beta.6) (2026-05-13)
 
 
