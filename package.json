@@ -1,15 +1,12 @@
 {
   "name": "isle-monorepo",
-  "version": "1.1.0-beta.2",
+  "version": "1.0.3-beta.1",
   "private": true,
   "description": "Isle release orchestration",
   "scripts": {
     "release": "semantic-release"
   },
   "devDependencies": {
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "@tauri-apps/plugin-store": "^2.4.3",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^11.1.0",
     "@semantic-release/exec": "^6.0.3",
