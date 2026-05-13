@@ -1,3 +1,14 @@
+# [1.1.0-beta.5](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.4...v1.1.0-beta.5) (2026-05-13)
+
+
+### Bug Fixes
+
+* add [@source](https://github.com/source) directive for @isle/shared so Tailwind v4 scans shared components during Vercel build ([6167766](https://github.com/Omar-Abduh/isle/commit/6167766d520bfe90cbd252198b7231af187517b2))
+* add [@source](https://github.com/source) directive to include @isle/shared in Tailwind v4 scanning ([a6be860](https://github.com/Omar-Abduh/isle/commit/a6be860336a0f3845947ddb1d9f5766f91edb7cf))
+* simplify [@source](https://github.com/source) path for @isle/shared scanning ([f25eb78](https://github.com/Omar-Abduh/isle/commit/f25eb78a50332cf93668a90e72cacebd333ad66d))
+* upload .deb alongside .AppImage in Linux release ([f1c2ee4](https://github.com/Omar-Abduh/isle/commit/f1c2ee48b957125bf28d4ba0d1b78ae78b721ef1))
+* use node_modules path for [@source](https://github.com/source) to include @isle/shared classes in Vercel build ([c611807](https://github.com/Omar-Abduh/isle/commit/c611807622816c8f98ce13f89dac0cf5c59e23d1))
+
 # [1.1.0-beta.4](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.3...v1.1.0-beta.4) (2026-05-13)
 
 
