@@ -1,3 +1,10 @@
+# [1.1.0-beta.2](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.1...v1.1.0-beta.2) (2026-05-13)
+
+
+### Bug Fixes
+
+* add refactor type to semantic-release release rules ([9481f47](https://github.com/Omar-Abduh/isle/commit/9481f4731d4df33392b199ab80fa4e2660511512))
+
 # [1.1.0-beta.1](https://github.com/Omar-Abduh/isle/compare/v1.0.2...v1.1.0-beta.1) (2026-05-13)
 
 
