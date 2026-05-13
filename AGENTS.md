@@ -16,6 +16,16 @@ Load these skills as needed:
 - `commit-conventions` — Load when writing commit messages.
 - `release-notes` — Load when generating changelogs or release notes.
 
+### UI/UX Skills
+
+When the user mentions "ui/ux" or asks for UI/UX work, you MUST load EVERY skill listed below without filtering:
+- `a11y-accessibility`
+- `responsive-design`
+- `form-ux`
+- `animation-ux`
+- `design-system`
+- `testing-ui`
+
 ## Commands
 
 - **TypeScript check** — `pnpm typecheck` from app dir (`apps/web/`, `apps/desktop/`)
