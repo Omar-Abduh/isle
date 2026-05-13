@@ -12,8 +12,7 @@
  */
 import { useEffect, useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAuthStore } from '../store/authStore';
-import { useHabitStore } from '../store/habitStore';
+import { useAuthStore, useHabitStore } from '@isle/shared';
 import { loadRefreshToken, removeRefreshToken } from '../lib/stronghold';
 import { refreshTokens, logout as serverLogout } from '../api/authApi';
 import { saveRefreshToken } from '../lib/stronghold';

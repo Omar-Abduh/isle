@@ -6,7 +6,7 @@
  * (i.e. habits not yet completed today).
  */
 import { useEffect, useRef } from 'react'
-import { useHabitStore } from '../store/habitStore'
+import { useHabitStore } from '@isle/shared'
 
 function isTauri(): boolean {
   return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window

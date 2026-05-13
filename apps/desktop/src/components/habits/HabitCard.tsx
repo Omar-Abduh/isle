@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, MoreHorizontal, Trash2, Pencil, BarChart3, GripVertical, X } from "lucide-react";
 import { HabitResponse } from "../../lib/api-client";
 import { useAppNavigate } from "@/hooks/useNavigate";
-import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent } from "@isle/shared";
+import { Checkbox } from "@isle/shared";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,9 +14,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { StreakRing } from "./StreakRing";
-import { itemVariants } from "@/lib/animations";
+} from "@isle/shared";
+import { StreakRing } from "@isle/shared";
+import { itemVariants } from "@isle/shared";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 

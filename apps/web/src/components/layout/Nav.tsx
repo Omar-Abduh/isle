@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useLocation } from 'wouter'
-import { gsap, useGSAP, SplitText } from '@/lib/gsap'
-import { IsleLogo } from '@/components/shared/IsleLogo'
-import { ThemeToggle } from '@/components/shared/theme-toggle'
+import { gsap, useGSAP, SplitText } from '@isle/shared'
+import { IsleLogo } from '@isle/shared'
+import { ThemeToggle } from '@isle/shared'
 import { useAuth } from '@/hooks/use-auth'
 import { version as appVersion } from '../../../package.json'
 

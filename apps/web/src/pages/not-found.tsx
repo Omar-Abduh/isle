@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Home, Compass } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@isle/shared";
 
 export default function NotFound() {
   return (

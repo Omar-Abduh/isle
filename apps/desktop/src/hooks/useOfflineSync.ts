@@ -10,7 +10,7 @@
  */
 import { useEffect, useRef, useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useOfflineStore } from '../store/offlineStore'
+import { useOfflineStore } from '@isle/shared'
 import { logCompletion } from '../api/habitApi'
 import { getListHabitsQueryKey, getGetStatsSummaryQueryKey } from '../lib/api-client'
 
