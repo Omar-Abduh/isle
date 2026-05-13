@@ -1,3 +1,10 @@
+# [1.1.0-beta.4](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.3...v1.1.0-beta.4) (2026-05-13)
+
+
+### Bug Fixes
+
+* use node_modules path for [@source](https://github.com/source) to include @isle/shared classes in Vercel build ([8d5b8c0](https://github.com/Omar-Abduh/isle/commit/8d5b8c019e613ecbf2745886003af5d82c29bc9c))
+
 # [1.1.0-beta.3](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.2...v1.1.0-beta.3) (2026-05-13)
 
 
