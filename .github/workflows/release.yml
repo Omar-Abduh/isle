@@ -132,6 +132,16 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
 
       # Android SDK setup + Rust targets
+      - name: Install Linux build deps
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
       - name: Setup Android SDK
         if: matrix.platform == 'ubuntu-latest'
         uses: android-actions/setup-android@v3
@@ -165,8 +175,7 @@ jobs:
             fs.writeFileSync('apps/desktop/src-tauri/tauri.conf.json', JSON.stringify(tauri, null, 2) + '\n');
           "
 
-      - name: Build Tauri app (desktop)
-        if: matrix.platform != 'ubuntu-latest'
+      - name: Build Tauri app
         working-directory: apps/desktop
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
@@ -175,7 +184,7 @@ jobs:
           VITE_DEEP_LINK_SCHEME: isle
         run: pnpm tauri build
 
-      - name: Build Tauri app (Android)
+      - name: Build Tauri Android app
         if: matrix.platform == 'ubuntu-latest'
         working-directory: apps/desktop
         env:
@@ -201,6 +210,14 @@ jobs:
           $files | Where-Object { $_.Extension -in '.exe', '.msi' } | ForEach-Object {
             gh release upload "${{ needs.semantic-release.outputs.git_tag }}" $_.FullName --clobber
           }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Upload release assets (Linux)
+        if: matrix.platform == 'ubuntu-latest'
+        shell: bash
+        run: |
+          find apps/desktop/src-tauri/target/release/bundle -type f \( -name "*.AppImage" -o -name "*.deb" \) -exec gh release upload "${{ needs.semantic-release.outputs.git_tag }}" {} --clobber \;
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
