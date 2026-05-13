@@ -1,3 +1,10 @@
+# [1.1.0-beta.6](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.5...v1.1.0-beta.6) (2026-05-13)
+
+
+### Features
+
+* **mobile:** add mobile app scaffold, backend integration, CI builds, and CI/CD pipeline documentation ([#25](https://github.com/Omar-Abduh/isle/issues/25)) ([#26](https://github.com/Omar-Abduh/isle/issues/26)) ([0c6204c](https://github.com/Omar-Abduh/isle/commit/0c6204c496afbadb8d724d72d8880f048925ac50))
+
 # [1.1.0-beta.5](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.4...v1.1.0-beta.5) (2026-05-13)
 
 
