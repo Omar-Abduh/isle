@@ -118,8 +118,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest, windows-latest, ubuntu-latest]
-    runs-on: ${{ matrix.platform }}
+        include:
+          - os: macos-latest
+            build-target: desktop
+          - os: windows-latest
+            build-target: desktop
+          - os: ubuntu-latest
+            build-target: desktop
+          - os: ubuntu-latest
+            build-target: android
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
@@ -131,9 +139,9 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
-      # Linux system deps required for Tauri/WebKit
+      # ─── Linux Desktop ───────────────────────────────────────
       - name: Install Linux build deps
-        if: matrix.platform == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.build-target == 'desktop'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -141,6 +149,23 @@ jobs:
             libappindicator3-dev \
             librsvg2-dev \
             patchelf
+
+      # ─── Android ─────────────────────────────────────────────
+      - name: Setup Android SDK
+        if: matrix.build-target == 'android'
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK
+        if: matrix.build-target == 'android'
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "ndk;27.0.12077973" 2>/dev/null || true
+
+      - name: Install Rust Android targets
+        if: matrix.build-target == 'android'
+        run: |
+          rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "NDK_HOME=$ANDROID_HOME/ndk/27.0.12077973" >> $GITHUB_ENV
 
       - run: pnpm install
         working-directory: apps/desktop
@@ -160,6 +185,7 @@ jobs:
           "
 
       - name: Build Tauri app
+        if: matrix.build-target == 'desktop'
         working-directory: apps/desktop
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
@@ -168,8 +194,18 @@ jobs:
           VITE_DEEP_LINK_SCHEME: isle
         run: pnpm tauri build
 
+      - name: Build Tauri Android app
+        if: matrix.build-target == 'android'
+        working-directory: apps/desktop
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+          VITE_REDIRECT_URI: ${{ secrets.VITE_REDIRECT_URI }}
+          VITE_DEEP_LINK_SCHEME: isle
+        run: pnpm tauri android build
+
       - name: Upload release assets (macOS)
-        if: matrix.platform == 'macos-latest'
+        if: matrix.os == 'macos-latest'
         shell: bash
         run: |
           find apps/desktop/src-tauri/target/release/bundle -type f -name "*.dmg" -exec gh release upload "${{ needs.semantic-release.outputs.git_tag }}" {} --clobber \;
@@ -177,7 +213,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
       - name: Upload release assets (Windows)
-        if: matrix.platform == 'windows-latest'
+        if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
           $files = Get-ChildItem -Path apps/desktop/src-tauri/target/release/bundle -Recurse -File
@@ -188,10 +224,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
       - name: Upload release assets (Linux)
-        if: matrix.platform == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.build-target == 'desktop'
         shell: bash
         run: |
           find apps/desktop/src-tauri/target/release/bundle -type f \( -name "*.AppImage" -o -name "*.deb" \) -exec gh release upload "${{ needs.semantic-release.outputs.git_tag }}" {} --clobber \;
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Upload release assets (Android)
+        if: matrix.build-target == 'android'
+        shell: bash
+        run: |
+          find apps/desktop/src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \) -exec gh release upload "${{ needs.semantic-release.outputs.git_tag }}" {} --clobber \;
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 

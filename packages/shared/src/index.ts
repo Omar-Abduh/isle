@@ -80,6 +80,7 @@ export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./comp
 export { default as AnimatedList } from "./components/shared/AnimatedList"
 export { HabitSummaryCardFront, HabitSummaryCardBack } from "./components/shared/HabitSummaryCard"
 export { IsleLogo } from "./components/shared/IsleLogo"
+export { IsleLogoFont } from "./components/shared/IsleLogoFont"
 export { default as PageReveal } from "./components/shared/PageReveal"
 export { default as Reveal } from "./components/shared/Reveal"
 export { default as RevealText } from "./components/shared/RevealText"

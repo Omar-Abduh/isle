@@ -15,16 +15,7 @@ Load these skills as needed:
 - `documentation` — Load when writing or updating docs.
 - `commit-conventions` — Load when writing commit messages.
 - `release-notes` — Load when generating changelogs or release notes.
-
-### UI/UX Skills
-
-When the user mentions "ui/ux" or asks for UI/UX work, you MUST load EVERY skill listed below without filtering:
-- `a11y-accessibility`
-- `responsive-design`
-- `form-ux`
-- `animation-ux`
-- `design-system`
-- `testing-ui`
+- `ui-ux` — Comprehensive UI/UX patterns: a11y, responsive, forms, animations, design system, testing
 
 ## Commands
 

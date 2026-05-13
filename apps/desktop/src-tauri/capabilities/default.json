@@ -8,8 +8,6 @@
     "shell:allow-open",
     "deep-link:default",
     "store:default",
-    "notification:default",
-    "stronghold:default",
-    "stronghold:allow-remove-store-record"
+    "notification:default"
   ]
 }
