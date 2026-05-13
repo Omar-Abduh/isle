@@ -167,6 +167,12 @@ jobs:
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
           echo "NDK_HOME=$ANDROID_HOME/ndk/27.0.12077973" >> $GITHUB_ENV
 
+      - name: Setup Java for Android build
+        if: matrix.build-target == 'android'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
       - run: pnpm install
         working-directory: apps/desktop
 
@@ -194,6 +200,10 @@ jobs:
           VITE_DEEP_LINK_SCHEME: isle
         run: pnpm tauri build
 
+      - name: Initialize Android project scaffold
+        if: matrix.build-target == 'android'
+        working-directory: apps/desktop
+        run: pnpm tauri android init
       - name: Build Tauri Android app
         if: matrix.build-target == 'android'
         working-directory: apps/desktop
