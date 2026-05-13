@@ -191,7 +191,7 @@ jobs:
         if: matrix.platform == 'ubuntu-latest'
         shell: bash
         run: |
-          find apps/desktop/src-tauri/target/release/bundle -type f -name "*.AppImage" -exec gh release upload "${{ needs.semantic-release.outputs.git_tag }}" {} --clobber \;
+          find apps/desktop/src-tauri/target/release/bundle -type f \( -name "*.AppImage" -o -name "*.deb" \) -exec gh release upload "${{ needs.semantic-release.outputs.git_tag }}" {} --clobber \;
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
