@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Home, Compass } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@isle/shared";
 import { useAppNavigate } from "@/hooks/useNavigate";
 
 export default function NotFound() {

@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'wouter'
 import { useAuth } from '@/hooks/use-auth'
-import { Button } from '@/components/ui/button'
-import Reveal from '@/components/shared/Reveal'
-import RevealText from '@/components/shared/RevealText'
-import PageReveal from '@/components/shared/PageReveal'
-import { IsleLogo } from '@/components/shared/IsleLogo'
+import { Button, Reveal, RevealText, PageReveal, IsleLogo } from '@isle/shared'
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
