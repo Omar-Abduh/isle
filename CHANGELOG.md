@@ -1,3 +1,18 @@
+## [1.0.3-beta.1](https://github.com/Omar-Abduh/isle/compare/v1.0.2...v1.0.3-beta.1) (2026-05-13)
+
+
+### Bug Fixes
+
+* add refactor type to semantic-release release rules ([e0c35e1](https://github.com/Omar-Abduh/isle/commit/e0c35e12c7e69f4b7b3df0ce3b45f17cdff38914))
+* remove stale lockfiles from pre-monorepo era that break Vercel CI ([ef7f2fd](https://github.com/Omar-Abduh/isle/commit/ef7f2fd0b3e76daa289eca249cd1b6ad30b8bba5))
+* **web:** add missing CSS classes for button hover/press effects ([f591298](https://github.com/Omar-Abduh/isle/commit/f5912988967161fde7fdffb2dbaa63088a5fe884))
+* **web:** add packageManager field so Vercel detects pnpm ([7544574](https://github.com/Omar-Abduh/isle/commit/7544574fcfb5372f31c0f8503a230c718490ce3e))
+* **web:** add pnpm-lock.yaml symlink so Vercel detects pnpm ([b8bde6f](https://github.com/Omar-Abduh/isle/commit/b8bde6fc6031318b65639b34b20c869868c20c4c))
+* **web:** add workspace config for Vercel and declare missing Tauri dependency ([2bad2e4](https://github.com/Omar-Abduh/isle/commit/2bad2e4d2f40b927a1ebf8f8f4aa494e180d3591))
+* **web:** disable frozen-lockfile in Vercel install command ([1bab7a5](https://github.com/Omar-Abduh/isle/commit/1bab7a503156402d1a2d64f81f1edb7b8d170100))
+* **web:** disable frozen-lockfile in vercel.json and remove packageManager field ([9d53033](https://github.com/Omar-Abduh/isle/commit/9d5303326afe799b37b1058a906d733d8fab5a25))
+* **web:** run pnpm install from repo root via --dir flag ([0e37b46](https://github.com/Omar-Abduh/isle/commit/0e37b468deb8d23de96b8c782c339b8c2d270d05))
+
 ## [1.0.2](https://github.com/Omar-Abduh/isle/compare/v1.0.1...v1.0.2) (2026-05-09)
 
 
