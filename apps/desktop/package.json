@@ -1,5 +1,5 @@
 {
-  "name": "@workspace/isle",
+  "name": "@isle/desktop",
   "version": "1.0.3-beta.1",
   "private": true,
   "type": "module",
