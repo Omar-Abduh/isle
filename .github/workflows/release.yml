@@ -131,16 +131,22 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
-      # Linux system deps required for Tauri/WebKit
-      - name: Install Linux build deps
+      # Android SDK setup + Rust targets
+      - name: Setup Android SDK
+        if: matrix.platform == 'ubuntu-latest'
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK
         if: matrix.platform == 'ubuntu-latest'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libappindicator3-dev \
-            librsvg2-dev \
-            patchelf
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "ndk;27.0.12077973" 2>/dev/null || true
+
+      - name: Install Rust Android targets
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "NDK_HOME=$ANDROID_HOME/ndk/27.0.12077973" >> $GITHUB_ENV
 
       - run: pnpm install
         working-directory: apps/desktop
@@ -159,7 +165,8 @@ jobs:
             fs.writeFileSync('apps/desktop/src-tauri/tauri.conf.json', JSON.stringify(tauri, null, 2) + '\n');
           "
 
-      - name: Build Tauri app
+      - name: Build Tauri app (desktop)
+        if: matrix.platform != 'ubuntu-latest'
         working-directory: apps/desktop
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
@@ -167,6 +174,16 @@ jobs:
           VITE_REDIRECT_URI: ${{ secrets.VITE_REDIRECT_URI }}
           VITE_DEEP_LINK_SCHEME: isle
         run: pnpm tauri build
+
+      - name: Build Tauri app (Android)
+        if: matrix.platform == 'ubuntu-latest'
+        working-directory: apps/desktop
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+          VITE_REDIRECT_URI: ${{ secrets.VITE_REDIRECT_URI }}
+          VITE_DEEP_LINK_SCHEME: isle
+        run: pnpm tauri android build
 
       - name: Upload release assets (macOS)
         if: matrix.platform == 'macos-latest'
@@ -187,11 +204,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
-      - name: Upload release assets (Linux)
+      - name: Upload release assets (Android)
         if: matrix.platform == 'ubuntu-latest'
         shell: bash
         run: |
-          find apps/desktop/src-tauri/target/release/bundle -type f \( -name "*.AppImage" -o -name "*.deb" \) -exec gh release upload "${{ needs.semantic-release.outputs.git_tag }}" {} --clobber \;
+          find apps/desktop/src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \) -exec gh release upload "${{ needs.semantic-release.outputs.git_tag }}" {} --clobber \;
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
