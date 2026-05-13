@@ -1,3 +1,11 @@
+# [1.1.0-beta.3](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.2...v1.1.0-beta.3) (2026-05-13)
+
+
+### Bug Fixes
+
+* add [@source](https://github.com/source) directive to include @isle/shared in Tailwind v4 scanning ([5e44d06](https://github.com/Omar-Abduh/isle/commit/5e44d06e7a5966423f87e65ce7ec3e50d0df0415))
+* simplify [@source](https://github.com/source) path for @isle/shared scanning ([e813d64](https://github.com/Omar-Abduh/isle/commit/e813d642900960d119a24275ea45adf75176097d))
+
 # [1.1.0-beta.2](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.1...v1.1.0-beta.2) (2026-05-13)
 
 
