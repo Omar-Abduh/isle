@@ -1,3 +1,10 @@
+# [1.1.0-beta.2](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.1...v1.1.0-beta.2) (2026-05-13)
+
+
+### Bug Fixes
+
+* add [@source](https://github.com/source) directive for @isle/shared so Tailwind v4 scans shared components during Vercel build ([ed9d2b0](https://github.com/Omar-Abduh/isle/commit/ed9d2b0d7d122fabf3fb46aff2b02bc6aaab11c2))
+
 # [1.1.0-beta.1](https://github.com/Omar-Abduh/isle/compare/v1.0.3-beta.1...v1.1.0-beta.1) (2026-05-13)
 
 
