@@ -1,3 +1,22 @@
+# [1.1.0-beta.1](https://github.com/Omar-Abduh/isle/compare/v1.0.2...v1.1.0-beta.1) (2026-05-13)
+
+
+### Bug Fixes
+
+* remove stale lockfiles from pre-monorepo era that break Vercel CI ([5031cd0](https://github.com/Omar-Abduh/isle/commit/5031cd018526c726ee56c78f2027442d917c6b92))
+* **web:** add packageManager field so Vercel detects pnpm ([579b0f0](https://github.com/Omar-Abduh/isle/commit/579b0f0ebb16b17727e9b4e4c186c49c5da16157))
+* **web:** add pnpm-lock.yaml symlink so Vercel detects pnpm ([3486e55](https://github.com/Omar-Abduh/isle/commit/3486e55f69f6a5a2a2329eea1cf852fb64208930))
+* **web:** add workspace config for Vercel and declare missing Tauri dependency ([03ba8f5](https://github.com/Omar-Abduh/isle/commit/03ba8f596abb87fb7d569575245c552cac9da198))
+* **web:** disable frozen-lockfile in Vercel install command ([aa0af0f](https://github.com/Omar-Abduh/isle/commit/aa0af0fc439bca3e5138d6e1761060b04820a065))
+* **web:** disable frozen-lockfile in vercel.json and remove packageManager field ([6358c8c](https://github.com/Omar-Abduh/isle/commit/6358c8c5c4cc3f9ffa2143a96ca3a2ece3d9f678))
+* **web:** run pnpm install from repo root via --dir flag ([d4b7e71](https://github.com/Omar-Abduh/isle/commit/d4b7e714b1261b9ebf078fe5e1990e8447f3aa67))
+
+
+### Features
+
+* add @isle/shared workspace package with extracted components, stores, hooks, and utilities ([1e661bb](https://github.com/Omar-Abduh/isle/commit/1e661bb5aa39dfa94088d80fdd10250d970b6a73))
+* add pnpm workspace configuration with shared package support ([c08388f](https://github.com/Omar-Abduh/isle/commit/c08388f229e17c96541df7cb57d7d9a85cda7dd7))
+
 ## [1.0.2](https://github.com/Omar-Abduh/isle/compare/v1.0.1...v1.0.2) (2026-05-09)
 
 
