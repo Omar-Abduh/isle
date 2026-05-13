@@ -15,6 +15,7 @@ interface AuthState {
   user: AuthUser | null;
   setSession: (user: AuthUser, accessToken: string) => void;
   setAccessToken: (token: string) => void;
+  updateProfile: (data: Partial<Pick<AuthUser, 'displayName' | 'timezone'>>) => void;
   logout: () => void;
 }
 
@@ -23,5 +24,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
   setSession: (user, accessToken) => set({ user, accessToken }),
   setAccessToken: (token) => set({ accessToken: token }),
+  updateProfile: (data) =>
+    set((state) => ({
+      user: state.user ? { ...state.user, ...data } : null,
+    })),
   logout: () => set({ accessToken: null, user: null }),
 }));

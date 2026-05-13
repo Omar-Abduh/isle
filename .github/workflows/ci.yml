@@ -64,6 +64,16 @@ jobs:
       - run: pnpm install && pnpm typecheck
         working-directory: apps/desktop
 
+  mobile-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 24 }
+      - run: pnpm install && pnpm --filter @isle/mobile build
+
   docker-smoke-test:
     needs: [backend-unit, backend-integration]
     runs-on: ubuntu-latest
@@ -128,6 +138,29 @@ jobs:
             librsvg2-dev \
             patchelf
 
-      - name: Check Tauri Rust code
+      - name: Check Tauri Rust code (desktop)
         working-directory: apps/desktop/src-tauri
         run: cargo check
+
+  tauri-android-check:
+    needs: [desktop-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "ndk;27.0.12077973" 2>/dev/null || true
+
+      - name: Install Rust Android targets
+        run: |
+          rustup target add aarch64-linux-android
+
+      - name: Check Tauri Rust code (Android)
+        working-directory: apps/desktop/src-tauri
+        run: cargo check --target aarch64-linux-android
