@@ -3,6 +3,11 @@
   "version": "1.0.3-beta.1",
   "private": true,
   "description": "Isle release orchestration",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
   "scripts": {
     "release": "semantic-release"
   },
