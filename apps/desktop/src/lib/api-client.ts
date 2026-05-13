@@ -7,8 +7,7 @@
  */
 import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import * as habitApi from '../api/habitApi';
-import { useOfflineStore } from '../store/offlineStore';
-import { useHabitStore } from '../store/habitStore';
+import { useOfflineStore, useHabitStore } from '@isle/shared';
 
 // ─── Type Definitions ────────────────────────────────────────────────────────
 
@@ -87,7 +86,7 @@ export function useGetUserProfile(): UseQueryResult<UserProfile> {
     queryFn: async () => {
       // Profile is derived from the auth store (set during login)
       // A dedicated /users/me endpoint can be added later
-      const { useAuthStore } = await import('../store/authStore');
+      const { useAuthStore } = await import('@isle/shared');
       const user = useAuthStore.getState().user;
       if (!user) throw new Error('Not authenticated');
       return {

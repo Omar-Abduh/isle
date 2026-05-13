@@ -7,8 +7,7 @@
  */
 import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import * as habitApi from '../api/habitApi';
-import { useOfflineStore } from '../store/offlineStore';
-import { useHabitStore } from '../store/habitStore';
+import { useOfflineStore, useHabitStore } from '@isle/shared';
 
 // ─── Type Definitions ────────────────────────────────────────────────────────
 
@@ -87,7 +86,7 @@ export function useGetUserProfile(): UseQueryResult<UserProfile> {
     queryFn: async () => {
       // Profile is derived from the auth store (set during login)
       // A dedicated /users/me endpoint can be added later
-      const { useAuthStore } = await import('../store/authStore');
+      const { useAuthStore } = await import('@isle/shared');
       const user = useAuthStore.getState().user;
       if (!user) throw new Error('Not authenticated');
       return {
@@ -169,6 +168,7 @@ export function useGetWeeklyStats(): UseQueryResult<WeeklyStatEntry[]> {
 export function useLogHabit() {
   const queryClient = useQueryClient();
   const { enqueue } = useOfflineStore();
+  const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
   return useMutation({
     mutationFn: async ({
@@ -180,7 +180,8 @@ export function useLogHabit() {
     }) => {
       const loggedAt = new Date().toISOString();
 
-      if (!navigator.onLine) {
+      // Tauri webview doesn't report navigator.onLine correctly
+      if (!isTauri && !navigator.onLine) {
         // Queue for later sync
         enqueue({
           habitId: id,

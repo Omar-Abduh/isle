@@ -1,12 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { useAuthStore } from '@/store/authStore'
+import { useAuthStore } from '@isle/shared'
 import { useAppNavigate } from '@/hooks/useNavigate'
-import { Button } from '@/components/ui/button'
-import Reveal from '@/components/shared/Reveal'
-import RevealText from '@/components/shared/RevealText'
-import PageReveal from '@/components/shared/PageReveal'
-import { IsleLogo } from '@/components/shared/IsleLogo'
+import { Button, Reveal, RevealText, PageReveal, IsleLogo } from '@isle/shared'
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
