@@ -13,7 +13,7 @@ export { gsap, useGSAP, ScrollTrigger, SplitText } from "./lib/gsap"
 export { pageVariants, staggerContainer, itemVariants } from "./lib/animations"
 
 // Hooks
-export { useIsMobile } from "./hooks/use-mobile"
+export { useIsMobile } from "./hooks/use-mobile.tsx"
 export { usePreferences } from "./hooks/use-preferences"
 export { useToast } from "./hooks/use-toast"
 
