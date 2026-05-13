@@ -26,6 +26,7 @@ import {
   usePreferences,
   useIsMobile,
   useToast,
+  IsleLogo,
   IsleLogoFont,
 } from '@isle/shared'
 import ThemeToggle from '../components/ThemeToggle'
