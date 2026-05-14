@@ -1,3 +1,10 @@
+# [1.1.0-beta.10](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.9...v1.1.0-beta.10) (2026-05-14)
+
+
+### Bug Fixes
+
+* **mobile:** update default API URL and add Android icon background color ([e26e097](https://github.com/Omar-Abduh/isle/commit/e26e097795dc23d0442e0f71511f0dad97b65cd3))
+
 # [1.1.0-beta.9](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.8...v1.1.0-beta.9) (2026-05-14)
 
 
