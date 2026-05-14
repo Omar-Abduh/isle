@@ -1,3 +1,11 @@
+# [1.1.0-beta.14](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.13...v1.1.0-beta.14) (2026-05-14)
+
+
+### Bug Fixes
+
+* **ci:** build mobile frontend directly with job-level env vars instead of .env.production workaround ([b27742b](https://github.com/Omar-Abduh/isle/commit/b27742beedfd19190ad6288d975f01c7330b87b2))
+* use job-level VITE env vars for mobile frontend build ([b3acf7f](https://github.com/Omar-Abduh/isle/commit/b3acf7fc7b1e6eede947d70e3fae43028430d853))
+
 # [1.1.0-beta.13](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.12...v1.1.0-beta.13) (2026-05-14)
 
 
