@@ -2,7 +2,7 @@
   "build": {
     "frontendDist": "../../../apps/mobile/dist",
     "devUrl": "http://localhost:1421",
-    "beforeBuildCommand": "test -f ../mobile/dist/index.html || pnpm --filter @isle/mobile build",
+    "beforeBuildCommand": "pnpm --filter @isle/mobile build",
     "beforeDevCommand": "pnpm --filter @isle/mobile dev"
   },
   "bundle": {

@@ -39,4 +39,10 @@ public class AuthController {
         refreshTokenRepository.revokeAllForUser(UUID.fromString(jwt.getSubject()));
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/demo-login")
+    public ResponseEntity<PageResponse<AuthResponse>> demoLogin() {
+        AuthResponse auth = authService.demoLogin();
+        return ResponseEntity.ok(PageResponse.single(auth));
+    }
 }
