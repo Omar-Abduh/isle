@@ -1,3 +1,11 @@
+# [1.1.0-beta.8](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.7...v1.1.0-beta.8) (2026-05-14)
+
+
+### Bug Fixes
+
+* **ci:** sign and rename Android APK/AAB artifacts for installable release builds ([76ce091](https://github.com/Omar-Abduh/isle/commit/76ce091df857fc3ffb1bd0b44bab29ae1a63ee15))
+* sign and rename Android APK for installable release builds ([3bb3b80](https://github.com/Omar-Abduh/isle/commit/3bb3b80b097e1ca253c49dee41866aaef49575c0))
+
 # [1.1.0-beta.7](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.6...v1.1.0-beta.7) (2026-05-13)
 
 
