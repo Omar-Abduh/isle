@@ -214,6 +214,68 @@ jobs:
           VITE_DEEP_LINK_SCHEME: isle
         run: pnpm tauri android build
 
+      - name: Sign and rename Android artifacts
+        if: matrix.build-target == 'android'
+        shell: bash
+        run: |
+          VERSION="${{ needs.semantic-release.outputs.version }}"
+          OUTPUTS_DIR="apps/desktop/src-tauri/gen/android/app/build/outputs"
+
+          # Generate Android debug keystore if missing
+          DEBUG_KEYSTORE="$HOME/.android/debug.keystore"
+          mkdir -p "$HOME/.android"
+          if [ ! -f "$DEBUG_KEYSTORE" ]; then
+            keytool -genkey -v -keystore "$DEBUG_KEYSTORE" \
+              -alias androiddebugkey -storepass android -keypass android \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+          # Find APKSIGNER in Android SDK build-tools
+          APKSIGNER=$(ls $ANDROID_HOME/build-tools/*/apksigner 2>/dev/null | head -1)
+          if [ -z "$APKSIGNER" ]; then
+            echo "ERROR: apksigner not found in $ANDROID_HOME/build-tools"
+            exit 1
+          fi
+          echo "Using apksigner: $APKSIGNER"
+
+          # Sign and rename APKs
+          find "$OUTPUTS_DIR" -name "*.apk" ! -name "signed-*" | while read apk; do
+            echo "Signing APK: $apk"
+            "$APKSIGNER" sign \
+              --ks "$DEBUG_KEYSTORE" \
+              --ks-pass pass:android \
+              --ks-key-alias androiddebugkey \
+              --key-pass pass:android \
+              "$apk"
+
+            # Determine architecture from path
+            dir=$(dirname "$apk" | sed "s|$OUTPUTS_DIR/apk/||" | tr '/' '-')
+            base=$(basename "$apk" | sed 's/app-universal-release-unsigned/app-universal-release/')
+            arch=$(echo "$base" | sed -n 's/app-\(.*\)-release.*/\1/p')
+
+            # Rename following: Isle_<version>_<arch>.apk
+            renamed="Isle_${VERSION}_${arch}.apk"
+            cp "$apk" "$OUTPUTS_DIR/$renamed"
+            echo "Renamed to: $renamed"
+          done
+
+          # Sign and rename AAB
+          find "$OUTPUTS_DIR" -name "*.aab" | while read aab; do
+            echo "Signing AAB: $aab"
+            jarsigner -keystore "$DEBUG_KEYSTORE" \
+              -storepass android -keypass android \
+              -digestalg SHA-256 -sigalg SHA256withRSA \
+              "$aab" androiddebugkey
+
+            renamed="Isle_${VERSION}.aab"
+            cp "$aab" "$OUTPUTS_DIR/$renamed"
+            echo "Renamed AAB to: $renamed"
+          done
+
+          echo "--- Signed and renamed artifacts ---"
+          ls -la "$OUTPUTS_DIR"/Isle_* 2>/dev/null || echo "No signed artifacts found"
+
       - name: Upload release assets (macOS)
         if: matrix.os == 'macos-latest'
         shell: bash
@@ -245,7 +307,19 @@ jobs:
         if: matrix.build-target == 'android'
         shell: bash
         run: |
-          find apps/desktop/src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \) -exec gh release upload "${{ needs.semantic-release.outputs.git_tag }}" {} --clobber \;
+          OUTPUTS_DIR="apps/desktop/src-tauri/gen/android/app/build/outputs"
+          found=0
+          for f in "$OUTPUTS_DIR"/Isle_*.apk "$OUTPUTS_DIR"/Isle_*.aab; do
+            if [ -f "$f" ]; then
+              echo "Uploading: $f"
+              gh release upload "${{ needs.semantic-release.outputs.git_tag }}" "$f" --clobber
+              found=1
+            fi
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "No signed Android artifacts found. Uploading raw files instead."
+            find "$OUTPUTS_DIR" -type f \( -name "*.apk" -o -name "*.aab" \) -exec gh release upload "${{ needs.semantic-release.outputs.git_tag }}" {} --clobber \;
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
