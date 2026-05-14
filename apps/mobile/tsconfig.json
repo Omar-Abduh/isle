@@ -19,6 +19,5 @@
       "@isle/shared": ["../../packages/shared/src"]
     }
   },
-  "include": ["src"],
-  "references": [{ "path": "../../packages/shared/tsconfig.json" }]
+  "include": ["src"]
 }
