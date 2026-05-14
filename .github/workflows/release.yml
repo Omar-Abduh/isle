@@ -200,18 +200,18 @@ jobs:
         working-directory: apps/desktop
         run: pnpm tauri build
 
-      - name: Create mobile .env file with backend URL
+      - name: Create mobile .env.production with backend URL
         if: matrix.build-target == 'android'
         shell: bash
         run: |
-          cat > apps/mobile/.env << EOF
-          VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080}
+          cat > apps/mobile/.env.production << EOF
+          VITE_API_BASE_URL=${VITE_API_BASE_URL:-https://isleservices.omarabduh.dev}
           VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID:-}
           VITE_REDIRECT_URI=${VITE_REDIRECT_URI:-}
           VITE_DEEP_LINK_SCHEME=${VITE_DEEP_LINK_SCHEME:-isle}
           EOF
-          echo "Created apps/mobile/.env with:"
-          cat apps/mobile/.env
+          echo "Created apps/mobile/.env.production:"
+          cat apps/mobile/.env.production
 
       - name: Initialize Android project scaffold
         if: matrix.build-target == 'android'
