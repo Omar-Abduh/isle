@@ -116,6 +116,24 @@ public class AuthService {
         return new RefreshResponse(newAccessToken, newRawRefreshToken, toUserDTO(user));
     }
 
+    public AuthResponse demoLogin() {
+        String demoSub = "demo-user@isle.app";
+        User user = userRepository.findByGoogleSub(demoSub).orElseGet(() -> {
+            User u = new User();
+            u.setGoogleSub(demoSub);
+            u.setEmail("demo@isle.app");
+            u.setDisplayName("Demo User");
+            return userRepository.save(u);
+        });
+
+        String accessToken    = issueAccessJwt(user);
+        String rawRefreshToken = generateOpaqueToken();
+        storeRefreshToken(user.getId(), rawRefreshToken);
+
+        log.info("Demo login for user: {}", user.getId());
+        return new AuthResponse(accessToken, rawRefreshToken, toUserDTO(user));
+    }
+
     // ── Private helpers ───────────────────────────────────────────────────────
 
     /**
