@@ -1,3 +1,12 @@
+# [1.1.0-beta.9](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.8...v1.1.0-beta.9) (2026-05-14)
+
+
+### Bug Fixes
+
+* **ci:** fix YAML syntax in Android icon background step ([2c4cc2e](https://github.com/Omar-Abduh/isle/commit/2c4cc2ece4b6af1ae39bc6b0ca185dd2682512df))
+* **ci:** set Android adaptive icon background to dark theme color ([ca353ba](https://github.com/Omar-Abduh/isle/commit/ca353bab29a3cf9974fca9d836a6c10e892e0b36))
+* update Android icon background to dark theme for proper display ([24d34b4](https://github.com/Omar-Abduh/isle/commit/24d34b4b0aa5d0ea304bf007dc5a8640cc4230ec))
+
 # [1.1.0-beta.8](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.7...v1.1.0-beta.8) (2026-05-14)
 
 
