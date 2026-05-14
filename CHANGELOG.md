@@ -1,3 +1,11 @@
+# [1.1.0-beta.12](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.11...v1.1.0-beta.12) (2026-05-14)
+
+
+### Bug Fixes
+
+* **ci:** explicitly pass VITE env vars to mobile build via beforeBuildCommand and .env file ([5191fb8](https://github.com/Omar-Abduh/isle/commit/5191fb8ec92c9cd124e835669e199e27280e92f4))
+* ensure VITE env vars propagate to mobile frontend build ([522ea42](https://github.com/Omar-Abduh/isle/commit/522ea4290a3c3cc8514e6b643a26aad0ac8181fb))
+
 # [1.1.0-beta.11](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.10...v1.1.0-beta.11) (2026-05-14)
 
 
