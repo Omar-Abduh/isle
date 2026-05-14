@@ -73,6 +73,11 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 24 }
       - run: pnpm install && pnpm --filter @isle/mobile build
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL || '' }}
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID || '' }}
+          VITE_REDIRECT_URI: ${{ secrets.VITE_REDIRECT_URI || '' }}
+          VITE_DEEP_LINK_SCHEME: isle
 
   docker-smoke-test:
     needs: [backend-unit, backend-integration]
