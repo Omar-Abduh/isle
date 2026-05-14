@@ -201,18 +201,18 @@ jobs:
         working-directory: apps/desktop
         run: pnpm tauri build
 
-      - name: Create mobile .env.production with backend URL
+      - name: Build mobile frontend
         if: matrix.build-target == 'android'
         shell: bash
         run: |
-          cat > apps/mobile/.env.production << EOF
-          VITE_API_BASE_URL=${VITE_API_BASE_URL:-https://isleservices.omarabduh.dev}
-          VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID:-}
-          VITE_REDIRECT_URI=${VITE_REDIRECT_URI:-}
-          VITE_DEEP_LINK_SCHEME=${VITE_DEEP_LINK_SCHEME:-isle}
-          EOF
-          echo "Created apps/mobile/.env.production:"
-          cat apps/mobile/.env.production
+          echo "Building mobile frontend with VITE_API_BASE_URL=${VITE_API_BASE_URL}"
+          pnpm --filter @isle/mobile build
+          echo "Verifying built JS contains the expected API URL..."
+          if grep -q "${VITE_API_BASE_URL}" apps/mobile/dist/assets/*.js 2>/dev/null; then
+            echo "SUCCESS: API URL is embedded in the built JS"
+          else
+            echo "WARNING: API URL not found in built JS — check env vars"
+          fi
 
       - name: Initialize Android project scaffold
         if: matrix.build-target == 'android'
