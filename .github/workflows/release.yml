@@ -211,10 +211,11 @@ jobs:
         run: |
           BG_FILE="apps/desktop/src-tauri/gen/android/app/src/main/res/values/ic_launcher_background.xml"
           if [ -f "$BG_FILE" ]; then
-            echo '<?xml version="1.0" encoding="utf-8"?>
-<resources>
-  <color name="ic_launcher_background">#0B0B0C</color>
-</resources>' > "$BG_FILE"
+            printf '%s\n%s\n  %s\n%s\n' \
+              '<?xml version="1.0" encoding="utf-8"?>' \
+              '<resources>' \
+              '<color name="ic_launcher_background">#0B0B0C</color>' \
+              '</resources>' > "$BG_FILE"
             echo "Updated Android icon background to dark theme (#0B0B0C)"
           else
             echo "Icon background file not found at $BG_FILE"
