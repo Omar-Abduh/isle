@@ -1,3 +1,10 @@
+# [1.1.0-beta.11](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.10...v1.1.0-beta.11) (2026-05-14)
+
+
+### Bug Fixes
+
+* **ci:** move VITE env vars to job level for Tauri builds, add to CI mobile job ([4b80577](https://github.com/Omar-Abduh/isle/commit/4b80577d3eefd8ad5f253cf56b3fc701d190223a))
+
 # [1.1.0-beta.10](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.9...v1.1.0-beta.10) (2026-05-14)
 
 
