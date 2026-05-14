@@ -1,3 +1,10 @@
+# [1.1.0-beta.13](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.12...v1.1.0-beta.13) (2026-05-14)
+
+
+### Bug Fixes
+
+* **ci:** use .env.production for VITE env vars via Vite's native loading mechanism ([b9ef926](https://github.com/Omar-Abduh/isle/commit/b9ef9265cb4f93e6683a07d9d8b67cf765b083cd))
+
 # [1.1.0-beta.12](https://github.com/Omar-Abduh/isle/compare/v1.1.0-beta.11...v1.1.0-beta.12) (2026-05-14)
 
 
